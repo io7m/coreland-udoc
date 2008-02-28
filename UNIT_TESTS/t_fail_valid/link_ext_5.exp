@@ -1,0 +1,17 @@
+[0] pass: main: 12: argc == 2
+[1] pass: main: 13: ud_error_init(&ud_errors) == 1
+[2] pass: main: 14: ud_init(&doc) == 1
+[3] pass: main: 15: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing link_ext_5.t depth 0
+debug: ud_tree_build: symbol: link-ext
+debug: ud_tree_build: symbol: url
+debug: ud_tree_build: string: text
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[4] pass: main: 16: ud_parse(&doc) == 1
+debug: ud_walk: processing link_ext_5.t depth 0
+debug: ud_walk: symbol: link-ext
+error: 0: link-ext: invalid type for argument 1
+debug: ud_walk: fail depth 0
+[5] pass: main: 17: ud_validate(&doc) == 0
+[6] pass: main: 18: ud_free(&doc) == 1

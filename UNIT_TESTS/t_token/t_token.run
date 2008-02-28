@@ -1,0 +1,20 @@
+#!/bin/sh
+
+fatal()
+{
+  echo "fatal: $1"
+  exit 1
+}
+
+if [ $# -ne 1 ]; then fatal "not enough arguments (file)"; fi
+if [ ! -x t_token ]; then fatal "t_token not found or not executable"; fi
+
+file="$1"
+lines=`cat "$file.lines"` || fatal "could not open $file.lines"
+chars=`cat "$file.chars"` || fatal "could not open $file.chars"
+
+rm -f "$file.out"
+./t_token "$file.sx" "$lines" "$chars" >"$file.out" 2>&1
+if [ $? -ne 0 ]; then fatal "test failed"; fi
+
+cmp "$file.out" "$file.exp"

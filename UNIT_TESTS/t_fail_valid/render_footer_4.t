@@ -1,0 +1,1 @@
+render-footer "test" "extra"

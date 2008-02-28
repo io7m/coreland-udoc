@@ -1,0 +1,11 @@
+dfo_column.o
+dfo_cons.o
+dfo_cur.o
+dfo_err.o
+dfo_free.o
+dfo_init.o
+dfo_put.o
+dfo_size.o
+dfo_tran.o
+dfo_wrap.o
+dfo_ws.o

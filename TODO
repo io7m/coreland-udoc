@@ -1,0 +1,18 @@
+UNIT_TESTS
+
+The whole render API has too many structures. I don't like it.
+
+Push root nodes and nodes from (include) into a hash table,
+removing on the way out of the tree. If the same node is
+entered twice, the document has recursively included itself.
+
+Show titles of previous, next and upper pages on navbar?
+
+Fix ConTeXt text output (dfo.h).
+
+ConTeXt 'verbatim' output still fucking isn't (some hyphenation
+in places).
+
+Need to escape characters in titles for ConTeXt.
+
+ConTeXt tables.

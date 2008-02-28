@@ -1,0 +1,209 @@
+[0] pass: main: 18: argc == 4
+[1] pass: main: 24: token_init(&t) == 1
+[2] pass: main: 25: token_open(&t, file) == 1
+[3] pass: main: 28: token_next(&t, &tok, &type) == 1
+[4] pass: main: 28: token_next(&t, &tok, &type) == 1
+[5] pass: main: 28: token_next(&t, &tok, &type) == 1
+[6] pass: main: 28: token_next(&t, &tok, &type) == 1
+[7] pass: main: 28: token_next(&t, &tok, &type) == 1
+[8] pass: main: 28: token_next(&t, &tok, &type) == 1
+[9] pass: main: 28: token_next(&t, &tok, &type) == 1
+[10] pass: main: 28: token_next(&t, &tok, &type) == 1
+[11] pass: main: 28: token_next(&t, &tok, &type) == 1
+[12] pass: main: 28: token_next(&t, &tok, &type) == 1
+[13] pass: main: 28: token_next(&t, &tok, &type) == 1
+[14] pass: main: 28: token_next(&t, &tok, &type) == 1
+[15] pass: main: 28: token_next(&t, &tok, &type) == 1
+[16] pass: main: 28: token_next(&t, &tok, &type) == 1
+[17] pass: main: 28: token_next(&t, &tok, &type) == 1
+[18] pass: main: 28: token_next(&t, &tok, &type) == 1
+[19] pass: main: 28: token_next(&t, &tok, &type) == 1
+[20] pass: main: 28: token_next(&t, &tok, &type) == 1
+[21] pass: main: 28: token_next(&t, &tok, &type) == 1
+[22] pass: main: 28: token_next(&t, &tok, &type) == 1
+[23] pass: main: 28: token_next(&t, &tok, &type) == 1
+[24] pass: main: 28: token_next(&t, &tok, &type) == 1
+[25] pass: main: 28: token_next(&t, &tok, &type) == 1
+[26] pass: main: 28: token_next(&t, &tok, &type) == 1
+[27] pass: main: 28: token_next(&t, &tok, &type) == 1
+[28] pass: main: 28: token_next(&t, &tok, &type) == 1
+[29] pass: main: 28: token_next(&t, &tok, &type) == 1
+[30] pass: main: 28: token_next(&t, &tok, &type) == 1
+[31] pass: main: 28: token_next(&t, &tok, &type) == 1
+[32] pass: main: 28: token_next(&t, &tok, &type) == 1
+[33] pass: main: 28: token_next(&t, &tok, &type) == 1
+[34] pass: main: 28: token_next(&t, &tok, &type) == 1
+[35] pass: main: 28: token_next(&t, &tok, &type) == 1
+[36] pass: main: 28: token_next(&t, &tok, &type) == 1
+[37] pass: main: 28: token_next(&t, &tok, &type) == 1
+[38] pass: main: 28: token_next(&t, &tok, &type) == 1
+[39] pass: main: 28: token_next(&t, &tok, &type) == 1
+[40] pass: main: 28: token_next(&t, &tok, &type) == 1
+[41] pass: main: 28: token_next(&t, &tok, &type) == 1
+[42] pass: main: 28: token_next(&t, &tok, &type) == 1
+[43] pass: main: 28: token_next(&t, &tok, &type) == 1
+[44] pass: main: 28: token_next(&t, &tok, &type) == 1
+[45] pass: main: 28: token_next(&t, &tok, &type) == 1
+[46] pass: main: 28: token_next(&t, &tok, &type) == 1
+[47] pass: main: 28: token_next(&t, &tok, &type) == 1
+[48] pass: main: 28: token_next(&t, &tok, &type) == 1
+[49] pass: main: 28: token_next(&t, &tok, &type) == 1
+[50] pass: main: 28: token_next(&t, &tok, &type) == 1
+[51] pass: main: 28: token_next(&t, &tok, &type) == 1
+[52] pass: main: 28: token_next(&t, &tok, &type) == 1
+[53] pass: main: 28: token_next(&t, &tok, &type) == 1
+[54] pass: main: 28: token_next(&t, &tok, &type) == 1
+[55] pass: main: 28: token_next(&t, &tok, &type) == 1
+[56] pass: main: 28: token_next(&t, &tok, &type) == 1
+[57] pass: main: 28: token_next(&t, &tok, &type) == 1
+[58] pass: main: 28: token_next(&t, &tok, &type) == 1
+[59] pass: main: 28: token_next(&t, &tok, &type) == 1
+[60] pass: main: 28: token_next(&t, &tok, &type) == 1
+[61] pass: main: 28: token_next(&t, &tok, &type) == 1
+[62] pass: main: 28: token_next(&t, &tok, &type) == 1
+[63] pass: main: 28: token_next(&t, &tok, &type) == 1
+[64] pass: main: 28: token_next(&t, &tok, &type) == 1
+[65] pass: main: 28: token_next(&t, &tok, &type) == 1
+[66] pass: main: 28: token_next(&t, &tok, &type) == 1
+[67] pass: main: 28: token_next(&t, &tok, &type) == 1
+[68] pass: main: 28: token_next(&t, &tok, &type) == 1
+[69] pass: main: 28: token_next(&t, &tok, &type) == 1
+[70] pass: main: 28: token_next(&t, &tok, &type) == 1
+[71] pass: main: 28: token_next(&t, &tok, &type) == 1
+[72] pass: main: 28: token_next(&t, &tok, &type) == 1
+[73] pass: main: 28: token_next(&t, &tok, &type) == 1
+[74] pass: main: 28: token_next(&t, &tok, &type) == 1
+[75] pass: main: 28: token_next(&t, &tok, &type) == 1
+[76] pass: main: 28: token_next(&t, &tok, &type) == 1
+[77] pass: main: 28: token_next(&t, &tok, &type) == 1
+[78] pass: main: 28: token_next(&t, &tok, &type) == 1
+[79] pass: main: 28: token_next(&t, &tok, &type) == 1
+[80] pass: main: 28: token_next(&t, &tok, &type) == 1
+[81] pass: main: 28: token_next(&t, &tok, &type) == 1
+[82] pass: main: 28: token_next(&t, &tok, &type) == 1
+[83] pass: main: 28: token_next(&t, &tok, &type) == 1
+[84] pass: main: 28: token_next(&t, &tok, &type) == 1
+[85] pass: main: 28: token_next(&t, &tok, &type) == 1
+[86] pass: main: 28: token_next(&t, &tok, &type) == 1
+[87] pass: main: 28: token_next(&t, &tok, &type) == 1
+[88] pass: main: 28: token_next(&t, &tok, &type) == 1
+[89] pass: main: 28: token_next(&t, &tok, &type) == 1
+[90] pass: main: 28: token_next(&t, &tok, &type) == 1
+[91] pass: main: 28: token_next(&t, &tok, &type) == 1
+[92] pass: main: 28: token_next(&t, &tok, &type) == 1
+[93] pass: main: 28: token_next(&t, &tok, &type) == 1
+[94] pass: main: 28: token_next(&t, &tok, &type) == 1
+[95] pass: main: 28: token_next(&t, &tok, &type) == 1
+[96] pass: main: 28: token_next(&t, &tok, &type) == 1
+[97] pass: main: 28: token_next(&t, &tok, &type) == 1
+[98] pass: main: 28: token_next(&t, &tok, &type) == 1
+[99] pass: main: 28: token_next(&t, &tok, &type) == 1
+[100] pass: main: 28: token_next(&t, &tok, &type) == 1
+[101] pass: main: 28: token_next(&t, &tok, &type) == 1
+[102] pass: main: 28: token_next(&t, &tok, &type) == 1
+[103] pass: main: 28: token_next(&t, &tok, &type) == 1
+[104] pass: main: 28: token_next(&t, &tok, &type) == 1
+[105] pass: main: 53: t.line == lines
+[106] pass: main: 54: t.chr == chars
+PAREN_OPEN	"("
+SYMBOL	"sym"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym1"
+SYMBOL	"sym2"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym1"
+SYMBOL	"sym2"
+SYMBOL	"sym3"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym1"
+SYMBOL	"sym2"
+SYMBOL	"sym3"
+SYMBOL	"sym4"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym1"
+SYMBOL	"sym2"
+SYMBOL	"sym3"
+SYMBOL	"sym4"
+SYMBOL	"sym5"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym"
+STRING	"string"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym"
+STRING	"string"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string"
+STRING	"string"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string)escape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string(escape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"stringescape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string"escape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string escape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+STRING	"string\escape"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+PAREN_OPEN	"("
+SYMBOL	"sym"
+SYMBOL	"'"
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+SYMBOL	"'"
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+SYMBOL	"'"
+PAREN_OPEN	"("
+SYMBOL	"'"
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+SYMBOL	"'"
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+SYMBOL	"'"
+PAREN_OPEN	"("
+PAREN_CLOSE	")"
+PAREN_CLOSE	")"
+EOF

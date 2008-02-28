@@ -1,0 +1,19 @@
+#!/bin/sh
+
+remove()
+{
+  echo "remove $1"
+  rm -f $1
+}
+
+dir_list=""
+for dir in `ls`
+do
+  if [ -d "$dir" ]
+  then
+    for f in $dir/*.out
+    do
+      remove $f 
+    done
+  fi
+done
