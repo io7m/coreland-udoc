@@ -124,7 +124,7 @@ part_title(struct udoc *doc, struct part_ctx *pctx,
 static enum ud_tree_walk_stat
 cb_part_init(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
-  struct part_ctx *pctx = ctx->state->user_data;
+  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
 
   log_1xf(LOG_DEBUG, "adding root part");
 
@@ -150,19 +150,19 @@ static enum ud_tree_walk_stat
 cb_part_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
   char ln[FMT_ULONG];
-  struct part_ctx *pctx = ctx->state->user_data;
+  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
   struct ud_part *part = 0;
   struct ud_ordered_ht *tab = 0;
   unsigned long *ind;
   enum ud_tag tag;
   struct ud_ref ref;
 
-  if (ctx->state->list_pos != 0) return UD_TREE_OK;
-  if (!ud_tag_by_name(ctx->state->node->un_data.un_sym, &tag)) return UD_TREE_OK;
+  if (ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
+  if (!ud_tag_by_name(ctx->utc_state->utc_node->un_data.un_sym, &tag)) return UD_TREE_OK;
   
   switch (tag) {
     case UDOC_TAG_SECTION:
-      return part_section(doc, pctx, ctx->state->list, ctx->state->node);
+      return part_section(doc, pctx, ctx->utc_state->utc_list, ctx->utc_state->utc_node);
     case UDOC_TAG_TITLE:
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
@@ -174,12 +174,12 @@ cb_part_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
       break;
   }
 
-  ref.ur_list = ctx->state->list;
-  ref.ur_node = ctx->state->node;
+  ref.ur_list = ctx->utc_state->utc_list;
+  ref.ur_node = ctx->utc_state->utc_node;
   ref.ur_part = part;
  
   switch (tag) {
-    case UDOC_TAG_TITLE: return part_title(doc, pctx, part, ctx->state->node);
+    case UDOC_TAG_TITLE: return part_title(doc, pctx, part, ctx->utc_state->utc_node);
     case UDOC_TAG_REF:
       if (!ud_ref_add_byname(&doc->ud_ref_names, ref.ur_node->un_next->un_data.un_str, &ref)) {
         ud_error_push(&ud_errors, "ud_ref_add_byname", "could not add reference");
@@ -192,17 +192,17 @@ cb_part_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
     case UDOC_TAG_LINK_EXT: tab = &doc->ud_link_exts; break;
     case UDOC_TAG_RENDER_HEADER:
       if (doc->ud_render_header) {
-        ln[fmt_ulong(ln, ctx->state->node->un_line_num)] = 0;
+        ln[fmt_ulong(ln, ctx->utc_state->utc_node->un_line_num)] = 0;
         log_2x(LOG_WARN, ln, ": render-header overrides previous tag");
       }
-      doc->ud_render_header = ctx->state->node->un_next->un_data.un_str;
+      doc->ud_render_header = ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
       if (doc->ud_render_footer) {
-        ln[fmt_ulong(ln, ctx->state->node->un_line_num)] = 0;
+        ln[fmt_ulong(ln, ctx->utc_state->utc_node->un_line_num)] = 0;
         log_2x(LOG_WARN, ln, ": render-footer overrides previous tag");
       }
-      doc->ud_render_footer = ctx->state->node->un_next->un_data.un_str;
+      doc->ud_render_footer = ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     default: break;
   }
@@ -220,12 +220,12 @@ static enum ud_tree_walk_stat
 cb_part_list_end(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
   char cnum[FMT_ULONG];
-  struct part_ctx *pctx = ctx->state->user_data;
+  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
   struct ud_node *first_sym;
   enum ud_tag tag;
   unsigned long *ind;
 
-  first_sym = ctx->state->list->unl_head;
+  first_sym = ctx->utc_state->utc_list->unl_head;
   if (!ud_tag_by_name(first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_SECTION:
@@ -247,7 +247,7 @@ cb_part_finish(struct udoc *doc, struct ud_tree_ctx *ctx)
   unsigned long max = ud_oht_size(&doc->ud_parts);
   unsigned long files = 0;
   struct ud_part *part;
-  struct part_ctx *pctx = ctx->state->user_data;
+  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
 
   for (ind = 0; ind < max; ++ind)
     if (ud_oht_getind(&doc->ud_parts, ind, (void *) &part))
@@ -285,11 +285,11 @@ ud_partition(struct udoc *doc)
   bin_zero(&state, sizeof(state));
   bin_zero(&pctx, sizeof(pctx));
 
-  state.list = &doc->ud_tree.ut_root;
-  state.user_data = &pctx;
+  state.utc_list = &doc->ud_tree.ut_root;
+  state.utc_user_data = &pctx;
 
-  ctx.funcs = &part_funcs;
-  ctx.state = &state;
+  ctx.utc_funcs = &part_funcs;
+  ctx.utc_state = &state;
 
   switch (ud_tree_walk(doc, &ctx)) {
     case UD_TREE_STOP:

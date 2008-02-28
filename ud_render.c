@@ -59,7 +59,7 @@ r_output_close(struct udr_output_ctx *out)
 static enum ud_tree_walk_stat
 r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
   if (!r->uc_init_once_done) {
@@ -73,7 +73,7 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
        ? r->uc_render->ur_funcs.urf_init(ud, r) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
 
-  if (r->uc_part->up_list == tctx->state->list)
+  if (r->uc_part->up_list == tctx->utc_state->utc_list)
     return (r->uc_render->ur_funcs.urf_file_init) ?
             r->uc_render->ur_funcs.urf_file_init(ud, r) : UD_TREE_OK;
 
@@ -83,7 +83,7 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
 static enum ud_tree_walk_stat
 r_list(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   return (r->uc_render->ur_funcs.urf_list)
         ? r->uc_render->ur_funcs.urf_list(ud, r) : UD_TREE_OK;
 }
@@ -98,17 +98,17 @@ static enum ud_tree_walk_stat
 r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
   struct udr_output_ctx out;
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   struct udr_ctx rtmp;
   struct ud_part *uc_part;
   unsigned long ind = 0;
   enum ud_tag tag;
 
-  if (tctx->state->list_pos == 0) {
-    if (!ud_tag_by_name(tctx->state->node->un_data.un_sym, &tag)) return UD_TREE_OK;
+  if (tctx->utc_state->utc_list_pos == 0) {
+    if (!ud_tag_by_name(tctx->utc_state->utc_node->un_data.un_sym, &tag)) return UD_TREE_OK;
     switch (tag) {
       case UDOC_TAG_SECTION:
-        if (ud_part_getfromnode(ud, tctx->state->node, &uc_part, &ind)) {
+        if (ud_part_getfromnode(ud, tctx->utc_state->utc_node, &uc_part, &ind)) {
           if (uc_part != r->uc_part) {
             if (uc_part->up_flags & UD_PART_SPLIT) {
               log_1xf(LOG_DEBUG, "starting uc_part");
@@ -150,7 +150,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
 static enum ud_tree_walk_stat
 r_string(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   return (r->uc_render->ur_funcs.urf_string)
         ? r->uc_render->ur_funcs.urf_string(ud, r) : UD_TREE_OK;
 }
@@ -158,11 +158,11 @@ r_string(struct udoc *ud, struct ud_tree_ctx *tctx)
 static enum ud_tree_walk_stat
 r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   unsigned long *ind;
   enum ud_tag tag;
 
-  if (ud_tag_by_name(tctx->state->list->unl_head->un_data.un_sym, &tag))
+  if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
       case UDOC_TAG_SECTION:
         /* restore uc_part */
@@ -180,11 +180,11 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
 static enum ud_tree_walk_stat
 r_finish(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
-  struct udr_ctx *r = tctx->state->user_data;
+  struct udr_ctx *r = tctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
   if (r->uc_render->ur_funcs.urf_file_finish)
-    if (r->uc_part->up_list == tctx->state->list)
+    if (r->uc_part->up_list == tctx->utc_state->utc_list)
       return r->uc_render->ur_funcs.urf_file_finish(ud, r);
 
   if (!r->uc_finish_once_done) {
@@ -232,10 +232,10 @@ ud_render_node(struct udoc *doc, struct udr_ctx *ctx,
     return 0;
 
   /* backend render is passed as user data to tree_ctx */
-  tctx_state.list = root;
-  tctx_state.user_data = &rctx;
-  tctx.funcs = &render_funcs;
-  tctx.state = &tctx_state;
+  tctx_state.utc_list = root;
+  tctx_state.utc_user_data = &rctx;
+  tctx.utc_funcs = &render_funcs;
+  tctx.utc_state = &tctx_state;
 
   /* set tree_ctx */
   rctx.uc_tree_ctx = &tctx;

@@ -52,26 +52,26 @@ enum ud_tree_walk_stat {
 /* context structure for tree walking */
 struct ud_tree_ctx;
 struct ud_tree_ctx_funcs {
-  enum ud_tree_walk_stat (*init)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*list)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*include)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*symbol)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*string)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*list_end)(struct udoc *, struct ud_tree_ctx *);
-  enum ud_tree_walk_stat (*finish)(struct udoc *, struct ud_tree_ctx *);
-  void (*error)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_init)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_list)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_include)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_symbol)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_string)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_list_end)(struct udoc *, struct ud_tree_ctx *);
+  enum ud_tree_walk_stat (*utcf_finish)(struct udoc *, struct ud_tree_ctx *);
+  void (*utcf_error)(struct udoc *, struct ud_tree_ctx *);
 };
 struct ud_tree_ctx_state {
-  unsigned long list_pos;
-  unsigned long list_depth;
-  const struct ud_node *node;
-  const struct ud_node_list *list;
-  struct ud_tag_stack tag_stack;
-  void *user_data;
+  unsigned long utc_list_pos;
+  unsigned long utc_list_depth;
+  const struct ud_node *utc_node;
+  const struct ud_node_list *utc_list;
+  struct ud_tag_stack utc_tag_stack;
+  void *utc_user_data;
 };
 struct ud_tree_ctx {
-  const struct ud_tree_ctx_funcs *funcs;
-  struct ud_tree_ctx_state *state;
+  const struct ud_tree_ctx_funcs *utc_funcs;
+  struct ud_tree_ctx_state *utc_state;
 };
 
 #if defined(UDOC_IMPLEMENTATION)

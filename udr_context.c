@@ -151,7 +151,7 @@ static enum ud_tree_walk_stat
 rt_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
 {
   char cnum[FMT_ULONG];
-  const struct ud_node *node = rc->uc_tree_ctx->state->node;
+  const struct ud_node *node = rc->uc_tree_ctx->utc_state->utc_node;
   struct ud_ref *ref;
   struct buffer *buf = &rc->uc_out->uoc_buf;
   unsigned long ind;
@@ -178,7 +178,7 @@ rt_tag_link(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *ref;
   const char *text;
-  const struct ud_node *node = rc->uc_tree_ctx->state->node;
+  const struct ud_node *node = rc->uc_tree_ctx->utc_state->utc_node;
   struct buffer *buf = &rc->uc_out->uoc_buf;
 
   ref = node->un_next->un_data.un_str;
@@ -197,7 +197,7 @@ rt_tag_link(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_ref(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->uc_tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
   struct buffer *buf = &rc->uc_out->uoc_buf;
 
   buffer_puts3(buf, "\\pagereference[r_", n->un_next->un_data.un_str, "]\n");
@@ -207,7 +207,7 @@ rt_tag_ref(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_render_noescape(struct udoc *ud, struct udr_ctx *rc)
 {
-  if (!udr_print_file(ud, rc, rc->uc_tree_ctx->state->node->un_next->un_data.un_str, 0, 0))
+  if (!udr_print_file(ud, rc, rc->uc_tree_ctx->utc_state->utc_node->un_next->un_data.un_str, 0, 0))
     return UD_TREE_FAIL;
 
   return 1;
@@ -216,7 +216,7 @@ rt_tag_render_noescape(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_render(struct udoc *ud, struct udr_ctx *rc)
 {
-  if (!udr_print_file(ud, rc, rc->uc_tree_ctx->state->node->un_next->un_data.un_str,
+  if (!udr_print_file(ud, rc, rc->uc_tree_ctx->utc_state->utc_node->un_next->un_data.un_str,
                           tex_escape_put, rc->uc_user_data)) return UD_TREE_FAIL;
   return 1;
 }
@@ -249,7 +249,7 @@ static enum ud_tree_walk_stat
 rt_tag_list(struct udoc *ud, struct udr_ctx *rc)
 {
   struct udr_ctx rtmp = *rc;
-  const struct ud_node *n = rc->uc_tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
   struct buffer *buf = &rc->uc_out->uoc_buf;
 
   buffer_puts(buf, "\\startitemize\n");
@@ -430,10 +430,10 @@ rt_file_init(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_symbol(struct udoc *ud, struct udr_ctx *rc)
 {
-  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
-  if (rc->uc_tree_ctx->state->list_pos == 0)
+  if (rc->uc_tree_ctx->utc_state->utc_list_pos == 0)
     if (ud_tag_by_name(sym, &tag))
       return dispatch(tag_starts, tag_starts_size, ud, rc, tag);
 
@@ -447,7 +447,7 @@ rt_string(struct udoc *ud, struct udr_ctx *rc)
   struct buffer *buf = &rc->uc_out->uoc_buf;
   enum ud_tag tag;
 
-  if (!ud_tag_by_name(tc->state->list->unl_head->un_data.un_sym, &tag)) return UD_TREE_OK;
+  if (!ud_tag_by_name(tc->utc_state->utc_list->unl_head->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_TITLE:
     case UDOC_TAG_STYLE:
@@ -464,7 +464,7 @@ rt_string(struct udoc *ud, struct udr_ctx *rc)
     case UDOC_TAG_RENDER_NOESCAPE:
       break;
     default:
-      tex_escape_puts(buf, rc->uc_tree_ctx->state->node->un_data.un_str,
+      tex_escape_puts(buf, rc->uc_tree_ctx->utc_state->utc_node->un_data.un_str,
                            rc->uc_user_data);
       break;
   }
@@ -474,7 +474,7 @@ rt_string(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_list_end(struct udoc *ud, struct udr_ctx *rc)
 {
-  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
   if (ud_tag_by_name(sym, &tag))

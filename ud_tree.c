@@ -14,36 +14,36 @@ static enum ud_tree_walk_stat
 ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
   char ns[FMT_ULONG];
-  const struct ud_node_list *cur_list = ctx->state->list;
+  const struct ud_node_list *cur_list = ctx->utc_state->utc_list;
   const struct ud_node *cur_node = cur_list->unl_head;
-  struct ud_tree_ctx_state *state = ctx->state;
-  struct ud_tag_stack *tag_stack = &state->tag_stack;
+  struct ud_tree_ctx_state *state = ctx->utc_state;
+  struct ud_tag_stack *tag_stack = &state->utc_tag_stack;
   unsigned long saved_ssize = 0;
   unsigned long saved_pos = 0;
   enum ud_tree_walk_stat ret = UD_TREE_OK;
   enum ud_tag tag;
 
   saved_ssize = ud_tag_stack_size(tag_stack);
-  saved_pos = state->list_pos;
-  state->list_pos = 0;
+  saved_pos = state->utc_list_pos;
+  state->utc_list_pos = 0;
 
-  ns[fmt_ulong(ns, state->list_depth)] = 0;
+  ns[fmt_ulong(ns, state->utc_list_depth)] = 0;
   log_4xf(LOG_DEBUG, "processing ", doc->ud_name, " depth ", ns);
 
-  state->list_depth++;
+  state->utc_list_depth++;
   for (;;) {
-    state->node = cur_node;
+    state->utc_node = cur_node;
     ud_assert_s(cur_node->un_type <= UDOC_TYPE_INCLUDE, "unknown node type");
     switch (cur_node->un_type) {
       case UDOC_TYPE_SYMBOL:
         log_2xf(LOG_DEBUG, "symbol: ", cur_node->un_data.un_sym);
-        if (state->list_pos == 0) {
+        if (state->utc_list_pos == 0) {
           ud_tag_by_name(cur_node->un_data.un_sym, &tag);
           if (!ud_tag_stack_push(tag_stack, tag)) goto FAIL;
           ud_assert(ud_tag_stack_size(tag_stack) - 1 == saved_ssize);
         }
-        if (ctx->funcs->symbol) {
-          ret = ctx->funcs->symbol(doc, ctx);
+        if (ctx->utc_funcs->utcf_symbol) {
+          ret = ctx->utc_funcs->utcf_symbol(doc, ctx);
           ud_assert_s(ret <= UD_TREE_STOP_LIST, "symbol: unknown return value");
           switch (ret) {
             case UD_TREE_FAIL: goto FAIL;
@@ -57,10 +57,10 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
         break;
       case UDOC_TYPE_LIST:
         log_1xf(LOG_DEBUG, "list");
-        state->list = &cur_node->un_data.un_list;
-        state->node = cur_node->un_data.un_list.unl_head;
-        if (ctx->funcs->list) {
-          ret = ctx->funcs->list(doc, ctx);
+        state->utc_list = &cur_node->un_data.un_list;
+        state->utc_node = cur_node->un_data.un_list.unl_head;
+        if (ctx->utc_funcs->utcf_list) {
+          ret = ctx->utc_funcs->utcf_list(doc, ctx);
           ud_assert_s(ret <= UD_TREE_STOP_LIST, "list: unknown return value");
           switch (ret) {
             case UD_TREE_FAIL: goto FAIL;
@@ -81,13 +81,13 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
             log_1xf(LOG_DEBUG, "list: stop_list"); goto END;
           default: break;
         }
-        state->list = cur_list;
-        state->node = cur_node;
+        state->utc_list = cur_list;
+        state->utc_node = cur_node;
         break;
       case UDOC_TYPE_STRING:
         log_3xf(LOG_DEBUG, "string: \"", cur_node->un_data.un_str, "\"");
-        if (ctx->funcs->string) {
-          ret = ctx->funcs->string(doc, ctx);
+        if (ctx->utc_funcs->utcf_string) {
+          ret = ctx->utc_funcs->utcf_string(doc, ctx);
           ud_assert_s(ret <= UD_TREE_STOP_LIST, "string: unknown return value");
           switch (ret) {
             case UD_TREE_FAIL: goto FAIL;
@@ -101,10 +101,10 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
         break;
       case UDOC_TYPE_INCLUDE: 
         log_1xf(LOG_DEBUG, "include");
-        state->list = &cur_node->un_data.un_list;
-        state->node = cur_node->un_data.un_list.unl_head;
-        if (ctx->funcs->include) {
-          ret = ctx->funcs->include(doc, ctx);
+        state->utc_list = &cur_node->un_data.un_list;
+        state->utc_node = cur_node->un_data.un_list.unl_head;
+        if (ctx->utc_funcs->utcf_include) {
+          ret = ctx->utc_funcs->utcf_include(doc, ctx);
           ud_assert_s(ret <= UD_TREE_STOP_LIST, "unknown return value");
           switch (ret) {
             case UD_TREE_FAIL: goto FAIL;
@@ -125,22 +125,22 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
             log_1xf(LOG_DEBUG, "list: stop_list"); goto END;
           default: break;
         }
-        state->list = cur_list;
-        state->node = cur_node;
+        state->utc_list = cur_list;
+        state->utc_node = cur_node;
         break;
       default:
         break;
     }
     if (cur_node->un_next) cur_node = cur_node->un_next; else break;
-    state->list_pos++;
+    state->utc_list_pos++;
   }
 
   END:
-  state->list_depth--;
+  state->utc_list_depth--;
   log_1xf(LOG_DEBUG, "list: end");
   if (ret == UD_TREE_OK) {
-    if (ctx->funcs->list_end) {
-      ret = ctx->funcs->list_end(doc, ctx);
+    if (ctx->utc_funcs->utcf_list_end) {
+      ret = ctx->utc_funcs->utcf_list_end(doc, ctx);
       ud_assert_s(ret <= UD_TREE_STOP_LIST, "list_end: unknown return value");
       switch (ret) {
         case UD_TREE_FAIL: goto FAIL;
@@ -158,13 +158,13 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
   ud_assert(saved_ssize == ud_tag_stack_size(tag_stack));
 
   if (ret == UD_TREE_STOP_LIST) ret = UD_TREE_OK;
-  state->list_pos = saved_pos;
+  state->utc_list_pos = saved_pos;
   log_2xf(LOG_DEBUG, "success depth ", ns);
   return ret;
 
 FAIL:
-  if (ctx->funcs->error) ctx->funcs->error(doc, ctx);
-  state->list_pos = saved_pos;
+  if (ctx->utc_funcs->utcf_error) ctx->utc_funcs->utcf_error(doc, ctx);
+  state->utc_list_pos = saved_pos;
   if (errno)
     log_2sysf(LOG_DEBUG, "fail depth ", ns);
   else
@@ -175,9 +175,9 @@ FAIL:
 int
 ud_tree_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
-  if (!ud_tag_stack_init(&ctx->state->tag_stack)) return 0;
-  if (ctx->funcs->init)
-    switch (ctx->funcs->init(doc, ctx)) {
+  if (!ud_tag_stack_init(&ctx->utc_state->utc_tag_stack)) return 0;
+  if (ctx->utc_funcs->utcf_init)
+    switch (ctx->utc_funcs->utcf_init(doc, ctx)) {
       case UD_TREE_FAIL: goto FAIL;
       case UD_TREE_OK: break;
       case UD_TREE_STOP:
@@ -193,8 +193,8 @@ ud_tree_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
       default: ud_assert_s(0, "unknown return value"); goto FAIL;
     }
   }
-  if (ctx->funcs->finish)
-    switch (ctx->funcs->finish(doc, ctx)) {
+  if (ctx->utc_funcs->utcf_finish)
+    switch (ctx->utc_funcs->utcf_finish(doc, ctx)) {
       case UD_TREE_FAIL: goto FAIL;
       case UD_TREE_OK: break;
       case UD_TREE_STOP:
@@ -203,11 +203,11 @@ ud_tree_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
     }
 
   END:
-  ud_assert(ud_tag_stack_size(&ctx->state->tag_stack) == 0);
-  ud_tag_stack_free(&ctx->state->tag_stack);
+  ud_assert(ud_tag_stack_size(&ctx->utc_state->utc_tag_stack) == 0);
+  ud_tag_stack_free(&ctx->utc_state->utc_tag_stack);
   return 1;
 
   FAIL:
-  ud_tag_stack_free(&ctx->state->tag_stack);
+  ud_tag_stack_free(&ctx->utc_state->utc_tag_stack);
   return 0;
 }

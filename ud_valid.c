@@ -107,13 +107,13 @@ valid_error(struct udoc *doc, const struct ud_node *n, struct validate_ctx *vc)
 static void
 validate_error(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
-  valid_error(doc, ctx->state->node, ctx->state->user_data);
+  valid_error(doc, ctx->utc_state->utc_node, ctx->utc_state->utc_user_data);
 }
 
 static enum ud_tree_walk_stat
 validate_init(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
-  struct validate_ctx *vc = ctx->state->user_data;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
   enum ud_tag tag;
 
   /* to simplify chunking, a symbol at the root cannot be 'section' */
@@ -133,8 +133,8 @@ static int
 check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
   const struct ud_markup_rule *rule = 0;
-  const struct ud_node *n = ctx->state->node;
-  struct validate_ctx *vc = ctx->state->user_data;
+  const struct ud_node *n = ctx->utc_state->utc_node;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
   unsigned long len;
   unsigned int ind;
  
@@ -173,14 +173,14 @@ check_parents(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
   unsigned int r;
   unsigned int f;
   unsigned int got_par;
-  struct validate_ctx *vc = ctx->state->user_data;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
 
   for (r = 0; r < ud_parent_rules_size; ++r) {
     if (ud_parent_rules[r].tag == tag) {
       if (ud_parent_rules[r].par_demand_size) {
         got_par = 0;
         for (f = 0; f < ud_parent_rules[r].par_demand_size; ++f) {
-          if (ud_tag_stack_above(&ctx->state->tag_stack,
+          if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
                                 ud_parent_rules[r].par_demand[f])) {
             got_par = 1;
             break;
@@ -192,7 +192,7 @@ check_parents(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
         }
       }
       for (f = 0; f < ud_parent_rules[r].par_forbid_size; ++f) {
-        if (ud_tag_stack_above(&ctx->state->tag_stack,
+        if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
                                 ud_parent_rules[r].par_forbid[f])) {
           vc->error = V_ILLEGAL_PARENT;
           vc->tag = ud_parent_rules[r].par_forbid[f];
@@ -208,10 +208,10 @@ static enum ud_tree_walk_stat
 validate_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
 {
   char ln[FMT_ULONG];
-  const struct ud_node *n = ctx->state->node;
+  const struct ud_node *n = ctx->utc_state->utc_node;
   enum ud_tag tag;
 
-  if (ctx->state->list_pos != 0) return UD_TREE_OK;
+  if (ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
   if (!ud_tag_by_name(n->un_data.un_sym, &tag)) return UD_TREE_OK;
   if (!check_list(doc, ctx, tag)) return UD_TREE_FAIL;
   if (!check_parents(doc, ctx, tag)) return UD_TREE_FAIL;
@@ -255,10 +255,10 @@ ud_validate(struct udoc *ud)
   bin_zero(&state, sizeof(state));
   bin_zero(&vc, sizeof(vc));
 
-  state.list = &ud->ud_tree.ut_root;
-  state.user_data = &vc;
+  state.utc_list = &ud->ud_tree.ut_root;
+  state.utc_user_data = &vc;
 
-  ctx.funcs = &validate_funcs;
-  ctx.state = &state;
+  ctx.utc_funcs = &validate_funcs;
+  ctx.utc_state = &state;
   return ud_tree_walk(ud, &ctx);
 }
