@@ -80,15 +80,15 @@ int main(int argc, char *argv[])
         r = 0;
         if (str_same(optarg, "?")) {
           for (num = 0; num < sizeof(renderers) / sizeof(renderers[0]); ++num) {
-            buffer_puts4(buffer1, renderers[num]->data.name, ": ",
-                                  renderers[num]->data.desc, "\n");
+            buffer_puts4(buffer1, renderers[num]->ur_data.ur_name, ": ",
+                                  renderers[num]->ur_data.ur_desc, "\n");
           }
           if (buffer_flush(buffer1) == -1)
             log_die1sys(LOG_FATAL, 112, "write");
           return 0;
         }
         for (num = 0; num < sizeof(renderers) / sizeof(renderers[0]); ++num) {
-          if (str_same(optarg, renderers[num]->data.name)) {
+          if (str_same(optarg, renderers[num]->ur_data.ur_name)) {
             r = renderers[num];
             break;
           }
@@ -106,10 +106,10 @@ int main(int argc, char *argv[])
   outdir = argv[1];
 
   /* save ud_split_thresh as hint */
-  r_opts.udr_split_hint = main_opts.ud_split_thresh;
+  r_opts.uo_split_hint = main_opts.ud_split_thresh;
 
   /* some renderers don't support split output */
-  if (!r->data.part && main_opts.ud_split_thresh) {
+  if (!r->ur_data.ur_part && main_opts.ud_split_thresh) {
     log_1x(LOG_WARN, "this renderer does not support split output");
     log_1x(LOG_NOTICE, "split threshold set to 0");
     main_opts.ud_split_thresh = 0;

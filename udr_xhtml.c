@@ -94,7 +94,7 @@ x_escape_puts(struct buffer *out, const char *str, void *data)
 static enum ud_tree_walk_stat
 x_string(struct udoc *ud, struct udr_ctx *r)
 {
-  x_escape_puts(&r->out->buf, r->tree_ctx->state->node->un_data.un_str, 0);
+  x_escape_puts(&r->uc_out->uoc_buf, r->uc_tree_ctx->state->node->un_data.un_str, 0);
   return UD_TREE_OK;
 }
 
@@ -105,7 +105,7 @@ x_string(struct udoc *ud, struct udr_ctx *r)
 static int
 x_tag_collect_css(struct dstring *buf, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->list->unl_head;
+  const struct ud_node *n = rc->uc_tree_ctx->state->list->unl_head;
   dstring_trunc(buf);
   for (;;) {
     if (n->un_next) n = n->un_next; else break;
@@ -124,8 +124,8 @@ static enum ud_tree_walk_stat
 x_tag_generic(struct udoc *ud, struct udr_ctx *r,
               const char *tag, const char *def_attrib)
 {
-  struct xhtml_ctx *xc = r->user_data;
-  struct buffer *out = &r->out->buf;
+  struct xhtml_ctx *xc = r->uc_user_data;
+  struct buffer *out = &r->uc_out->uoc_buf;
 
   if (!x_tag_collect_css(&xc->dstr, r)) return UD_TREE_FAIL;
   
@@ -147,7 +147,7 @@ static enum ud_tree_walk_stat
 x_tag_end_generic(struct udoc *ud, struct udr_ctx *r,
               const char *tag, const char *def_attrib)
 {
-  buffer_puts3(&r->out->buf, "</", tag, ">\n");
+  buffer_puts3(&r->uc_out->uoc_buf, "</", tag, ">\n");
   return UD_TREE_OK;
 }
 
@@ -171,14 +171,14 @@ static enum ud_tree_walk_stat
 x_tag_section(struct udoc *ud, struct udr_ctx *r)
 {
   enum ud_tree_walk_stat ret;
-  struct buffer *out = &r->out->buf;
+  struct buffer *out = &r->uc_out->uoc_buf;
   struct ud_part *part;
   unsigned long ind;
 
   buffer_put(out, "\n", 1);
   ret = x_tag_generic(ud, r, "div", "ud_section");
   if (ret == UD_TREE_OK)
-    if (ud_part_getfromnode(ud, r->tree_ctx->state->node, &part, &ind)) {
+    if (ud_part_getfromnode(ud, r->uc_tree_ctx->state->node, &part, &ind)) {
       buffer_puts5(out, "<h3>", part->up_num_string, " ", part->up_title, "</h3>\n");
       buffer_puts3(out, "<a name=\"sect_", part->up_num_string, "\"></a>\n");
     }
@@ -195,8 +195,8 @@ x_tag_item(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_ref(struct udoc *ud, struct udr_ctx *r)
 {
-  struct buffer *out = &r->out->buf;
-  const struct ud_node *n = r->tree_ctx->state->node;
+  struct buffer *out = &r->uc_out->uoc_buf;
+  const struct ud_node *n = r->uc_tree_ctx->state->node;
 
   buffer_puts3(out, "<a name=\"r_", n->un_next->un_data.un_str, "\"></a>\n");
   return 1;
@@ -206,8 +206,8 @@ static enum ud_tree_walk_stat
 x_tag_link(struct udoc *ud, struct udr_ctx *r)
 {
   char cnum[FMT_ULONG];
-  struct buffer *out = &r->out->buf;
-  const struct ud_node *n = r->tree_ctx->state->node;
+  struct buffer *out = &r->uc_out->uoc_buf;
+  const struct ud_node *n = r->uc_tree_ctx->state->node;
   const char *refl;
   const char *text;
   unsigned long dummy;
@@ -222,7 +222,7 @@ x_tag_link(struct udoc *ud, struct udr_ctx *r)
   }
 
   cnum[fmt_ulong(cnum, ref->ur_part->up_file)] = 0;
-  buffer_puts4(out, "<a href=\"", cnum, ".", r->render->data.suffix);
+  buffer_puts4(out, "<a href=\"", cnum, ".", r->uc_render->ur_data.ur_suffix);
   buffer_puts5(out, "#r_", refl, "\">", text, "</a>");
 
   return UD_TREE_OK;
@@ -231,8 +231,8 @@ x_tag_link(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_link_ext(struct udoc *ud, struct udr_ctx *r)
 {
-  struct buffer *out = &r->out->buf;
-  const struct ud_node *n = r->tree_ctx->state->node;
+  struct buffer *out = &r->uc_out->uoc_buf;
+  const struct ud_node *n = r->uc_tree_ctx->state->node;
   const char *url;
   const char *text;
 
@@ -246,7 +246,7 @@ x_tag_link_ext(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_table(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
   struct udr_ctx rtmp = *rc;
 
   if (x_tag_generic(ud, rc, "table", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
@@ -254,7 +254,7 @@ x_tag_table(struct udoc *ud, struct udr_ctx *rc)
   /* for each item in list, render list (row) */
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
-      rtmp.tree_ctx = 0;
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
     }
     if (n->un_next) n = n->un_next; else break;
@@ -267,7 +267,7 @@ x_tag_table(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
   struct udr_ctx rtmp = *rc;
 
   if (x_tag_generic(ud, rc, "tr", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
@@ -275,10 +275,10 @@ x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
   /* for each item in list, render list (cell) */
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
-      buffer_puts(&rc->out->buf, "<td>");
-      rtmp.tree_ctx = 0;
+      buffer_puts(&rc->uc_out->uoc_buf, "<td>");
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
-      buffer_puts(&rc->out->buf, "</td>\n");
+      buffer_puts(&rc->uc_out->uoc_buf, "</td>\n");
     }
     if (n->un_next)
       n = n->un_next;
@@ -293,7 +293,7 @@ x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 x_tag_list(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
   struct udr_ctx rtmp = *rc;
 
   if (x_tag_generic(ud, rc, "ul", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
@@ -301,10 +301,10 @@ x_tag_list(struct udoc *ud, struct udr_ctx *rc)
   /* for each item in list, render list */
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
-      buffer_puts(&rc->out->buf, "<li>");
-      rtmp.tree_ctx = 0;
+      buffer_puts(&rc->uc_out->uoc_buf, "<li>");
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
-      buffer_puts(&rc->out->buf, "</li>\n");
+      buffer_puts(&rc->uc_out->uoc_buf, "</li>\n");
     }
     if (n->un_next) n = n->un_next; else break;
   }
@@ -317,8 +317,8 @@ static enum ud_tree_walk_stat
 x_tag_contents(struct udoc *ud, struct udr_ctx *r)
 {
   char cnum[FMT_ULONG];
-  struct buffer *out = &r->out->buf;
-  struct ud_part *part_cur = (struct ud_part *) r->part;
+  struct buffer *out = &r->uc_out->uoc_buf;
+  struct ud_part *part_cur = (struct ud_part *) r->uc_part;
   struct ud_part *part_first = 0; /* first part in current file */
   unsigned long max;
   unsigned long ind;
@@ -339,7 +339,7 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
 
     buffer_puts(out, "<a href=\"");
     buffer_put(out, cnum, fmt_ulong(cnum, part_cur->up_file));
-    buffer_puts4(out, ".", r->render->data.suffix, "#sect_", part_cur->up_num_string);
+    buffer_puts4(out, ".", r->uc_render->ur_data.ur_suffix, "#sect_", part_cur->up_num_string);
     buffer_puts5(out, "\">", part_cur->up_num_string, " ", part_cur->up_title, "</a><br/>\n");
     if (!part_cur->up_index_next) break;
     ind = part_cur->up_index_next;
@@ -356,8 +356,8 @@ x_tag_footnote(struct udoc *ud, struct udr_ctx *r)
   unsigned long max;
   unsigned long ind;
   struct ud_ref *ref;
-  struct buffer *out = &r->out->buf;
-  const struct ud_node_list *list = r->tree_ctx->state->list;
+  struct buffer *out = &r->uc_out->uoc_buf;
+  const struct ud_node_list *list = r->uc_tree_ctx->state->list;
 
   max = ud_oht_size(&ud->ud_footnotes);
   for (ind = 0; ind < max; ++ind) {
@@ -377,7 +377,7 @@ x_tag_date(struct udoc *ud, struct udr_ctx *r)
 {
   char buf[CALTIME_FMT];
   struct caltime ct;
-  struct buffer *out = &r->out->buf;
+  struct buffer *out = &r->uc_out->uoc_buf;
 
   caltime_local(&ct, &ud->ud_time_start.sec, 0, 0);
   buffer_put(out, buf, caltime_fmt(buf, &ct));
@@ -388,7 +388,7 @@ x_tag_date(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_render(struct udoc *ud, struct udr_ctx *r)
 {
-  if (!udr_print_file(ud, r, r->tree_ctx->state->node->un_next->un_data.un_str, x_escape_put, 0))
+  if (!udr_print_file(ud, r, r->uc_tree_ctx->state->node->un_next->un_data.un_str, x_escape_put, 0))
     return UD_TREE_FAIL;
 
   return UD_TREE_OK;
@@ -397,7 +397,7 @@ x_tag_render(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_render_noescape(struct udoc *ud, struct udr_ctx *r)
 {
-  if (!udr_print_file(ud, r, r->tree_ctx->state->node->un_next->un_data.un_str, 0, 0))
+  if (!udr_print_file(ud, r, r->uc_tree_ctx->state->node->un_next->un_data.un_str, 0, 0))
     return UD_TREE_FAIL;
 
   return UD_TREE_OK;
@@ -537,14 +537,14 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
   unsigned long max;
   unsigned long nfp = 0;
   struct ud_ref *note;
-  struct buffer *out = &rc->out->buf;
+  struct buffer *out = &rc->uc_out->uoc_buf;
   struct udr_ctx rtmp = *rc;
 
   /* count footnotes for this file */
   max = ud_oht_size(&ud->ud_footnotes);
   for (ind = 0; ind < max; ++ind) {
     ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &note));
-    if (note->ur_part->up_file == rc->part->up_file) ++nfp;
+    if (note->ur_part->up_file == rc->uc_part->up_file) ++nfp;
   }
 
   /* print footnotes, if any */
@@ -553,14 +553,14 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
     buffer_puts(out, "<table class=\"ud_footnote_tab\">\n");
     for (ind = 0; ind < max; ++ind) {
       ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &note));
-      if (note->ur_part->up_file == rc->part->up_file) {
+      if (note->ur_part->up_file == rc->uc_part->up_file) {
         buffer_puts(out, "<tr>\n");
         cnum[fmt_ulong(cnum, ind)] = 0;
         buffer_puts(out, "<td>");
         buffer_puts7(out, "[<a name=\"fn_", cnum, "\" href=\"#fnr_", cnum, "\">", cnum, "</a>]");
         buffer_puts(out, "</td>\n");
         buffer_puts(out, "<td>\n");
-        rtmp.tree_ctx = 0;
+        rtmp.uc_tree_ctx = 0;
         if (!ud_render_node(ud, &rtmp, &note->ur_list->unl_head->un_next->un_data.un_list)) return 0;
         buffer_puts(out, "</td>\n");
         buffer_puts(out, "</tr>\n");
@@ -580,12 +580,12 @@ xhtm_init_once(struct udoc *doc, struct udr_ctx *rc)
 {
   struct xhtml_ctx *xc;
 
-  ud_assert(rc->user_data == 0);
-  rc->user_data = alloc_zero(sizeof(struct xhtml_ctx));
-  if (!rc->user_data) return UD_TREE_FAIL;
-  xc = rc->user_data;
+  ud_assert(rc->uc_user_data == 0);
+  rc->uc_user_data = alloc_zero(sizeof(struct xhtml_ctx));
+  if (!rc->uc_user_data) return UD_TREE_FAIL;
+  xc = rc->uc_user_data;
   if (!dstring_init(&xc->dstr, 128)) {
-    dealloc_null(&rc->user_data);
+    dealloc_null(&rc->uc_user_data);
     return UD_TREE_FAIL;
   }
   return UD_TREE_OK;
@@ -597,9 +597,9 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
   unsigned long max;
   unsigned long ind;
   struct ud_ref *ref;
-  const struct ud_part *part = rc->part;
+  const struct ud_part *part = rc->uc_part;
   const struct ud_part *ppart = part;
-  struct buffer *out = &rc->out->buf;
+  struct buffer *out = &rc->uc_out->uoc_buf;
   const char *title = 0;
 
   x_html_xml(out, doc->ud_encoding);
@@ -658,10 +658,10 @@ xhtm_list(struct udoc *doc, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 xhtm_symbol(struct udoc *doc, struct udr_ctx *rc)
 {
-  const char *sym = rc->tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
-  if (rc->tree_ctx->state->list_pos == 0)
+  if (rc->uc_tree_ctx->state->list_pos == 0)
     if (ud_tag_by_name(sym, &tag))
       return dispatch(tag_starts, tag_starts_size, doc, rc, tag);
 
@@ -671,7 +671,7 @@ xhtm_symbol(struct udoc *doc, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 xhtm_string(struct udoc *doc, struct udr_ctx *rc)
 {
-  const char *sym = rc->tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
   if (ud_tag_by_name(sym, &tag)) {
@@ -701,7 +701,7 @@ xhtm_string(struct udoc *doc, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 xhtm_list_end(struct udoc *doc, struct udr_ctx *rc)
 {
-  const char *sym = rc->tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
   if (ud_tag_by_name(sym, &tag))
@@ -713,8 +713,8 @@ xhtm_list_end(struct udoc *doc, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 xhtm_file_finish(struct udoc *doc, struct udr_ctx *rc)
 {
-  const struct ud_part *part = rc->part;
-  struct buffer *out = &rc->out->buf;
+  const struct ud_part *part = rc->uc_part;
+  struct buffer *out = &rc->uc_out->uoc_buf;
 
   x_footnotes(doc, rc);
   buffer_puts(out, "</div>\n");
@@ -735,27 +735,27 @@ xhtm_file_finish(struct udoc *doc, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 xhtm_finish_once(struct udoc *doc, struct udr_ctx *rc)
 {
-  struct xhtml_ctx *xc = rc->user_data;
+  struct xhtml_ctx *xc = rc->uc_user_data;
   dstring_free(&xc->dstr);
-  dealloc_null(&rc->user_data);
+  dealloc_null(&rc->uc_user_data);
   return UD_TREE_OK;
 }
  
 const struct ud_renderer ud_render_xhtml = {
   {
-    .init_once = xhtm_init_once,
-    .file_init = xhtm_file_init,
-    .list = xhtm_list,
-    .symbol = xhtm_symbol,
-    .string = xhtm_string,
-    .list_end = xhtm_list_end,
-    .file_finish = xhtm_file_finish,
-    .finish_once = xhtm_finish_once,
+    .urf_init_once = xhtm_init_once,
+    .urf_file_init = xhtm_file_init,
+    .urf_list = xhtm_list,
+    .urf_symbol = xhtm_symbol,
+    .urf_string = xhtm_string,
+    .urf_list_end = xhtm_list_end,
+    .urf_file_finish = xhtm_file_finish,
+    .urf_finish_once = xhtm_finish_once,
   },
   {
-    .name = "xhtml",
-    .suffix = "html",
-    .desc = "xhtml output",
-    .part = 1,
+    .ur_name = "xhtml",
+    .ur_suffix = "html",
+    .ur_desc = "xhtml output",
+    .ur_part = 1,
   },
 };

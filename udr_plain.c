@@ -33,9 +33,9 @@ plain_put(struct buffer *out, const char *str, unsigned long len, void *data)
 static enum ud_tree_walk_stat
 rp_tag_contents(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct ud_part *part_cur = (struct ud_part *) rc->part;
+  struct ud_part *part_cur = (struct ud_part *) rc->uc_part;
   struct ud_part *part_first = 0; /* first part in current file */
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   unsigned long max;
   unsigned long ind;
 
@@ -78,8 +78,8 @@ rp_tag_footnote(struct udoc *ud, struct udr_ctx *rc)
   unsigned long max;
   unsigned long ind;
   struct ud_ref *ref;
-  struct dfo_put *dfo = &rc->out->dfo;
-  const struct ud_node_list *list = rc->tree_ctx->state->list;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
+  const struct ud_node_list *list = rc->uc_tree_ctx->state->list;
 
   max = ud_oht_size(&ud->ud_footnotes);
   for (ind = 0; ind < max; ++ind) {
@@ -116,7 +116,7 @@ rp_footnotes(struct udoc *ud, struct udr_ctx *rc)
   unsigned long len = 0;
   unsigned long old_indent;
   struct ud_ref *u;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *rc;
 
   if (!max) goto END;
@@ -135,7 +135,7 @@ rp_footnotes(struct udoc *ud, struct udr_ctx *rc)
 
     old_indent = dfo->page_indent;
     dfo_constrain(dfo, PAGE_WIDTH, len);
-    rtmp.tree_ctx = 0;
+    rtmp.uc_tree_ctx = 0;
     if (!ud_render_node(ud, &rtmp, &u->ur_list->unl_head->un_next->un_data.un_list)) return 0;
     dfo_constrain(dfo, PAGE_WIDTH, old_indent);
 
@@ -154,11 +154,11 @@ rp_footnotes(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_section(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
-  dfo_puts(dfo, rc->part->up_num_string);
-  if (rc->part->up_title)
-    dfo_puts2(dfo, " ", rc->part->up_title);
+  dfo_puts(dfo, rc->uc_part->up_num_string);
+  if (rc->uc_part->up_title)
+    dfo_puts2(dfo, " ", rc->uc_part->up_title);
 
   dfo_break_line(dfo);
   dfo_break_line(dfo);
@@ -168,11 +168,11 @@ rp_tag_section(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *node = rc->tree_ctx->state->node;
+  const struct ud_node *node = rc->uc_tree_ctx->state->node;
   const char *link;
   const char *text = 0;
   const char *space;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   const struct dfo_buffer *buf = dfo_current_buf(dfo);
 
   link = node->un_next->un_data.un_str;
@@ -193,8 +193,8 @@ rp_tag_link(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *ref;
   const char *text;
-  const struct ud_node *node = rc->tree_ctx->state->node;
-  struct dfo_put *dfo = &rc->out->dfo;
+  const struct ud_node *node = rc->uc_tree_ctx->state->node;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   ref = node->un_next->un_data.un_str;
   text = (node->un_next->un_next) ? node->un_next->un_next->un_data.un_str : 0;
@@ -210,8 +210,8 @@ rp_tag_link(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_ref(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct ud_node *node = (struct ud_node *) rc->tree_ctx->state->node;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct ud_node *node = (struct ud_node *) rc->uc_tree_ctx->state->node;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   dfo_puts3(dfo, "[ref: ", node->un_next->un_data.un_str, "]");
   dfo_break_line(dfo);
@@ -223,8 +223,8 @@ rp_tag_ref(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_render(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
-  if (!udr_print_file(ud, rc, rc->tree_ctx->state->node->un_next->un_data.un_str, plain_put, dfo))
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
+  if (!udr_print_file(ud, rc, rc->uc_tree_ctx->state->node->un_next->un_data.un_str, plain_put, dfo))
     return UD_TREE_FAIL;
 
   return UD_TREE_OK;
@@ -235,7 +235,7 @@ rp_tag_date(struct udoc *ud, struct udr_ctx *rc)
 {
   char buf[CALTIME_FMT];
   struct caltime ct;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   caltime_local(&ct, &ud->ud_time_start.sec, 0, 0);
   dfo_put(dfo, buf, caltime_fmt(buf, &ct));
@@ -246,9 +246,9 @@ static enum ud_tree_walk_stat
 rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
 {
   struct ud_table tab = {0,0};
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *rc;
-  const struct ud_node *n = rc->tree_ctx->state->node;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
 
   dfo_break_line(dfo);
   dfo_break_line(dfo);
@@ -257,7 +257,7 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
     return UD_TREE_FAIL;
   }
 
-  ud_table_measure(rc->tree_ctx->state->list, &tab);
+  ud_table_measure(rc->uc_tree_ctx->state->list, &tab);
   dfo_constrain(dfo, PAGE_WIDTH, 2);
 
   /* for each item in list, render list (row) */
@@ -267,7 +267,7 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
         ud_error_push(&ud_errors, "dfo_columns", dfo_errorstr(dfo->error));
         return UD_TREE_FAIL;
       }
-      rtmp.tree_ctx = 0;
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
       if (!dfo_columns_end(dfo)) {
         ud_error_push(&ud_errors, "dfo_columns_end", dfo_errorstr(dfo->error));
@@ -289,15 +289,15 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->node;
-  struct dfo_put *dfo = &rc->out->dfo;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *rc;
 
   /* for each item in list, render list (cell) */
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
       dfo_columns_start(dfo);
-      rtmp.tree_ctx = 0;
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
       dfo_break(dfo);
     }
@@ -309,8 +309,8 @@ rp_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_list(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_node *n = rc->tree_ctx->state->node;
-  struct dfo_put *dfo = &rc->out->dfo;
+  const struct ud_node *n = rc->uc_tree_ctx->state->node;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *rc;
 
   /* for each item in list, render list */
@@ -318,7 +318,7 @@ rp_tag_list(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_type == UDOC_TYPE_LIST) {
       dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + 2);
       dfo_puts(dfo, "* ");
-      rtmp.tree_ctx = 0;
+      rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
       dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent - 2);
       dfo_break(dfo);
@@ -332,7 +332,7 @@ rp_tag_list(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_para_verbatim(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   dfo_wrap_mode(dfo, DFO_WRAP_NONE);
   dfo_tran_disable(dfo, DFO_TRAN_RESPACE);
   return UD_TREE_OK;
@@ -341,7 +341,7 @@ rp_tag_para_verbatim(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_tag_para(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   dfo_wrap_mode(dfo, DFO_WRAP_HYPH);
   dfo_tran_enable(dfo, DFO_TRAN_RESPACE);
   dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + 2);
@@ -391,9 +391,9 @@ dispatch(const struct dispatch *tab, unsigned int tab_size,
 static enum ud_tree_walk_stat
 rp_file_init(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
-  if (!dfo_init(dfo, &rc->out->buf, 0, 0)) return UD_TREE_FAIL;
+  if (!dfo_init(dfo, &rc->uc_out->uoc_buf, 0, 0)) return UD_TREE_FAIL;
   if (!dfo_constrain(dfo, PAGE_WIDTH, 0)) {
     ud_error_push(&ud_errors, "dfo_constrain", dfo_errorstr(dfo->error));
     return UD_TREE_FAIL;
@@ -403,9 +403,9 @@ rp_file_init(struct udoc *ud, struct udr_ctx *rc)
     if (!udr_print_file(ud, rc, ud->ud_render_header, plain_put, dfo))
       return UD_TREE_FAIL;
 
-  if (rc->part->up_title) {
+  if (rc->uc_part->up_title) {
     dfo_constrain(dfo, PAGE_WIDTH, 2);
-    dfo_puts(dfo, rc->part->up_title);
+    dfo_puts(dfo, rc->uc_part->up_title);
     dfo_break_line(dfo);
     dfo_break_line(dfo);
     dfo_constrain(dfo, PAGE_WIDTH, 0);
@@ -417,10 +417,10 @@ rp_file_init(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_symbol(struct udoc *ud, struct udr_ctx *rc)
 {
-  const char *sym = rc->tree_ctx->state->list->unl_head->un_data.un_sym;
+  const char *sym = rc->uc_tree_ctx->state->list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
-  if (rc->tree_ctx->state->list_pos == 0)
+  if (rc->uc_tree_ctx->state->list_pos == 0)
     if (ud_tag_by_name(sym, &tag))
       return dispatch(tag_starts, tag_starts_size, ud, rc, tag);
 
@@ -430,9 +430,9 @@ rp_symbol(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_string(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_tree_ctx *tc = rc->tree_ctx;
+  const struct ud_tree_ctx *tc = rc->uc_tree_ctx;
   enum ud_tag tag;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   if (!ud_tag_by_name(tc->state->list->unl_head->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
@@ -455,7 +455,7 @@ rp_string(struct udoc *ud, struct udr_ctx *rc)
     case UDOC_TAG_PARA_VERBATIM:
     case UDOC_TAG_PARA:
     default:
-      dfo_puts(dfo, rc->tree_ctx->state->node->un_data.un_str);
+      dfo_puts(dfo, rc->uc_tree_ctx->state->node->un_data.un_str);
       break;
   }
   return UD_TREE_OK;
@@ -464,9 +464,9 @@ rp_string(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_list_end(struct udoc *ud, struct udr_ctx *rc)
 {
-  const struct ud_tree_ctx *tc = rc->tree_ctx;
+  const struct ud_tree_ctx *tc = rc->uc_tree_ctx;
   enum ud_tag tag;
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   if (!ud_tag_by_name(tc->state->list->unl_head->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
@@ -490,7 +490,7 @@ rp_list_end(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rp_file_finish(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct dfo_put *dfo = &rc->out->dfo;
+  struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   if (!rp_footnotes(ud, rc)) return UD_TREE_FAIL;
   if (ud->ud_render_footer)
@@ -506,16 +506,16 @@ rp_file_finish(struct udoc *ud, struct udr_ctx *rc)
 
 const struct ud_renderer ud_render_plain = {
   {
-    .file_init = rp_file_init,
-    .symbol = rp_symbol,
-    .string = rp_string,
-    .list_end = rp_list_end,
-    .file_finish = rp_file_finish,
+    .urf_file_init = rp_file_init,
+    .urf_symbol = rp_symbol,
+    .urf_string = rp_string,
+    .urf_list_end = rp_list_end,
+    .urf_file_finish = rp_file_finish,
   },
   {
-    .name = "plain",
-    .suffix = "txt",
-    .desc = "plain text output",
-    .part = 0,
+    .ur_name = "plain",
+    .ur_suffix = "txt",
+    .ur_desc = "plain text output",
+    .ur_part = 0,
   },
 };

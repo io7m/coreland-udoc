@@ -33,20 +33,19 @@ rd_finish(struct udoc *ud, struct udr_ctx *rc)
 
 const struct ud_renderer ud_render_dump = {
   {
-    .init = rd_init,
-    .file_init = 0,
-    .list = 0,
-    .symbol = rd_symbol,
-    .string = rd_string,
-    .list_end = rd_list_end,
-    .file_finish = 0,
-    .finish = rd_finish,
-    .error = 0, 
+    .urf_init = rd_init,
+    .urf_file_init = 0,
+    .urf_list = 0,
+    .urf_symbol = rd_symbol,
+    .urf_string = rd_string,
+    .urf_list_end = rd_list_end,
+    .urf_file_finish = 0,
+    .urf_finish = rd_finish,
   },
   {
-    .name = "dump",
-    .suffix = "dump",
-    .desc = "dump various debugging and statistical output",
-    .part = 0,
+    .ur_name = "dump",
+    .ur_suffix = "dump",
+    .ur_desc = "dump various debugging and statistical output",
+    .ur_part = 0,
   },
 };

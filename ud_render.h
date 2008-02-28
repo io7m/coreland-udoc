@@ -11,48 +11,48 @@ struct udoc;
 /* context structure for rendering */
 struct udr_ctx;
 struct udr_funcs {
-  enum ud_tree_walk_stat (*init_once)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*init)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*file_init)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*list)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*symbol)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*string)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*list_end)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*file_finish)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*finish)(struct udoc *, struct udr_ctx *);
-  enum ud_tree_walk_stat (*finish_once)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_init_once)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_init)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_file_init)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_list)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_symbol)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_string)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_list_end)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_file_finish)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_finish)(struct udoc *, struct udr_ctx *);
+  enum ud_tree_walk_stat (*urf_finish_once)(struct udoc *, struct udr_ctx *);
   void (*error)(struct udoc *, struct udr_ctx *);
 };
 struct udr_opts {
-  unsigned long udr_split_hint;  /* original partition threshold, used as a hint to renderers */
-  unsigned int udr_page_width;   /* only relevant for character-based renderers */
+  unsigned long uo_split_hint;  /* original partition threshold, used as a hint to renderers */
+  unsigned int uo_page_width;   /* only relevant for character-based renderers */
 };
 struct udr_output_ctx {
-  char cbuf[BUFFER_OUTSIZE];
-  char fbuf[256];
-  struct buffer buf;
-  struct sstring file;
-  struct dfo_put dfo;
+  char uoc_cbuf[BUFFER_OUTSIZE];
+  char uoc_fbuf[256];
+  struct buffer uoc_buf;
+  struct sstring uoc_file;
+  struct dfo_put uoc_dfo;
 };
 struct udr_ctx {
-  const struct ud_tree_ctx *tree_ctx;
-  const struct ud_renderer *render;
-  const struct ud_part *part;
-  const struct udr_opts *opts;
-  struct udr_output_ctx *out;
-  struct ud_part_ind_stack part_stack;
-  void *user_data;
-  unsigned int init_once_done;
-  unsigned int finish_once_done;
+  const struct ud_tree_ctx *uc_tree_ctx;
+  const struct ud_renderer *uc_render;
+  const struct ud_part *uc_part;
+  const struct udr_opts *uc_opts;
+  struct udr_output_ctx *uc_out;
+  struct ud_part_ind_stack uc_part_stack;
+  void *uc_user_data;
+  unsigned int uc_init_once_done;
+  unsigned int uc_finish_once_done;
 };
 struct ud_renderer {
-  const struct udr_funcs funcs;
+  const struct udr_funcs ur_funcs;
   struct {
-    const char *name;
-    const char *suffix;
-    const char *desc;
-    int part;
-  } data;
+    const char *ur_name;
+    const char *ur_suffix;
+    const char *ur_desc;
+    int ur_part;
+  } ur_data;
 };
 
 int ud_render_doc(struct udoc *, const struct udr_opts *, const struct ud_renderer *, const char *);

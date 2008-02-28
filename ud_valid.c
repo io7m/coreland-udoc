@@ -139,7 +139,7 @@ check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
   unsigned int ind;
  
   for (ind = 0; ind < ud_markup_rules_size; ++ind) {
-    if (tag == ud_markup_rules[ind].tag) {
+    if (tag == ud_markup_rules[ind].umr_tag) {
       rule = &ud_markup_rules[ind];
       break;
     }
@@ -147,16 +147,16 @@ check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
   if (!rule) return 1;
 
   len = ud_list_len(n);
-  if (rule->req_args)
-    if (len < rule->req_args + 1) { vc->error = V_TOO_FEW_ARGS; return 0; }
-  if (rule->max_args)
-    if (len > rule->max_args + 1) { vc->error = V_TOO_MANY_ARGS; return 0; }
+  if (rule->umr_req_args)
+    if (len < rule->umr_req_args + 1) { vc->error = V_TOO_FEW_ARGS; return 0; }
+  if (rule->umr_max_args)
+    if (len > rule->umr_max_args + 1) { vc->error = V_TOO_MANY_ARGS; return 0; }
 
   ind = 0;
   for (;;) {
     if (!n->un_next) break;
-    if (rule->arg_types)
-      if (n->un_next->un_type != rule->arg_types[ind]) {
+    if (rule->umr_arg_types)
+      if (n->un_next->un_type != rule->umr_arg_types[ind]) {
         vc->error = V_BAD_TYPE;
         vc->arg = ind;
         return 0;
