@@ -16,7 +16,7 @@ ud_tag_st.o
 ud_tree.o
 ud_valid.o
 udr_context.o
-udr_dump.o
+udr_null.o
 udr_nroff.o
 udr_plain.o
 udr_xhtml.o

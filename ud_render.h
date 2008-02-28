@@ -64,7 +64,7 @@ int udr_print_file(struct udoc *, struct udr_ctx *, const char *,
                    void *);
 #endif
 
-extern const struct ud_renderer ud_render_dump;
+extern const struct ud_renderer ud_render_null;
 extern const struct ud_renderer ud_render_nroff;
 extern const struct ud_renderer ud_render_plain;
 extern const struct ud_renderer ud_render_context;

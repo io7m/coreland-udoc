@@ -98,8 +98,8 @@ part_section(struct udoc *doc, struct part_ctx *pctx,
     flags |= UD_PART_SPLIT;
   } else
     log_1xf(LOG_DEBUG, "split threshold exceeded - not splitting");
-  if (!part_add(doc, pctx, flags, list, node)) return UD_TREE_FAIL;
 
+  if (!part_add(doc, pctx, flags, list, node)) return UD_TREE_FAIL;
   return UD_TREE_OK;
 }
 
@@ -300,7 +300,9 @@ ud_partition(struct udoc *doc)
   }
 }
 
-/* part API */
+/*
+ * part API
+ */
 
 int
 ud_part_getfromnode(struct udoc *doc, const struct ud_node *n,
@@ -481,6 +483,7 @@ ud_part_num_fmt(struct udoc *doc, const struct ud_part *part,
 
   sstack_init(&ns, sbuf, sizeof(sbuf), sizeof(unsigned long));
 
+  /* push parent parts onto stack */
   part_cur = (struct ud_part *) part;
   for (;;) {
     if (!sstack_push(&ns, (void *) &part_cur->up_index_cur)) break;
@@ -489,6 +492,7 @@ ud_part_num_fmt(struct udoc *doc, const struct ud_part *part,
       break;
   }
 
+  /* repeatedly pop parents and calculate offsets for numbering */
   dstring_trunc(ds);
   for (;;) {
     if (!sstack_pop(&ns, (void *) &num)) break;

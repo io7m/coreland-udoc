@@ -50,7 +50,7 @@ static const struct ud_renderer *renderers[] = {
   &ud_render_context,
   &ud_render_plain,
   &ud_render_nroff,
-  &ud_render_dump,
+  &ud_render_null,
 };
 
 int main(int argc, char *argv[])

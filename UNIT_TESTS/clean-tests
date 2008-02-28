@@ -11,9 +11,15 @@ for dir in `ls`
 do
   if [ -d "$dir" ]
   then
-    for f in $dir/*.out
+    files="`find "$dir" -name '*.out'`"
+    files="$files `find "$dir" -name '*.txt'`"
+    files="$files `find "$dir" -name '*.html'`"
+    files="$files `find "$dir" -name '*.nrf'`"
+    files="$files `find "$dir" -name '*.tex'`"
+
+    for file in $files
     do
-      remove $f 
+      remove $file
     done
   fi
 done

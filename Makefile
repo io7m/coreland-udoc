@@ -5,10 +5,10 @@ default: all
 all:\
 UNIT_TESTS/t_fail_parse/failparse UNIT_TESTS/t_fail_part/failpart \
 UNIT_TESTS/t_fail_render/failrender UNIT_TESTS/t_fail_valid/failvalid \
-UNIT_TESTS/t_pass_parse/passparse UNIT_TESTS/t_pass_valid/passvalid \
-UNIT_TESTS/t_token/t_token ctxt/ctxt.a deinstaller dfo.a inst-check \
-inst-copy inst-dir inst-link installer instchk log.a multi.a token.a ud.a \
-udoc udoc-conf 
+UNIT_TESTS/t_pass_parse/passparse UNIT_TESTS/t_pass_render/passrender \
+UNIT_TESTS/t_pass_valid/passvalid UNIT_TESTS/t_token/t_token ctxt/ctxt.a \
+deinstaller dfo.a inst-check inst-copy inst-dir inst-link installer instchk \
+log.a multi.a token.a ud.a udoc udoc-conf 
 
 # -- SYSDEPS start
 flags-chrono:
@@ -122,6 +122,19 @@ UNIT_TESTS/t_pass_parse/passparse.o:\
 cc-compile UNIT_TESTS/t_pass_parse/passparse.c UNIT_TESTS/t_assert.h udoc.h \
 log.h 
 	./cc-compile UNIT_TESTS/t_pass_parse/passparse.c
+
+UNIT_TESTS/t_pass_render/passrender:\
+cc-link UNIT_TESTS/t_pass_render/passrender.ld \
+UNIT_TESTS/t_pass_render/passrender.o UNIT_TESTS/t_assert.o ud.a dfo.a \
+token.a log.a multi.a 
+	./cc-link UNIT_TESTS/t_pass_render/passrender \
+	UNIT_TESTS/t_pass_render/passrender.o UNIT_TESTS/t_assert.o ud.a \
+	dfo.a token.a log.a multi.a 
+
+UNIT_TESTS/t_pass_render/passrender.o:\
+cc-compile UNIT_TESTS/t_pass_render/passrender.c UNIT_TESTS/t_assert.h \
+udoc.h log.h 
+	./cc-compile UNIT_TESTS/t_pass_render/passrender.c
 
 UNIT_TESTS/t_pass_valid/passvalid:\
 cc-link UNIT_TESTS/t_pass_valid/passvalid.ld \
@@ -411,11 +424,11 @@ ud.a:\
 cc-slib ud.sld ud_assert.o ud_data.o ud_error.o ud_free.o ud_init.o \
 ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o ud_render.o \
 ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o udr_context.o \
-udr_dump.o udr_nroff.o udr_plain.o udr_xhtml.o 
+udr_null.o udr_nroff.o udr_plain.o udr_xhtml.o 
 	./cc-slib ud ud_assert.o ud_data.o ud_error.o ud_free.o ud_init.o \
 	ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
 	ud_render.o ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o \
-	udr_context.o udr_dump.o udr_nroff.o udr_plain.o udr_xhtml.o 
+	udr_context.o udr_null.o udr_nroff.o udr_plain.o udr_xhtml.o 
 
 ud_assert.o:\
 cc-compile ud_assert.c ud_assert.h log.h 
@@ -518,13 +531,13 @@ udr_context.o:\
 cc-compile udr_context.c multi.h udoc.h ud_assert.h ud_ref.h 
 	./cc-compile udr_context.c
 
-udr_dump.o:\
-cc-compile udr_dump.c udoc.h 
-	./cc-compile udr_dump.c
-
 udr_nroff.o:\
 cc-compile udr_nroff.c multi.h log.h udoc.h ud_assert.h ud_ref.h ud_table.h 
 	./cc-compile udr_nroff.c
+
+udr_null.o:\
+cc-compile udr_null.c ud_assert.h udoc.h log.h 
+	./cc-compile udr_null.c
 
 udr_plain.o:\
 cc-compile udr_plain.c dfo.h multi.h udoc.h ud_assert.h ud_ref.h ud_table.h 
@@ -546,6 +559,8 @@ obj_clean:
 	UNIT_TESTS/t_fail_valid/failvalid.o \
 	UNIT_TESTS/t_pass_parse/passparse \
 	UNIT_TESTS/t_pass_parse/passparse.o \
+	UNIT_TESTS/t_pass_render/passrender \
+	UNIT_TESTS/t_pass_render/passrender.o \
 	UNIT_TESTS/t_pass_valid/passvalid \
 	UNIT_TESTS/t_pass_valid/passvalid.o UNIT_TESTS/t_token/t_token \
 	UNIT_TESTS/t_token/t_token.o conf-cctype conf-ldtype conf-systype \
@@ -557,13 +572,13 @@ obj_clean:
 	dfo_wrap.o dfo_ws.o inst-check inst-check.o inst-copy inst-copy.o \
 	inst-dir inst-dir.o inst-link inst-link.o install_core.o \
 	install_error.o installer installer.o instchk instchk.o insthier.o \
-	log.a log.o mk-ctxt multi.a 
-	rm -f multicats.o multiput.o tok_init.o tok_next.o tok_open.o \
-	token.a ud.a ud_assert.o ud_data.o ud_error.o ud_free.o ud_init.o \
-	ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
+	log.a log.o 
+	rm -f mk-ctxt multi.a multicats.o multiput.o tok_init.o tok_next.o \
+	tok_open.o token.a ud.a ud_assert.o ud_data.o ud_error.o ud_free.o \
+	ud_init.o ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
 	ud_render.o ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o \
-	udoc udoc-conf udoc-conf.o udoc.o udr_context.o udr_dump.o \
-	udr_nroff.o udr_plain.o udr_xhtml.o 
+	udoc udoc-conf udoc-conf.o udoc.o udr_context.o udr_nroff.o \
+	udr_null.o udr_plain.o udr_xhtml.o 
 
 deinstall: deinstaller inst-check inst-copy inst-dir inst-link
 	./deinstaller

@@ -16,7 +16,7 @@ main(int argc, char *argv[])
   test_assert(ud_parse(&doc) == 1);
   test_assert(ud_validate(&doc) == 1);
   test_assert(ud_partition(&doc) == 1);
-  test_assert(ud_render_doc(&doc, 0, &ud_render_dump, "out") == 0);
+  test_assert(ud_render_doc(&doc, 0, &ud_render_null, "out") == 0);
   test_assert(ud_free(&doc) == 1);
 
   return 0;
