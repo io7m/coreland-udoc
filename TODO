@@ -1,5 +1,7 @@
 UNIT_TESTS
 
+Use dfo.h. udr_xhtml doesn't appear to be using it, for example.
+
 The whole render API has too many structures. I don't like it.
 
 Push root nodes and nodes from (include) into a hash table,

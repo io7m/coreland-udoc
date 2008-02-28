@@ -5,8 +5,8 @@
 #include <corelib/hashtable.h>
 
 struct ud_ordered_ht {
-  struct array array;
-  struct hashtable ht;
+  struct array uht_array;
+  struct hashtable uht_ht;
 };
 
 #define UD_OHT_ZERO {ARRAY_ZERO,HT_ZERO}

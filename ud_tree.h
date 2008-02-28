@@ -13,32 +13,32 @@ enum ud_node_type {
 };
 
 struct ud_node_list {
-  struct ud_node *head;
-  struct ud_node *tail;
-  unsigned long size;
+  struct ud_node *unl_head;
+  struct ud_node *unl_tail;
+  unsigned long unl_size;
 };
 
 struct ud_node {
-  enum ud_node_type type;
+  enum ud_node_type un_type;
   union {
-    char *str;
-    char *sym;
-    struct ud_node_list list;
-  } data;
-  struct ud_node *next;
-  unsigned long line_num;
+    char *un_str;
+    char *un_sym;
+    struct ud_node_list un_list;
+  } un_data;
+  struct ud_node *un_next;
+  unsigned long un_line_num;
 };
 
 /* section of document */
 struct ud_section {
-  const struct ud_node_list *root;
-  struct array footnotes;
-  unsigned long depth;    /* how many section tags present above this one */
+  const struct ud_node_list *us_root;
+  struct array us_footnotes;
+  unsigned long us_depth;    /* how many section tags present above this one */
 };
 
 /* base tree structure */
 struct ud_tree {
-  struct ud_node_list root;
+  struct ud_node_list ut_root;
 };
 
 /* status enumeration for tree walking */

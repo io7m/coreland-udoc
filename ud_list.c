@@ -22,24 +22,24 @@ ud_list_cat(struct ud_node_list *list, const struct ud_node *un)
 
   *np = *un;
 
-  if (!list->head) {
-    list->head = np;
-    list->tail = 0;
+  if (!list->unl_head) {
+    list->unl_head = np;
+    list->unl_tail = 0;
     goto END;
   }
-  if (!list->tail) {
-    list->head->next = np;
-    list->tail = np;
+  if (!list->unl_tail) {
+    list->unl_head->un_next = np;
+    list->unl_tail = np;
     goto END;
   }
-  if (list->tail) {
-    list->tail->next = np;
-    list->tail = np;
+  if (list->unl_tail) {
+    list->unl_tail->un_next = np;
+    list->unl_tail = np;
     goto END;
   }
 
 END:
-  ++list->size;
+  ++list->unl_size;
   return 1;
 }
 
@@ -49,7 +49,7 @@ ud_list_len(const struct ud_node *un)
   unsigned long len = 0;
   for (;;) {
     if (!un) return len;
-    un = un->next;
+    un = un->un_next;
     ++len;
   }
 }

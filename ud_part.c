@@ -25,7 +25,7 @@ struct part_ctx {
 
 static int
 part_add(struct udoc *doc, struct part_ctx *pctx, unsigned long flags,
-         const struct ud_node_list *list, const struct ud_node *node)
+  const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
   struct ud_part p_new;
@@ -35,21 +35,21 @@ part_add(struct udoc *doc, struct part_ctx *pctx, unsigned long flags,
 
   bin_zero(&p_new, sizeof(p_new));
   if (ud_part_getcur(doc, &p_cur)) {
-    p_new.file = p_cur->file;
-    p_new.index_cur = p_cur->index_cur + 1;
+    p_new.up_file = p_cur->up_file;
+    p_new.up_index_cur = p_cur->up_index_cur + 1;
     if (flags & UD_PART_SPLIT)
-      p_new.file = p_new.index_cur;
-    p_new.index_prev = p_cur->index_cur;
-    p_cur->index_next = p_new.index_cur;
+      p_new.up_file = p_new.up_index_cur;
+    p_new.up_index_prev = p_cur->up_index_cur;
+    p_cur->up_index_next = p_new.up_index_cur;
   }
-  p_new.depth = ud_part_ind_stack_size(&pctx->ind_stack);
-  p_new.node = node;
-  p_new.list = list;
-  p_new.flags = flags;
+  p_new.up_depth = ud_part_ind_stack_size(&pctx->ind_stack);
+  p_new.up_node = node;
+  p_new.up_list = list;
+  p_new.up_flags = flags;
 
   /* get parent and add part */
   if (ud_part_getprev_up(doc, &p_new, &p_up))
-    p_new.index_parent = p_up->index_cur;
+    p_new.up_index_parent = p_up->up_index_cur;
   if (!ud_part_add(doc, &p_new)) {
     ud_error_push(&ud_errors, "part_add", "part add failed");
     return 0;
@@ -63,22 +63,22 @@ part_add(struct udoc *doc, struct part_ctx *pctx, unsigned long flags,
     ud_error_pushsys(&ud_errors, "ud_part_num_fmt");
     return UD_TREE_FAIL;
   }
-  if (!str_dup(pctx->dstr1.s, (char **) &p_new_p->num_string)) {
+  if (!str_dup(pctx->dstr1.s, (char **) &p_new_p->up_num_string)) {
     ud_error_pushsys(&ud_errors, "str_dup");
     return UD_TREE_FAIL;
   }
  
   /* push part onto stack */
-  if (!ud_part_ind_stack_push(&pctx->ind_stack, &p_new.index_cur)) {
+  if (!ud_part_ind_stack_push(&pctx->ind_stack, &p_new.up_index_cur)) {
     ud_error_pushsys(&ud_errors, "stack_push");
     return UD_TREE_FAIL;
   }
 
   /* chatter */
-  cnum[fmt_ulong(cnum, p_new.index_cur)] = 0;
+  cnum[fmt_ulong(cnum, p_new.up_index_cur)] = 0;
   log_2xf(LOG_DEBUG, "part ", cnum);
   if (flags & UD_PART_SPLIT) {
-    cnum[fmt_ulong(cnum, p_new.file)] = 0;
+    cnum[fmt_ulong(cnum, p_new.up_file)] = 0;
     log_2xf(LOG_DEBUG, "part split ", cnum);
   }
   return 1;
@@ -86,7 +86,7 @@ part_add(struct udoc *doc, struct part_ctx *pctx, unsigned long flags,
 
 static int
 part_section(struct udoc *doc, struct part_ctx *pctx,
-             const struct ud_node_list *list, const struct ud_node *node)
+  const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
   unsigned long flags = 0;
@@ -94,7 +94,7 @@ part_section(struct udoc *doc, struct part_ctx *pctx,
 
   cnum[fmt_ulong(cnum, size)] = 0;
   log_2xf(LOG_DEBUG, "part stack size ", cnum);
-  if (size - 1 < doc->opts.split_thresh) {
+  if (size - 1 < doc->ud_opts.ud_split_thresh) {
     flags |= UD_PART_SPLIT;
   } else
     log_1xf(LOG_DEBUG, "split threshold exceeded - not splitting");
@@ -105,15 +105,15 @@ part_section(struct udoc *doc, struct part_ctx *pctx,
 
 static int
 part_title(struct udoc *doc, struct part_ctx *pctx,
-           struct ud_part *part, const struct ud_node *node)
+  struct ud_part *part, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
-  if (part->title) {
-    cnum[fmt_ulong(cnum, node->next->line_num)] = 0;
+  if (part->up_title) {
+    cnum[fmt_ulong(cnum, node->un_next->un_line_num)] = 0;
     log_3x(LOG_WARN, "title on line ", cnum, " overwrites previous title");
   }
-  part->title = node->next->data.str;
-  log_2xf(LOG_DEBUG, "part title ", part->title);
+  part->up_title = node->un_next->un_data.un_str;
+  log_2xf(LOG_DEBUG, "part title ", part->up_title);
   return UD_TREE_OK;
 }
 
@@ -135,8 +135,8 @@ cb_part_init(struct udoc *doc, struct ud_tree_ctx *ctx)
   }
 
   /* add root part - note that the root part is always 'split' */
-  if (!part_add(doc, pctx, UD_PART_SPLIT, &doc->tree.root, doc->tree.root.head))
-    goto FAIL;
+  if (!part_add(doc, pctx, UD_PART_SPLIT, &doc->ud_tree.ut_root,
+                doc->ud_tree.ut_root.unl_head)) goto FAIL;
 
   return UD_TREE_OK;
 
@@ -158,7 +158,7 @@ cb_part_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
   struct ud_ref ref;
 
   if (ctx->state->list_pos != 0) return UD_TREE_OK;
-  if (!ud_tag_by_name(ctx->state->node->data.sym, &tag)) return UD_TREE_OK;
+  if (!ud_tag_by_name(ctx->state->node->un_data.un_sym, &tag)) return UD_TREE_OK;
   
   switch (tag) {
     case UDOC_TAG_SECTION:
@@ -168,41 +168,41 @@ cb_part_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
     case UDOC_TAG_FOOTNOTE:
     case UDOC_TAG_STYLE:
       ud_part_ind_stack_peek(&pctx->ind_stack, &ind);
-      ud_oht_getind(&doc->parts, *ind, (void *) &part);
+      ud_oht_getind(&doc->ud_parts, *ind, (void *) &part);
       break;
     default:
       break;
   }
 
-  ref.list = ctx->state->list;
-  ref.node = ctx->state->node;
-  ref.part = part;
+  ref.ur_list = ctx->state->list;
+  ref.ur_node = ctx->state->node;
+  ref.ur_part = part;
  
   switch (tag) {
     case UDOC_TAG_TITLE: return part_title(doc, pctx, part, ctx->state->node);
     case UDOC_TAG_REF:
-      if (!ud_ref_add_byname(&doc->ref_names, ref.node->next->data.str, &ref)) {
+      if (!ud_ref_add_byname(&doc->ud_ref_names, ref.ur_node->un_next->un_data.un_str, &ref)) {
         ud_error_push(&ud_errors, "ud_ref_add_byname", "could not add reference");
         return UD_TREE_FAIL;
       }
-      tab = &doc->refs;
+      tab = &doc->ud_refs;
       break;
-    case UDOC_TAG_FOOTNOTE: tab = &doc->footnotes; break;
-    case UDOC_TAG_STYLE: tab = &doc->styles; break;
-    case UDOC_TAG_LINK_EXT: tab = &doc->link_exts; break;
+    case UDOC_TAG_FOOTNOTE: tab = &doc->ud_footnotes; break;
+    case UDOC_TAG_STYLE: tab = &doc->ud_styles; break;
+    case UDOC_TAG_LINK_EXT: tab = &doc->ud_link_exts; break;
     case UDOC_TAG_RENDER_HEADER:
-      if (doc->render_header) {
-        ln[fmt_ulong(ln, ctx->state->node->line_num)] = 0;
+      if (doc->ud_render_header) {
+        ln[fmt_ulong(ln, ctx->state->node->un_line_num)] = 0;
         log_2x(LOG_WARN, ln, ": render-header overrides previous tag");
       }
-      doc->render_header = ctx->state->node->next->data.str;
+      doc->ud_render_header = ctx->state->node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
-      if (doc->render_footer) {
-        ln[fmt_ulong(ln, ctx->state->node->line_num)] = 0;
+      if (doc->ud_render_footer) {
+        ln[fmt_ulong(ln, ctx->state->node->un_line_num)] = 0;
         log_2x(LOG_WARN, ln, ": render-footer overrides previous tag");
       }
-      doc->render_footer = ctx->state->node->next->data.str;
+      doc->ud_render_footer = ctx->state->node->un_next->un_data.un_str;
       break;
     default: break;
   }
@@ -225,8 +225,8 @@ cb_part_list_end(struct udoc *doc, struct ud_tree_ctx *ctx)
   enum ud_tag tag;
   unsigned long *ind;
 
-  first_sym = ctx->state->list->head;
-  if (!ud_tag_by_name(first_sym->data.sym, &tag)) return UD_TREE_OK;
+  first_sym = ctx->state->list->unl_head;
+  if (!ud_tag_by_name(first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_SECTION:
       ud_part_ind_stack_pop(&pctx->ind_stack, &ind);
@@ -244,16 +244,16 @@ cb_part_finish(struct udoc *doc, struct ud_tree_ctx *ctx)
   char cnum1[FMT_ULONG];
   char cnum2[FMT_ULONG];
   unsigned long ind;
-  unsigned long max = ud_oht_size(&doc->parts);
+  unsigned long max = ud_oht_size(&doc->ud_parts);
   unsigned long files = 0;
   struct ud_part *part;
   struct part_ctx *pctx = ctx->state->user_data;
 
   for (ind = 0; ind < max; ++ind)
-    if (ud_oht_getind(&doc->parts, ind, (void *) &part))
-      if (part->flags & UD_PART_SPLIT && ind) ++files;
+    if (ud_oht_getind(&doc->ud_parts, ind, (void *) &part))
+      if (part->up_flags & UD_PART_SPLIT && ind) ++files;
 
-  cnum1[fmt_ulong(cnum1, ud_oht_size(&doc->parts))] = 0;
+  cnum1[fmt_ulong(cnum1, ud_oht_size(&doc->ud_parts))] = 0;
   cnum2[fmt_ulong(cnum2, files + 1)] = 0;
   log_4xf(LOG_DEBUG, cnum1, " parts, ", cnum2, " files");
 
@@ -285,7 +285,7 @@ ud_partition(struct udoc *doc)
   bin_zero(&state, sizeof(state));
   bin_zero(&pctx, sizeof(pctx));
 
-  state.list = &doc->tree.root;
+  state.list = &doc->ud_tree.ut_root;
   state.user_data = &pctx;
 
   ctx.funcs = &part_funcs;
@@ -304,39 +304,39 @@ ud_partition(struct udoc *doc)
 
 int
 ud_part_getfromnode(struct udoc *doc, const struct ud_node *n,
-                    struct ud_part **ch, unsigned long *ind)
+  struct ud_part **ch, unsigned long *ind)
 {
-  return ud_oht_get(&doc->parts, (void *) &n, sizeof(&n), (void *) ch, ind);
+  return ud_oht_get(&doc->ud_parts, (void *) &n, sizeof(&n), (void *) ch, ind);
 }
 
 int
 ud_part_getroot(struct udoc *doc, struct ud_part **ch)
 {
-  return ud_oht_getind(&doc->parts, 0, (void *) ch);
+  return ud_oht_getind(&doc->ud_parts, 0, (void *) ch);
 }
 
 int
 ud_part_getcur(struct udoc *doc, struct ud_part **rcur)
 {
   struct ud_part *cur;
-  unsigned long max = ud_oht_size(&doc->parts);
+  unsigned long max = ud_oht_size(&doc->ud_parts);
   if (!max) return 0;
-  if (!ud_oht_getind(&doc->parts, max - 1, (void *) &cur)) return 0;
+  if (!ud_oht_getind(&doc->ud_parts, max - 1, (void *) &cur)) return 0;
   *rcur = cur;
   return 1;
 }
 
 int
 ud_part_getprev(struct udoc *doc, const struct ud_part *cur,
-                struct ud_part **prev)
+  struct ud_part **prev)
 {
   struct ud_part *cprev;
-  unsigned long max = cur->index_cur;
+  unsigned long max = cur->up_index_cur;
   unsigned long ind;
 
   if (!max) return 0;
   for (ind = max - 1; ind; --ind) {
-    if (ud_oht_getind(&doc->parts, ind, (void *) &cprev)) {
+    if (ud_oht_getind(&doc->ud_parts, ind, (void *) &cprev)) {
       *prev = cprev;
       return 1;
     }
@@ -350,16 +350,16 @@ ud_part_getprev(struct udoc *doc, const struct ud_part *cur,
 
 void
 ud_part_getfirst_wparent(struct udoc *doc, const struct ud_part *cur,
-                         struct ud_part **prev)
+  struct ud_part **prev)
 {
   struct ud_part *part_tmp = (struct ud_part *) cur;
   struct ud_part *part_first = (struct ud_part *) cur;
 
   for (;;) {
-    if (!ud_oht_getind(&doc->parts, part_tmp->index_prev, (void *) &part_tmp))
+    if (!ud_oht_getind(&doc->ud_parts, part_tmp->up_index_prev, (void *) &part_tmp))
       break;
-    if (part_tmp->index_parent == cur->index_parent) part_first = part_tmp;
-    if (!part_tmp->index_cur) break;
+    if (part_tmp->up_index_parent == cur->up_index_parent) part_first = part_tmp;
+    if (!part_tmp->up_index_cur) break;
   }
 
   *prev = part_first;
@@ -372,14 +372,14 @@ ud_part_getfirst_wparent(struct udoc *doc, const struct ud_part *cur,
 
 void
 ud_part_getfirst_wdepth_noskip(struct udoc *doc, const struct ud_part *cur,
-                               struct ud_part **prev)
+  struct ud_part **prev)
 {
   struct ud_part *part_tmp = (struct ud_part *) cur;
   struct ud_part *part_first = (struct ud_part *) cur;
 
   for (;;) {
     if (!ud_part_getprev(doc, part_tmp, &part_tmp)) break;
-    if (part_tmp->depth == cur->depth)
+    if (part_tmp->up_depth == cur->up_depth)
       part_first = part_tmp;
     else
       break;
@@ -388,16 +388,15 @@ ud_part_getfirst_wdepth_noskip(struct udoc *doc, const struct ud_part *cur,
   *prev = part_first;
 }
 
-
 int
 ud_part_getprev_up(struct udoc *doc, const struct ud_part *cur,
-                   struct ud_part **prev)
+  struct ud_part **prev)
 {
   struct ud_part *cprev;
   const struct ud_part *cur_walk = cur;
   for (;;) {
     if (!ud_part_getprev(doc, cur_walk, &cprev)) return 0;
-    if (cprev->depth < cur->depth) { *prev = cprev; return 1; }
+    if (cprev->up_depth < cur->up_depth) { *prev = cprev; return 1; }
     cur_walk = cprev;
   }
   return 1;
@@ -406,7 +405,7 @@ ud_part_getprev_up(struct udoc *doc, const struct ud_part *cur,
 int
 ud_part_add(struct udoc *doc, const struct ud_part *ch)
 {
-  switch (ud_oht_add(&doc->parts, &ch->node, sizeof(&ch->node), ch)) {
+  switch (ud_oht_add(&doc->ud_parts, &ch->up_node, sizeof(&ch->up_node), ch)) {
     case 0: log_1xf(LOG_ERROR, "duplicate part node!"); return 0;
     case -1: log_1sysf(LOG_ERROR, 0); return 0;
     default: return 1;
@@ -415,15 +414,15 @@ ud_part_add(struct udoc *doc, const struct ud_part *ch)
 
 int
 ud_part_getnext_file(struct udoc *doc, const struct ud_part *cur,
-                     struct ud_part **next)
+  struct ud_part **next)
 {
   struct ud_part *cnext;
-  unsigned long max = ud_oht_size(&doc->parts);
+  unsigned long max = ud_oht_size(&doc->ud_parts);
   unsigned long ind;
 
-  for (ind = cur->index_cur; ind < max; ++ind) {
-    if (ud_oht_getind(&doc->parts, ind, (void *) &cnext)) {
-      if (cnext->file != cur->file) {
+  for (ind = cur->up_index_cur; ind < max; ++ind) {
+    if (ud_oht_getind(&doc->ud_parts, ind, (void *) &cnext)) {
+      if (cnext->up_file != cur->up_file) {
         *next = cnext;
         return 1;
       }
@@ -434,16 +433,16 @@ ud_part_getnext_file(struct udoc *doc, const struct ud_part *cur,
 
 int
 ud_part_getprev_file(struct udoc *doc, const struct ud_part *cur,
-                     struct ud_part **prev)
+  struct ud_part **prev)
 {
   struct ud_part *cprev;
-  unsigned long max = cur->index_cur;
+  unsigned long max = cur->up_index_cur;
   unsigned long ind;
 
   if (!max) return 0;
   for (ind = max - 1; ind + 1; --ind) {
-    if (ud_oht_getind(&doc->parts, ind, (void *) &cprev)) {
-      if (cprev->file != cur->file) {
+    if (ud_oht_getind(&doc->ud_parts, ind, (void *) &cprev)) {
+      if (cprev->up_file != cur->up_file) {
         *prev = cprev;
         return 1;
       }
@@ -454,22 +453,23 @@ ud_part_getprev_file(struct udoc *doc, const struct ud_part *cur,
 
 static unsigned long
 ud_part_offset_wparent(struct udoc *doc,
-                       const struct ud_part *from, const struct ud_part *to)
+  const struct ud_part *from, const struct ud_part *to)
 {
   unsigned long off = 0;
   struct ud_part *part_tmp = (struct ud_part *) from;
 
   for (;;) {
     if (part_tmp == to) break;
-    if (!ud_oht_getind(&doc->parts, part_tmp->index_next, (void *) &part_tmp))
+    if (!ud_oht_getind(&doc->ud_parts, part_tmp->up_index_next, (void *) &part_tmp))
       break;
-    if (part_tmp->index_parent == from->index_parent) ++off;
+    if (part_tmp->up_index_parent == from->up_index_parent) ++off;
   }
   return off;
 }
 
 int
-ud_part_num_fmt(struct udoc *doc, const struct ud_part *part, struct dstring *ds)
+ud_part_num_fmt(struct udoc *doc, const struct ud_part *part,
+  struct dstring *ds)
 {
   char cnum[FMT_ULONG];
   char sbuf[32 * sizeof(unsigned long)];
@@ -483,16 +483,16 @@ ud_part_num_fmt(struct udoc *doc, const struct ud_part *part, struct dstring *ds
 
   part_cur = (struct ud_part *) part;
   for (;;) {
-    if (!sstack_push(&ns, (void *) &part_cur->index_cur)) break;
-    if (!part_cur->index_parent) break;
-    if (!ud_oht_getind(&doc->parts, part_cur->index_parent, (void *) &part_cur))
+    if (!sstack_push(&ns, (void *) &part_cur->up_index_cur)) break;
+    if (!part_cur->up_index_parent) break;
+    if (!ud_oht_getind(&doc->ud_parts, part_cur->up_index_parent, (void *) &part_cur))
       break;
   }
 
   dstring_trunc(ds);
   for (;;) {
     if (!sstack_pop(&ns, (void *) &num)) break;
-    if (!ud_oht_getind(&doc->parts, *num, (void *) &part_cur)) break;
+    if (!ud_oht_getind(&doc->ud_parts, *num, (void *) &part_cur)) break;
 
     ud_part_getfirst_wparent(doc, part_cur, &part_first);
     off = ud_part_offset_wparent(doc, part_first, part_cur);

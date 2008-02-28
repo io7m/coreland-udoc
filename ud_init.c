@@ -15,19 +15,19 @@ int
 ud_init(struct udoc *ud)
 {
   bin_zero(ud, sizeof(*ud));
-  if (!ud_oht_init(&ud->parts, sizeof(struct ud_part))) return 0;
-  if (!ud_oht_init(&ud->link_exts, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->refs, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->ref_names, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->footnotes, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->styles, sizeof(struct ud_ref))) return 0;
-  ud->dirfd_pwd = open_ro(".");
-  if (ud->dirfd_pwd == -1) return 0;
-  ud->dirfd_src = -1;
-  ud->dirfd_out = -1;
+  if (!ud_oht_init(&ud->ud_parts, sizeof(struct ud_part))) return 0;
+  if (!ud_oht_init(&ud->ud_link_exts, sizeof(struct ud_ref))) return 0;
+  if (!ud_oht_init(&ud->ud_refs, sizeof(struct ud_ref))) return 0;
+  if (!ud_oht_init(&ud->ud_ref_names, sizeof(struct ud_ref))) return 0;
+  if (!ud_oht_init(&ud->ud_footnotes, sizeof(struct ud_ref))) return 0;
+  if (!ud_oht_init(&ud->ud_styles, sizeof(struct ud_ref))) return 0;
+  ud->ud_dirfd_pwd = open_ro(".");
+  if (ud->ud_dirfd_pwd == -1) return 0;
+  ud->ud_dirfd_src = -1;
+  ud->ud_dirfd_out = -1;
 
-  taia_now(&ud->time_start);
-  return token_init(&ud->tok);
+  taia_now(&ud->ud_time_start);
+  return token_init(&ud->ud_tok);
 }
 
 int

@@ -13,29 +13,29 @@
 #include "ud_render.h"
 
 struct udoc_opts {
-  unsigned long split_thresh;
+  unsigned long ud_split_thresh;
 };
 
 struct udoc {
-  struct ud_tree tree;
-  struct tokenizer tok;
-  const char *name;
-  const char *encoding;
-  const char *render_header;
-  const char *render_footer;
-  unsigned long nodes;
-  unsigned long depth;
-  struct ud_ordered_ht link_exts;
-  struct ud_ordered_ht parts;
-  struct ud_ordered_ht refs;
-  struct ud_ordered_ht ref_names;
-  struct ud_ordered_ht footnotes;
-  struct ud_ordered_ht styles;
-  struct udoc_opts opts;
-  int dirfd_pwd;
-  int dirfd_src;
-  int dirfd_out;
-  struct taia time_start;
+  struct ud_tree ud_tree;
+  struct tokenizer ud_tok;
+  const char *ud_name;
+  const char *ud_encoding;
+  const char *ud_render_header;
+  const char *ud_render_footer;
+  unsigned long ud_nodes;
+  unsigned long ud_depth;
+  struct ud_ordered_ht ud_link_exts;
+  struct ud_ordered_ht ud_parts;
+  struct ud_ordered_ht ud_refs;
+  struct ud_ordered_ht ud_ref_names;
+  struct ud_ordered_ht ud_footnotes;
+  struct ud_ordered_ht ud_styles;
+  struct udoc_opts ud_opts;
+  int ud_dirfd_pwd;
+  int ud_dirfd_src;
+  int ud_dirfd_out;
+  struct taia ud_time_start;
 };
 
 int ud_new(struct udoc **);

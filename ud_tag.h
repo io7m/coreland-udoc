@@ -26,12 +26,12 @@ enum ud_tag {
 };
 
 struct ud_tag_name {
-  const char *name;
-  enum ud_tag tag;
+  const char *ut_name;
+  enum ud_tag ut_tag;
 };
 
 struct ud_tag_stack {
-  struct array sta;
+  struct array uts_sta;
 };
 
 #if defined(UDOC_IMPLEMENTATION)

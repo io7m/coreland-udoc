@@ -22,11 +22,11 @@ syntax(struct udoc *doc, const char *s)
   char cnum[FMT_ULONG];
   struct sstring sstr = sstring_INIT(buf);
 
-  cnum[fmt_ulong(cnum, doc->tok.line)] = 0;
+  cnum[fmt_ulong(cnum, doc->ud_tok.line)] = 0;
   sstring_cats4(&sstr, "syntax: ", cnum, ": ", s);
   sstring_0(&sstr);
 
-  ud_error_push(&ud_errors, doc->name, sstr.s);
+  ud_error_push(&ud_errors, doc->ud_name, sstr.s);
 }
 
 static void 
@@ -34,11 +34,11 @@ ud_tree_reduce(struct udoc *doc, struct ud_node_list *list)
 {
   struct ud_node *un;
 
-  if (list->size == 1) {
-    un = list->head;
-    if (un->type == UDOC_TYPE_LIST) {
+  if (list->unl_size == 1) {
+    un = list->unl_head;
+    if (un->un_type == UDOC_TYPE_LIST) {
       log_1xf(LOG_DEBUG, "reduced list");
-      list->head = un->data.list.head;
+      list->unl_head = un->un_data.un_list.unl_head;
       dealloc_null((void *) &un);
     }
   }
@@ -51,7 +51,7 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
   struct udoc *udp;
   struct ud_node cur = {0, {0}, 0, 0};
 
-  if (list->size) {
+  if (list->unl_size) {
     syntax(doc, "the include symbol can only appear at the start of a list");
     goto FAIL;
   }
@@ -63,15 +63,15 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
     if (!ud_get(file, &udp)) goto FAIL;
     if (!ud_parse(udp)) goto FAIL;
   }
-  if (!udp->nodes) {
+  if (!udp->ud_nodes) {
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");
     return 1;
   }
-  cur.line_num = doc->tok.line;
-  cur.type = UDOC_TYPE_INCLUDE;
-  cur.data.list = udp->tree.root;
+  cur.un_line_num = doc->ud_tok.line;
+  cur.un_type = UDOC_TYPE_INCLUDE;
+  cur.un_data.un_list = udp->ud_tree.ut_root;
   if (!ud_list_cat(list, &cur)) goto FAIL;
-  ++doc->nodes;
+  ++doc->ud_nodes;
 
   return 1;
 FAIL:
@@ -86,13 +86,13 @@ ud_tree_symbol(struct udoc *doc, char *symbol, struct ud_node_list *list)
   char *param_token;
 
   if (!str_same(symbol, "include")) {
-    cur.type = UDOC_TYPE_SYMBOL;
-    cur.line_num = doc->tok.line;
-    if (!str_dup(symbol, &cur.data.sym)) goto FAIL;
+    cur.un_type = UDOC_TYPE_SYMBOL;
+    cur.un_line_num = doc->ud_tok.line;
+    if (!str_dup(symbol, &cur.un_data.un_sym)) goto FAIL;
     if (!ud_list_cat(list, &cur)) goto FAIL;
-    ++doc->nodes;
+    ++doc->ud_nodes;
   } else {
-    if (!token_next(&doc->tok, &param_token, &param_type)) {
+    if (!token_next(&doc->ud_tok, &param_token, &param_type)) {
       if (!errno) syntax(doc, "malformed document (premature end of file)");
       goto FAIL;
     }
@@ -113,19 +113,19 @@ ud_tree_string(struct udoc *doc, const char *str, struct ud_node_list *list)
 {
   struct ud_node cur = {0, {0}, 0, 0};
 
-  if (!list->size) {
+  if (!list->unl_size) {
     log_1xf(LOG_DEBUG, "inserting implicit para");
-    cur.type = UDOC_TYPE_SYMBOL;
-    cur.line_num = doc->tok.line;
-    if (!str_dup("para", &cur.data.sym)) goto FAIL;
+    cur.un_type = UDOC_TYPE_SYMBOL;
+    cur.un_line_num = doc->ud_tok.line;
+    if (!str_dup("para", &cur.un_data.un_sym)) goto FAIL;
     if (!ud_list_cat(list, &cur)) goto FAIL;
-    ++doc->nodes;
+    ++doc->ud_nodes;
   }
-  cur.type = UDOC_TYPE_STRING;
-  cur.line_num = doc->tok.line;
-  if (!str_dup(str, &cur.data.str)) goto FAIL;
+  cur.un_type = UDOC_TYPE_STRING;
+  cur.un_line_num = doc->ud_tok.line;
+  if (!str_dup(str, &cur.un_data.un_str)) goto FAIL;
   if (!ud_list_cat(list, &cur)) goto FAIL;
-  ++doc->nodes;
+  ++doc->ud_nodes;
 
   return 1;
 FAIL:
@@ -141,13 +141,13 @@ ud_tree_build(struct udoc *doc, struct ud_node_list *parent)
   char cnum[FMT_ULONG];
   char *token;
 
-  cnum[fmt_ulong(cnum, doc->depth)] = 0;
-  log_4xf(LOG_DEBUG, "processing ", doc->name, " depth ", cnum);
+  cnum[fmt_ulong(cnum, doc->ud_depth)] = 0;
+  log_4xf(LOG_DEBUG, "processing ", doc->ud_name, " depth ", cnum);
 
   for (;;) {
     errno = 0;
     bin_zero(&cur, sizeof(cur));
-    if (!token_next(&doc->tok, &token, &type)) {
+    if (!token_next(&doc->ud_tok, &token, &type)) {
       if (!errno) syntax(doc, "malformed document (premature end of file)");
       goto FAIL;
     }
@@ -162,27 +162,27 @@ ud_tree_build(struct udoc *doc, struct ud_node_list *parent)
       break;
     case TOKEN_TYPE_PAREN_OPEN:
       log_1xf(LOG_DEBUG, "paren open");
-      ++doc->depth;
-      cur.type = UDOC_TYPE_LIST;
-      if (!ud_tree_build(doc, &cur.data.list)) goto FAIL;
-      if (cur.data.list.size) {
+      ++doc->ud_depth;
+      cur.un_type = UDOC_TYPE_LIST;
+      if (!ud_tree_build(doc, &cur.un_data.un_list)) goto FAIL;
+      if (cur.un_data.un_list.unl_size) {
         if (!ud_list_cat(&cur_list, &cur)) goto FAIL;
-        ++doc->nodes;
+        ++doc->ud_nodes;
       }
       break;
     case TOKEN_TYPE_PAREN_CLOSE:
       log_1xf(LOG_DEBUG, "paren close");
-      if (!doc->depth) {
+      if (!doc->ud_depth) {
         syntax(doc, "unbalanced parenthesis");
         goto FAIL;
       }
-      --doc->depth;
-      if (!cur_list.size) goto EMPTY;
+      --doc->ud_depth;
+      if (!cur_list.unl_size) goto EMPTY;
       ud_tree_reduce(doc, &cur_list);
       goto SUCCESS;
     case TOKEN_TYPE_EOF:
       log_1xf(LOG_DEBUG, "eof");
-      if (doc->depth) {
+      if (doc->ud_depth) {
         syntax(doc, "unbalanced parenthesis");
         goto FAIL;
       }
@@ -214,10 +214,10 @@ EMPTY:
 int 
 ud_parse(struct udoc *doc)
 {
-  if (fchdir(doc->dirfd_src) == -1) return 0;
-  if (!ud_tree_build(doc, &doc->tree.root)) {
-    fchdir(doc->dirfd_pwd);
+  if (fchdir(doc->ud_dirfd_src) == -1) return 0;
+  if (!ud_tree_build(doc, &doc->ud_tree.ut_root)) {
+    fchdir(doc->ud_dirfd_pwd);
     return 0;
   }
-  return (fchdir(doc->dirfd_src) != -1);
+  return (fchdir(doc->ud_dirfd_src) != -1);
 }

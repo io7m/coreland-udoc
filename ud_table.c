@@ -7,33 +7,27 @@
 static void
 ud_row_measure(const struct ud_node_list *list, struct ud_table *udt)
 {
-  const struct ud_node *n = list->head;
+  const struct ud_node *n = list->unl_head;
   unsigned long cols = 0;
 
   for (;;) {
-    if (n->type == UDOC_TYPE_LIST) ++cols;
-    if (n->next)
-      n = n->next;
-    else
-      break;
+    if (n->un_type == UDOC_TYPE_LIST) ++cols;
+    if (n->un_next) n = n->un_next; else break;
   }
 
-  udt->cols = (cols > udt->cols) ? cols : udt->cols;
+  udt->ut_cols = (cols > udt->ut_cols) ? cols : udt->ut_cols;
 }
 
 void
 ud_table_measure(const struct ud_node_list *list, struct ud_table *udt)
 {
-  const struct ud_node *n = list->head;
+  const struct ud_node *n = list->unl_head;
 
   for (;;) {
-    if (n->type == UDOC_TYPE_LIST) {
-      ++udt->rows;
-      ud_row_measure(&n->data.list, udt);
+    if (n->un_type == UDOC_TYPE_LIST) {
+      ++udt->ut_rows;
+      ud_row_measure(&n->un_data.un_list, udt);
     }
-    if (n->next)
-      n = n->next;
-    else
-      break;
+    if (n->un_next) n = n->un_next; else break;
   }
 }

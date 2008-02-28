@@ -13,12 +13,12 @@ ud_open(struct udoc *ud, const char *fn)
 {
   char dir[DIR_NAME_MAX];
 
-  ud->name = fn;
-  if (!dir_name_r(ud->name, dir, sizeof(dir))) goto FAIL;
-  ud->dirfd_src = open_ro(dir);
-  if (ud->dirfd_src == -1) goto FAIL;
+  ud->ud_name = fn;
+  if (!dir_name_r(ud->ud_name, dir, sizeof(dir))) goto FAIL;
+  ud->ud_dirfd_src = open_ro(dir);
+  if (ud->ud_dirfd_src == -1) goto FAIL;
 
-  if (!token_open(&ud->tok, fn)) goto FAIL;
+  if (!token_open(&ud->ud_tok, fn)) goto FAIL;
   switch (ht_addb(&ud_documents, fn, str_len(fn), ud, sizeof(struct udoc))) {
     case 0: break;
     case -1: goto FAIL;

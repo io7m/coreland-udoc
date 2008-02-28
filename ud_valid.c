@@ -78,26 +78,26 @@ valid_error(struct udoc *doc, const struct ud_node *n, struct validate_ctx *vc)
   char ln[FMT_ULONG];
   char ns[FMT_ULONG];
 
-  ln[fmt_ulong(ln, n->line_num)] = 0;
+  ln[fmt_ulong(ln, n->un_line_num)] = 0;
   ns[fmt_ulong(ns, vc->arg + 1)] = 0;
   switch (vc->error) {
     case V_TOO_FEW_ARGS:
-      log_4x(LOG_ERROR, ln, ": ", n->data.sym, ": too few args");
+      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": too few args");
       break;
     case V_TOO_MANY_ARGS:
-      log_4x(LOG_ERROR, ln, ": ", n->data.sym, ": too many args");
+      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": too many args");
       break;
     case V_BAD_TYPE:
-      log_5x(LOG_ERROR, ln, ": ", n->data.sym, ": invalid type for argument ", ns);
+      log_5x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": invalid type for argument ", ns);
       break;
     case V_SECTION_AT_START:
       log_2x(LOG_ERROR, ln, ": symbol at root cannot be \"section\"");
       break;
     case V_ILLEGAL_PARENT:
-      log_5x(LOG_ERROR, ln, ": ", n->data.sym, ": cannot be child of ", ud_tag_name(vc->tag));
+      log_5x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": cannot be child of ", ud_tag_name(vc->tag));
       break;
     case V_NO_DEMANDED_PARENTS:
-      log_4x(LOG_ERROR, ln, ": ", n->data.sym, ": invalid parent");
+      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": invalid parent");
       break;
     default:
       break;
@@ -117,11 +117,11 @@ validate_init(struct udoc *doc, struct ud_tree_ctx *ctx)
   enum ud_tag tag;
 
   /* to simplify chunking, a symbol at the root cannot be 'section' */
-  if (doc->tree.root.head->type == UDOC_TYPE_SYMBOL) {
-    if (ud_tag_by_name(doc->tree.root.head->data.sym, &tag)) {
+  if (doc->ud_tree.ut_root.unl_head->un_type == UDOC_TYPE_SYMBOL) {
+    if (ud_tag_by_name(doc->ud_tree.ut_root.unl_head->un_data.un_sym, &tag)) {
       if (tag == UDOC_TAG_SECTION) {
         vc->error = V_SECTION_AT_START;
-        valid_error(doc, doc->tree.root.head, vc);
+        valid_error(doc, doc->ud_tree.ut_root.unl_head, vc);
         return UD_TREE_FAIL;
       }
     }
@@ -154,14 +154,14 @@ check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
 
   ind = 0;
   for (;;) {
-    if (!n->next) break;
+    if (!n->un_next) break;
     if (rule->arg_types)
-      if (n->next->type != rule->arg_types[ind]) {
+      if (n->un_next->un_type != rule->arg_types[ind]) {
         vc->error = V_BAD_TYPE;
         vc->arg = ind;
         return 0;
       }
-    n = n->next;
+    n = n->un_next;
     ++ind;
   }
   return 1;
@@ -212,17 +212,18 @@ validate_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
   enum ud_tag tag;
 
   if (ctx->state->list_pos != 0) return UD_TREE_OK;
-  if (!ud_tag_by_name(n->data.sym, &tag)) return UD_TREE_OK;
+  if (!ud_tag_by_name(n->un_data.un_sym, &tag)) return UD_TREE_OK;
   if (!check_list(doc, ctx, tag)) return UD_TREE_FAIL;
   if (!check_parents(doc, ctx, tag)) return UD_TREE_FAIL;
 
   switch (tag) {
     case UDOC_TAG_ENCODING:
-      if (doc->encoding) {
-        ln[fmt_ulong(ln, n->next->line_num)] = 0;
-        log_4x(LOG_WARN, ln, ": ignored extra encoding tag (\"", n->next->data.str, "\")");
+      if (doc->ud_encoding) {
+        ln[fmt_ulong(ln, n->un_next->un_line_num)] = 0;
+        log_4x(LOG_WARN, ln, ": ignored extra encoding tag (\"",
+               n->un_next->un_data.un_str, "\")");
       } else
-        doc->encoding = n->next->data.str;
+        doc->ud_encoding = n->un_next->un_data.un_str;
       break;
     default:
       break;
@@ -248,13 +249,13 @@ ud_validate(struct udoc *ud)
   struct ud_tree_ctx_state state;
   struct validate_ctx vc;
 
-  if (!ud->nodes) return 0; /* empty file is forbidden */
+  if (!ud->ud_nodes) return 0; /* empty file is forbidden */
 
   bin_zero(&ctx, sizeof(ctx));
   bin_zero(&state, sizeof(state));
   bin_zero(&vc, sizeof(vc));
 
-  state.list = &ud->tree.root;
+  state.list = &ud->ud_tree.ut_root;
   state.user_data = &vc;
 
   ctx.funcs = &validate_funcs;

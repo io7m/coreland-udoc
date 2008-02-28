@@ -24,8 +24,8 @@ struct udr_funcs {
   void (*error)(struct udoc *, struct udr_ctx *);
 };
 struct udr_opts {
-  unsigned long split_hint;  /* original partition threshold, used as a hint to renderers */
-  unsigned int page_width;   /* only relevant for character-based renderers */
+  unsigned long udr_split_hint;  /* original partition threshold, used as a hint to renderers */
+  unsigned int udr_page_width;   /* only relevant for character-based renderers */
 };
 struct udr_output_ctx {
   char cbuf[BUFFER_OUTSIZE];

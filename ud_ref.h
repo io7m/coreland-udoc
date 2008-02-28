@@ -2,9 +2,9 @@
 #define UD_REF_H
 
 struct ud_ref {
-  const struct ud_node_list *list;
-  const struct ud_node *node;
-  const struct ud_part *part;
+  const struct ud_node_list *ur_list;
+  const struct ud_node *ur_node;
+  const struct ud_part *ur_part;
 };
 
 int ud_ref_add(struct ud_ordered_ht *, const struct ud_ref *);

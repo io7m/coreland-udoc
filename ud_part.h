@@ -7,22 +7,21 @@
 
 struct udoc;
 struct ud_part {
-  const struct ud_node_list *list;
-  const struct ud_node *node;
-  unsigned long file;
-  unsigned long depth;
-  unsigned long index_prev;
-  unsigned long index_cur;
-  unsigned long index_next;
-  unsigned long index_parent;
-  unsigned int flags;
-  const char *title;
-  const char *num_string;
+  const struct ud_node_list *up_list;
+  const struct ud_node *up_node;
+  unsigned long up_file;
+  unsigned long up_depth;
+  unsigned long up_index_prev;
+  unsigned long up_index_cur;
+  unsigned long up_index_next;
+  unsigned long up_index_parent;
+  unsigned int up_flags;
+  const char *up_title;
+  const char *up_num_string;
 };
 
 int ud_part_init(struct ud_part *);
-int ud_part_getfromnode(struct udoc *, const struct ud_node *,
-                        struct ud_part **, unsigned long *);
+int ud_part_getfromnode(struct udoc *, const struct ud_node *, struct ud_part **, unsigned long *);
 int ud_part_getroot(struct udoc *, struct ud_part **);
 int ud_part_getcur(struct udoc *, struct ud_part **);
 int ud_part_getprev(struct udoc *, const struct ud_part *, struct ud_part **);

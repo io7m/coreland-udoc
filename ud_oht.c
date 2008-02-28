@@ -9,12 +9,12 @@ ud_oht_add(struct ud_ordered_ht *tab, const void *key,
 {
   unsigned long ind;
 
-  if (ht_checkb(&tab->ht, key, klen)) return 0;
-  if (!array_cat(&tab->array, data)) return -1;
+  if (ht_checkb(&tab->uht_ht, key, klen)) return 0;
+  if (!array_cat(&tab->uht_array, data)) return -1;
 
-  ind = array_size(&tab->array) - 1;
-  if (!ht_addb(&tab->ht, key, klen, &ind, sizeof(ind))) {
-    array_chop(&tab->array, array_size(&tab->array) - 1);
+  ind = array_SIZE(&tab->uht_array) - 1;
+  if (!ht_addb(&tab->uht_ht, key, klen, &ind, sizeof(ind))) {
+    array_chop(&tab->uht_array, array_SIZE(&tab->uht_array) - 1);
     return -1;
   }
   return 1;
@@ -28,8 +28,8 @@ ud_oht_get(const struct ud_ordered_ht *tab, const void *key,
   unsigned long sz;
   void *ref;
 
-  if (ht_getb(&tab->ht, key, klen, (void *) &ind, &sz)) {
-    ref = array_index(&tab->array, *ind);
+  if (ht_getb(&tab->uht_ht, key, klen, (void *) &ind, &sz)) {
+    ref = array_index(&tab->uht_array, *ind);
     if (ref) {
       *rind = *ind;
       *rp = ref;
@@ -42,7 +42,7 @@ ud_oht_get(const struct ud_ordered_ht *tab, const void *key,
 int
 ud_oht_getind(const struct ud_ordered_ht *tab, unsigned long ind, void **rp)
 {
-  void *ref = array_index(&tab->array, ind);
+  void *ref = array_index(&tab->uht_array, ind);
   if (ref) {
     *rp = ref;
     return 1;
@@ -53,20 +53,20 @@ ud_oht_getind(const struct ud_ordered_ht *tab, unsigned long ind, void **rp)
 int
 ud_oht_init(struct ud_ordered_ht *tab, unsigned int es)
 {
-  if (!ht_init(&tab->ht)) return 0;
-  if (!array_init(&tab->array, 16, es)) { ht_free(&tab->ht); return 0; }
+  if (!ht_init(&tab->uht_ht)) return 0;
+  if (!array_init(&tab->uht_array, 16, es)) { ht_free(&tab->uht_ht); return 0; }
   return 1;
 }
 
 unsigned long
 ud_oht_size(const struct ud_ordered_ht *tab)
 {
-  return array_SIZE(&tab->array);
+  return array_SIZE(&tab->uht_array);
 }
 
 void
 ud_oht_free(struct ud_ordered_ht *tab)
 {
-  array_free(&tab->array);
-  ht_free(&tab->ht);
+  array_free(&tab->uht_array);
+  ht_free(&tab->uht_ht);
 }

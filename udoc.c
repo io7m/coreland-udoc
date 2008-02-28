@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
   while ((ch = get_opt(argc, argv, "hnL:r:s:")) != opteof)
     switch (ch) {
       case 's':
-        if (!scan_ulong(optarg, &main_opts.split_thresh))
+        if (!scan_ulong(optarg, &main_opts.ud_split_thresh))
           log_die1x(LOG_FATAL, 111, "split threshold must be numeric");
         break;
       case 'h': help();
@@ -105,19 +105,19 @@ int main(int argc, char *argv[])
   file = argv[0];
   outdir = argv[1];
 
-  /* save split_thresh as hint */
-  r_opts.split_hint = main_opts.split_thresh;
+  /* save ud_split_thresh as hint */
+  r_opts.udr_split_hint = main_opts.ud_split_thresh;
 
   /* some renderers don't support split output */
-  if (!r->data.part && main_opts.split_thresh) {
+  if (!r->data.part && main_opts.ud_split_thresh) {
     log_1x(LOG_WARN, "this renderer does not support split output");
     log_1x(LOG_NOTICE, "split threshold set to 0");
-    main_opts.split_thresh = 0;
+    main_opts.ud_split_thresh = 0;
   }
 
   if (!ud_error_init(&ud_errors)) log_die1sys(LOG_FATAL, 112, "ud_error_init");
   if (!ud_init(&main_doc)) die("ud_init");
-  main_doc.opts = main_opts;
+  main_doc.ud_opts = main_opts;
   if (!ud_open(&main_doc, file)) die("opening");
   log_1xf(LOG_DEBUG, "parsing");
   if (!ud_parse(&main_doc)) die("parsing");
