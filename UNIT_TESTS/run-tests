@@ -44,7 +44,7 @@ dir_tests()
         do
           lib_tests=`expr $lib_tests + 1` >/dev/null 2>&1
           ./"$runner" "$tag"
-          inspect_ret $? "$dir/$tag"
+          inspect_ret $? "$runner $dir/$tag"
         done
       fi
     done

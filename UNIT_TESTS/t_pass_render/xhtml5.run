@@ -1,0 +1,31 @@
+#!/bin/sh
+
+fatal()
+{
+  echo "fatal: $1"
+  exit 1
+}
+
+if [ $# -ne 1 ]; then fatal "not enough arguments (file)"; fi
+if [ ! -x passrender ]; then fatal "passrender not found or not executable"; fi
+
+file="$1"
+prog_exp="$file.xhtml5.exp"
+prog_out="$file.xhtml5.out"
+render_exp="$file.xhtml5.r_exp"
+
+rm -f "$prog_out" *.html
+
+./passrender "$file.t" xhtml 5 >"$prog_out" 2>&1
+if [ $? -ne 0 ]; then fatal "test failed"; fi
+
+cmp "$prog_out" "$prog_exp" || fatal "program output comparison failed"
+
+out_files=`grep create "$prog_out" | awk '{print $NF}'`
+
+for out in $out_files
+do
+  r_exp="$file.xhtml5.$out.r_exp"
+
+  cmp "$out" "$r_exp" || fatal "render output comparison failed ($out $r_exp)"
+done

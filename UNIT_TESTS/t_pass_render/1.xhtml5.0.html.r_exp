@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"
+"http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+<div class="ud_navbar ud_navbar_head">
+<a href="0.html">top</a>
+<a href="0.html">up</a>
+</div>
+
+<div>
+<p>
+hello</p>
+</div>
+<div class="ud_navbar ud_navbar_foot">
+<a href="0.html">top</a>
+<a href="0.html">up</a>
+</div>
+
+</body>
+</html>

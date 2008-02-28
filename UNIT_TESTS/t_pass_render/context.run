@@ -1,0 +1,24 @@
+#!/bin/sh
+
+fatal()
+{
+  echo "fatal: $1"
+  exit 1
+}
+
+if [ $# -ne 1 ]; then fatal "not enough arguments (file)"; fi
+if [ ! -x passrender ]; then fatal "passrender not found or not executable"; fi
+
+file="$1"
+prog_exp="$file.context.exp"
+prog_out="$file.context.out"
+render_exp="$file.context.r_exp"
+render_out="0.tex"
+
+rm -f "$prog_out" "$render_out"
+
+./passrender "$file.t" context 0 >"$prog_out" 2>&1
+if [ $? -ne 0 ]; then fatal "test failed"; fi
+
+cmp "$prog_out" "$prog_exp" || fatal "program output comparison failed"
+cmp "$render_out" "$render_exp" || fatal "render output comparison failed"
