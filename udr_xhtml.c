@@ -56,7 +56,6 @@ struct xhtml_ctx {
   struct dstring dstr;  
 };
 
-
 static int
 x_escape_put(struct buffer *out, const char *str, unsigned long len, void *data)
 {
@@ -221,10 +220,14 @@ x_tag_link(struct udoc *ud, struct udr_ctx *r)
     return UD_TREE_FAIL;
   }
 
-  cnum[fmt_ulong(cnum, ref->ur_part->up_file)] = 0;
-  buffer_puts4(out, "<a href=\"", cnum, ".", r->uc_render->ur_data.ur_suffix);
-  buffer_puts5(out, "#r_", refl, "\">", text, "</a>");
+  /* only link to file if splitting */
+  buffer_puts(out, "<a href=\"");
+  if (ud->ud_opts.ud_split_thresh) {
+    cnum[fmt_ulong(cnum, ref->ur_part->up_file)] = 0;
+    buffer_puts3(out, cnum, ".", r->uc_render->ur_data.ur_suffix);
+  }
 
+  buffer_puts5(out, "#r_", refl, "\">", text, "</a>");
   return UD_TREE_OK;
 }
 
@@ -337,9 +340,14 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
     for (n = 0; n < part_cur->up_depth - part_first->up_depth; ++n)
       buffer_puts(out, "&nbsp; &nbsp; ");
 
+    /* only link to file if splitting */
     buffer_puts(out, "<a href=\"");
-    buffer_put(out, cnum, fmt_ulong(cnum, part_cur->up_file));
-    buffer_puts4(out, ".", r->uc_render->ur_data.ur_suffix, "#sect_", part_cur->up_num_string);
+    if (ud->ud_opts.ud_split_thresh) {
+      buffer_put(out, cnum, fmt_ulong(cnum, part_cur->up_file));
+      buffer_puts2(out, ".", r->uc_render->ur_data.ur_suffix);
+    }
+
+    buffer_puts2(out, "#sect_", part_cur->up_num_string);
     buffer_puts5(out, "\">", part_cur->up_num_string, " ", part_cur->up_title, "</a><br/>\n");
     if (!part_cur->up_index_next) break;
     ind = part_cur->up_index_next;
@@ -639,7 +647,8 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
     if (!udr_print_file(doc, rc, doc->ud_render_header, 0, 0))
       return UD_TREE_FAIL;
 
-  x_navbar(doc, out, part, "ud_navbar_head");
+  if (doc->ud_opts.ud_split_thresh)
+    x_navbar(doc, out, part, "ud_navbar_head");
 
   buffer_puts(out, "<div>\n");
 
@@ -719,7 +728,9 @@ xhtm_file_finish(struct udoc *doc, struct udr_ctx *rc)
 
   x_footnotes(doc, rc);
   buffer_puts(out, "</div>\n");
-  x_navbar(doc, out, part, "ud_navbar_foot");
+
+  if (doc->ud_opts.ud_split_thresh)
+    x_navbar(doc, out, part, "ud_navbar_foot");
 
   /* render backend-specific footer */
   if (doc->ud_render_footer)

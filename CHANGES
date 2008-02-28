@@ -1,1 +1,3 @@
 20080228 version: udoc 0.1
+20080228 code: don't print navbar for unsplit XHTML.
+20080228 code: massive structure field prefixing.
