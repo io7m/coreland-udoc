@@ -150,8 +150,8 @@ cc-compile:\
 conf-cc conf-cctype conf-systype conf-cflags flags-corelib flags-chrono 
 
 cc-link:\
-conf-ld conf-ldtype conf-systype libs-chrono-S libs-chrono-C libs-corelib-S \
-libs-corelib-C 
+conf-ld conf-ldtype conf-systype conf-ldflags libs-chrono-S libs-chrono-C \
+libs-corelib-S libs-corelib-C 
 
 cc-slib:\
 conf-systype 

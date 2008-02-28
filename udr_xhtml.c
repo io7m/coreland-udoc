@@ -475,12 +475,11 @@ static const unsigned int tag_ends_size = sizeof(tag_ends)
 
 static enum ud_tree_walk_stat
 dispatch(const struct dispatch *tab, unsigned int tab_size,
-         struct udoc *ud, struct udr_ctx *ctx, enum ud_tag tag)
+  struct udoc *ud, struct udr_ctx *ctx, enum ud_tag tag)
 {
   unsigned int ind;
   for (ind = 0; ind < tab_size; ++ind)
-    if (tag == tab[ind].tag)
-      return tab[ind].func(ud, ctx);
+    if (tag == tab[ind].tag) return tab[ind].func(ud, ctx);
   return UD_TREE_OK;
 }
 
@@ -502,7 +501,7 @@ x_html_doctype(struct buffer *out)
 
 static void
 x_navbar(struct udoc *ud, struct buffer *out, const struct ud_part *part_cur,
-         const char *class)
+  const char *class)
 {
   char cnum[FMT_ULONG];
   struct ud_part *part_prev = 0;
