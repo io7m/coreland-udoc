@@ -19,11 +19,9 @@ r_output_open(const struct ud_renderer *r, struct udr_output_ctx *out,
 {
   char cnum[FMT_ULONG];
 
+  cnum[fmt_ulong(cnum, uc_part->up_index_cur)] = 0;
   sstring_init(&out->uoc_file, out->uoc_fbuf, sizeof(out->uoc_fbuf));
-  sstring_trunc(&out->uoc_file);
-  sstring_catb(&out->uoc_file, cnum, fmt_ulong(cnum, uc_part->up_index_cur));
-  sstring_catb(&out->uoc_file, ".", 1);
-  sstring_cats(&out->uoc_file, r->ur_data.ur_suffix);
+  sstring_cats3(&out->uoc_file, cnum, ".", r->ur_data.ur_suffix);
   sstring_0(&out->uoc_file);
 
   buffer_init(&out->uoc_buf, (buffer_op) write, -1, out->uoc_cbuf, sizeof(out->uoc_cbuf));
@@ -123,11 +121,6 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
               if (!r_output_open(r->uc_render, &out, part)) return UD_TREE_FAIL;
               if (fchdir(ud->ud_dirfd_src) == -1) {
                 ud_error_pushsys(&ud_errors, "fchdir");
-                return UD_TREE_FAIL;
-              }
-              /* save uc_part on stack (will be popped in r_finish) */
-              if (!ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur)) {
-                ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
                 return UD_TREE_FAIL;
               }
               rtmp = *r;

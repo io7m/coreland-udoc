@@ -1,1 +1,1 @@
--g -W -Wall -Werror -Wno-unused-parameter
+-O -g -W -Wall -Werror -Wno-unused-parameter
