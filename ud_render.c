@@ -66,6 +66,10 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
     r->uc_init_once_done = 1;
   }
 
+  /* will reach 0 at the last call to r_finish() */
+  if (r->uc_render->ur_funcs.urf_finish_once)
+    ++r->uc_finish_once_refcount;
+
   ret = (r->uc_render->ur_funcs.urf_init)
        ? r->uc_render->ur_funcs.urf_init(ud, r) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
@@ -119,6 +123,11 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
               if (!r_output_open(r->uc_render, &out, part)) return UD_TREE_FAIL;
               if (fchdir(ud->ud_dirfd_src) == -1) {
                 ud_error_pushsys(&ud_errors, "fchdir");
+                return UD_TREE_FAIL;
+              }
+              /* save uc_part on stack (will be popped in r_finish) */
+              if (!ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur)) {
+                ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
                 return UD_TREE_FAIL;
               }
               rtmp = *r;
@@ -188,11 +197,13 @@ r_finish(struct udoc *ud, struct ud_tree_ctx *tctx)
     if (r->uc_part->up_list == tctx->utc_state->utc_list)
       return r->uc_render->ur_funcs.urf_file_finish(ud, r);
 
-  if (!r->uc_finish_once_done) {
-    ret = (r->uc_render->ur_funcs.urf_finish_once)
-         ? r->uc_render->ur_funcs.urf_finish_once(ud, r) : UD_TREE_OK;
-    if (ret != UD_TREE_OK) return ret;
-    r->uc_finish_once_done = 1;
+  /* decrement refcount for finish_once(), if zero, call it */
+  if (r->uc_render->ur_funcs.urf_finish_once) {
+    --r->uc_finish_once_refcount;
+    if (!r->uc_finish_once_refcount) {
+      ret = r->uc_render->ur_funcs.urf_finish_once(ud, r);
+      if (ret != UD_TREE_OK) return ret;
+    }
   }
 
   return (r->uc_render->ur_funcs.urf_finish)

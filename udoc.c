@@ -51,6 +51,7 @@ static const struct ud_renderer *renderers[] = {
   &ud_render_plain,
   &ud_render_nroff,
   &ud_render_null,
+  &ud_render_debug,
 };
 
 int main(int argc, char *argv[])

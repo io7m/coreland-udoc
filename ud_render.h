@@ -43,7 +43,7 @@ struct udr_ctx {
   struct ud_part_ind_stack uc_part_stack;
   void *uc_user_data;
   unsigned int uc_init_once_done;
-  unsigned int uc_finish_once_done;
+  unsigned int uc_finish_once_refcount;
 };
 struct ud_renderer {
   const struct udr_funcs ur_funcs;
@@ -64,10 +64,11 @@ int udr_print_file(struct udoc *, struct udr_ctx *, const char *,
                    void *);
 #endif
 
-extern const struct ud_renderer ud_render_null;
-extern const struct ud_renderer ud_render_nroff;
-extern const struct ud_renderer ud_render_plain;
 extern const struct ud_renderer ud_render_context;
+extern const struct ud_renderer ud_render_debug;
+extern const struct ud_renderer ud_render_nroff;
+extern const struct ud_renderer ud_render_null;
+extern const struct ud_renderer ud_render_plain;
 extern const struct ud_renderer ud_render_xhtml;
 
 #endif

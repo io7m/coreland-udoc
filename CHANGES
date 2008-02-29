@@ -1,3 +1,5 @@
 20080228 version: udoc 0.1
 20080228 code: don't print navbar for unsplit XHTML.
 20080228 code: massive structure field prefixing.
+20080229 code: added debug renderer and fixed bug involving the finish_once()
+               render callback (it was called prematurely due to recursion).

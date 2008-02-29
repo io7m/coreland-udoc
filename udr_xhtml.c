@@ -581,7 +581,9 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
   return 1;
 }
 
-/* top level callbacks */
+/*
+ * top level callbacks
+ */
 
 static enum ud_tree_walk_stat 
 xhtm_init_once(struct udoc *doc, struct udr_ctx *rc)
