@@ -101,7 +101,6 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
   struct ud_part *part;
   const struct ud_node *cur_node;
-  const struct ud_node_list *new_root;
   unsigned long ind = 0;
   enum ud_tag tag;
 
@@ -110,37 +109,45 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
     if (!ud_tag_by_name(cur_node->un_data.un_sym, &tag)) return UD_TREE_OK;
     switch (tag) {
       case UDOC_TAG_SECTION:
-        if (ud_part_getfromnode(ud, cur_node, &part, &ind)) {
-          if (part != r->uc_part) {
-            if (part->up_flags & UD_PART_SPLIT) {
-              log_1xf(LOG_DEBUG, "starting uc_part");
-              if (fchdir(ud->ud_dirfd_out) == -1) {
-                ud_error_pushsys(&ud_errors, "fchdir");
-                return UD_TREE_FAIL;
-              }
-              if (!r_output_open(r->uc_render, &out, part)) return UD_TREE_FAIL;
-              if (fchdir(ud->ud_dirfd_src) == -1) {
-                ud_error_pushsys(&ud_errors, "fchdir");
-                return UD_TREE_FAIL;
-              }
-              rtmp = *r;
-              rtmp.uc_tree_ctx = 0;
-              new_root = &part->up_list->unl_head->un_next->un_data.un_list;
-              if (!ud_render_node(ud, &rtmp, new_root)) return UD_TREE_FAIL;
-              if (!r_output_close(&out)) return UD_TREE_FAIL;
-              return UD_TREE_STOP_LIST;
+        ud_assert_s(ud_part_getfromnode(ud, cur_node, &part, &ind),
+          "could not get part for node");
+
+        if (part != r->uc_part) {
+          if (part->up_flags & UD_PART_SPLIT) {
+            log_1xf(LOG_DEBUG, "starting part split");
+
+            if (fchdir(ud->ud_dirfd_out) == -1) {
+              ud_error_pushsys(&ud_errors, "fchdir");
+              return UD_TREE_FAIL;
             }
+            if (!r_output_open(r->uc_render, &out, part)) return UD_TREE_FAIL;
+            if (fchdir(ud->ud_dirfd_src) == -1) {
+              ud_error_pushsys(&ud_errors, "fchdir");
+              return UD_TREE_FAIL;
+            }
+            /* save uc_part on stack (will be popped in r_finish) */
+            if (!ud_part_ind_stack_push(&r->uc_part_stack, &part->up_index_cur)) {
+              ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
+              return UD_TREE_FAIL;
+            }
+
+            rtmp = *r;
+            rtmp.uc_out = &out;
+            rtmp.uc_tree_ctx = 0;
+            rtmp.uc_part = part;
+
+            if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
+            if (!r_output_close(&out)) return UD_TREE_FAIL;
+            return UD_TREE_STOP_LIST;
           }
-          /* save uc_part on stack */
-          if (!ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur)) {
-            ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
-            return UD_TREE_FAIL;
-          }
-          r->uc_part = part;
-        } else {
-          ud_error_push(&ud_errors, "ud_part_get", "could not get uc_part for node");
+        }
+
+        /* save uc_part on stack */
+        if (!ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur)) {
+          ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
           return UD_TREE_FAIL;
         }
+        r->uc_part = part;
         break;
       default:
         break;
