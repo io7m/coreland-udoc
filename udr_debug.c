@@ -4,6 +4,9 @@
 
 #include "log.h"
 
+/* this renderer is intended to do pedantic checking, but
+   hasn't yet been filled in */
+
 static int rd_init_done;
 static int rd_fini_done;
 
