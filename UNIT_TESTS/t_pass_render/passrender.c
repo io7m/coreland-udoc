@@ -40,7 +40,6 @@ main(int argc, char *argv[])
     }
   test_assert(r != 0);
 
-  test_assert(ud_error_init(&ud_errors) == 1);
   test_assert(ud_init(&doc) == 1);
 
   doc.ud_opts = main_opts;

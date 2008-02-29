@@ -17,6 +17,7 @@ struct udoc_opts {
 };
 
 struct udoc {
+  struct udoc *ud_main_doc; /* main document points to itself */
   struct ud_tree ud_tree;
   struct tokenizer ud_tok;
   const char *ud_name;
@@ -31,6 +32,8 @@ struct udoc {
   struct ud_ordered_ht ud_ref_names;
   struct ud_ordered_ht ud_footnotes;
   struct ud_ordered_ht ud_styles;
+  struct hashtable ud_documents;
+  struct dstack ud_errors;
   struct udoc_opts ud_opts;
   int ud_dirfd_pwd;
   int ud_dirfd_src;
@@ -44,10 +47,8 @@ int ud_open(struct udoc *, const char *);
 int ud_parse(struct udoc *);
 int ud_validate(struct udoc *);
 int ud_partition(struct udoc *);
-int ud_get(const char *, struct udoc **);
+int ud_get(const struct udoc *, const char *, struct udoc **);
 int ud_close(struct udoc *);
 int ud_free(struct udoc *);
-
-extern struct hashtable ud_documents;
 
 #endif

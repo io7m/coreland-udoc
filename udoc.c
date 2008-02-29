@@ -17,30 +17,6 @@ const char *help_s =
 "   -n: no output (do not render document)\n"
 "   -h: this message";
 
-void help(void)
-{
-  log_die3x(0, 0, usage_s, "\n", help_s);
-}
-void usage(void)
-{
-  log_die1x(0, 111, usage_s);
-}
-void die(const char *func)
-{
-  unsigned long ind;
-  unsigned long max;
-  struct ud_error ue;
-
-  max = ud_error_size(&ud_errors);
-  for (ind = 0; ind < max; ++ind) {
-    if (ud_error_pop(&ud_errors, &ue)) {
-      log_3x(LOG_ERROR, ue.file, ": ", ue.error);
-      ud_error_free(&ue);
-    }
-  }
-  log_die2x(LOG_FATAL, 112, func, " failed");
-}
-
 struct udoc main_doc;
 struct udoc_opts main_opts;
 struct udr_opts r_opts;
@@ -53,6 +29,30 @@ static const struct ud_renderer *renderers[] = {
   &ud_render_null,
   &ud_render_debug,
 };
+
+void help(void)
+{
+  log_die3x(0, 0, usage_s, "\n", help_s);
+}
+
+void usage(void)
+{
+  log_die1x(0, 111, usage_s);
+}
+
+void die(const char *func)
+{
+  unsigned long ind;
+  unsigned long max;
+  struct ud_error *ue;
+
+  max = ud_error_size(&main_doc.ud_errors);
+  for (ind = 0; ind < max; ++ind) {
+    if (ud_error_pop(&main_doc.ud_errors, &ue))
+      ud_error_display(&main_doc, ue);
+  }
+  log_die2x(LOG_FATAL, 112, func, " failed");
+}
 
 int main(int argc, char *argv[])
 {
@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
     main_opts.ud_split_thresh = 0;
   }
 
-  if (!ud_error_init(&ud_errors)) log_die1sys(LOG_FATAL, 112, "ud_error_init");
   if (!ud_init(&main_doc)) die("ud_init");
   main_doc.ud_opts = main_opts;
   if (!ud_open(&main_doc, file)) die("opening");

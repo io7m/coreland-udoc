@@ -14,8 +14,8 @@
 #include "multi.h"
 
 static int
-r_output_open(const struct ud_renderer *r, struct udr_output_ctx *out,
-  const struct ud_part *uc_part)
+r_output_open(struct udoc *ud, const struct ud_renderer *r,
+  struct udr_output_ctx *out, const struct ud_part *uc_part)
 {
   char cnum[FMT_ULONG];
 
@@ -29,7 +29,7 @@ r_output_open(const struct ud_renderer *r, struct udr_output_ctx *out,
   log_2x(LOG_NOTICE, "create ", out->uoc_file.s);
 
   out->uoc_buf.fd = open_trunc(out->uoc_file.s);
-  if (out->uoc_buf.fd == -1) { ud_error_pushsys(&ud_errors, "open"); goto FAIL; }
+  ud_try_sys_jump(ud, out->uoc_buf.fd != -1, FAIL, "open");
   return 1;
 
   FAIL:
@@ -38,16 +38,10 @@ r_output_open(const struct ud_renderer *r, struct udr_output_ctx *out,
 }
 
 static int
-r_output_close(struct udr_output_ctx *out)
+r_output_close(struct udoc *ud, struct udr_output_ctx *out)
 {
-  if (buffer_flush(&out->uoc_buf) == -1) {
-    ud_error_pushsys(&ud_errors, "write");
-    return 0;
-  }
-  if (close(out->uoc_buf.fd) == -1) {
-    ud_error_pushsys(&ud_errors, "close");
-    return 0;
-  }
+  ud_try_sys(ud, buffer_flush(&out->uoc_buf) != -1, 0, "write");
+  ud_try_sys(ud, close(out->uoc_buf.fd) != -1, 0, "close");
   return 1;
 }
 
@@ -116,37 +110,27 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
           if (part->up_flags & UD_PART_SPLIT) {
             log_1xf(LOG_DEBUG, "starting part split");
 
-            if (fchdir(ud->ud_dirfd_out) == -1) {
-              ud_error_pushsys(&ud_errors, "fchdir");
-              return UD_TREE_FAIL;
-            }
-            if (!r_output_open(r->uc_render, &out, part)) return UD_TREE_FAIL;
-            if (fchdir(ud->ud_dirfd_src) == -1) {
-              ud_error_pushsys(&ud_errors, "fchdir");
-              return UD_TREE_FAIL;
-            }
-            /* save uc_part on stack (will be popped in r_finish) */
-            if (!ud_part_ind_stack_push(&r->uc_part_stack, &part->up_index_cur)) {
-              ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
-              return UD_TREE_FAIL;
-            }
+            ud_try_sys(ud, fchdir(ud->ud_dirfd_out) != -1, UD_TREE_FAIL, "fchdir");
+            if (!r_output_open(ud, r->uc_render, &out, part)) return UD_TREE_FAIL;
+            ud_try_sys(ud, fchdir(ud->ud_dirfd_src) != -1, UD_TREE_FAIL, "fchdir");
 
+            /* save uc_part on stack (will be popped in r_finish) */
+            ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack, &part->up_index_cur),
+                       UD_TREE_FAIL, "stack_push");
             rtmp = *r;
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
             rtmp.uc_part = part;
 
             if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
-            if (!r_output_close(&out)) return UD_TREE_FAIL;
+            if (!r_output_close(ud, &out)) return UD_TREE_FAIL;
             return UD_TREE_STOP_LIST;
           }
         }
 
         /* save uc_part on stack */
-        if (!ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur)) {
-          ud_error_pushsys(&ud_errors, "ud_part_ind_stack_push");
-          return UD_TREE_FAIL;
-        }
+        ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur),
+                   UD_TREE_FAIL, "stack_push");
         r->uc_part = part;
         break;
       default:
@@ -224,7 +208,7 @@ static const struct ud_tree_ctx_funcs render_funcs = {
 /* public */
 
 int
-ud_render_node(struct udoc *doc, struct udr_ctx *ctx,
+ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
   const struct ud_node_list *root)
 {
   struct ud_tree_ctx tctx;
@@ -240,7 +224,7 @@ ud_render_node(struct udoc *doc, struct udr_ctx *ctx,
   bin_zero(&tctx_state, sizeof(tctx_state));
 
   rctx = *ctx;
-  if (!ud_part_ind_stack_init(&rctx.uc_part_stack, ud_oht_size(&doc->ud_parts)))
+  if (!ud_part_ind_stack_init(&rctx.uc_part_stack, ud_oht_size(&ud->ud_parts)))
     return 0;
 
   /* backend render is passed as user data to tree_ctx */
@@ -251,7 +235,7 @@ ud_render_node(struct udoc *doc, struct udr_ctx *ctx,
 
   /* set tree_ctx */
   rctx.uc_tree_ctx = &tctx;
-  ret = ud_tree_walk(doc, &tctx);
+  ret = ud_tree_walk(ud, &tctx);
 
   /* the uc_part stack will only be empty if everything was successful */
   if (ret != UD_TREE_FAIL)
@@ -262,7 +246,7 @@ ud_render_node(struct udoc *doc, struct udr_ctx *ctx,
 }
 
 int
-ud_render_doc(struct udoc *doc, const struct udr_opts *opts,
+ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
   const struct ud_renderer *r, const char *outdir)
 {
   const struct ud_part *p;
@@ -271,30 +255,18 @@ ud_render_doc(struct udoc *doc, const struct udr_opts *opts,
 
   log_1xf(LOG_DEBUG, "rendering");
 
-  if (fchdir(doc->ud_dirfd_pwd) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    return 0;
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_pwd) != -1, FAIL, "fchdir");
+
+  if (ud->ud_dirfd_out == -1) {
+    ud->ud_dirfd_out = open_ro(outdir);
+    ud_try_sys_jump(ud, ud->ud_dirfd_out != -1, FAIL, outdir);
   }
-  if (doc->ud_dirfd_out == -1) {
-    doc->ud_dirfd_out = open_ro(outdir);
-    if (doc->ud_dirfd_out == -1) {
-      ud_error_pushsys(&ud_errors, "outdir");
-      return 0;
-    }
-  }
-  if (fchdir(doc->ud_dirfd_out) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    return 0;
-  }
-  if (!ud_oht_getind(&doc->ud_parts, 0, (void *) &p)) {
-    ud_error_push(&ud_errors, "ud_oht_getind", "could not get root uc_part");
-    return 0;
-  }
-  if (!r_output_open(r, &out, p)) return 0;
-  if (fchdir(doc->ud_dirfd_src) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    return 0;
-  }
+
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_out) != -1, FAIL, "fchdir");
+  ud_try_jumpS(ud, ud_oht_getind(&ud->ud_parts, 0, (void *) &p), FAIL,
+               "ud_oht_getind", "could not get root part");
+  if (!r_output_open(ud, r, &out, p)) goto FAIL;
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
 
   bin_zero(&rctx, sizeof(rctx));
   rctx.uc_tree_ctx = 0;
@@ -303,13 +275,14 @@ ud_render_doc(struct udoc *doc, const struct udr_opts *opts,
   rctx.uc_opts = opts;
   rctx.uc_out = &out;
 
-  if (!ud_render_node(doc, &rctx, p->up_list)) return 0;
-  if (!r_output_close(&out)) return 0;
-  if (fchdir(doc->ud_dirfd_pwd) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    return 0;
-  }
+  if (!ud_render_node(ud, &rctx, p->up_list)) return 0;
+  if (!r_output_close(ud, &out)) return 0;
+
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_pwd) != -1, FAIL, "fchdir");
   return 1;
+
+  FAIL:
+  return 0;
 }
 
 /*
@@ -330,10 +303,7 @@ udr_print_file(struct udoc *ud, struct udr_ctx *rc, const char *file,
   char *x;
   int ret = 0;
 
-  if (fchdir(ud->ud_dirfd_src) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    goto END;
-  }
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_pwd) != -1, END, "fchdir");
 
   /* if file does not contain '.' then add renderer suffix */
   sstring_trunc(&sstr);
@@ -362,11 +332,7 @@ udr_print_file(struct udoc *ud, struct udr_ctx *rc, const char *file,
     if (close(in.fd) == -1)
       log_2sys(LOG_WARN, "close: ", sstr.s);
 
-  if (fchdir(ud->ud_dirfd_src) == -1) {
-    ud_error_pushsys(&ud_errors, "fchdir");
-    goto END;
-  }
-
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, END, "fchdir");
   ret = 1;
 
   END:

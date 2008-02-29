@@ -215,10 +215,8 @@ x_tag_link(struct udoc *ud, struct udr_ctx *r)
   refl = n->un_next->un_data.un_str;
   text = (n->un_next->un_next) ? n->un_next->un_next->un_data.un_str : refl;
 
-  if (!ud_oht_get(&ud->ud_ref_names, refl, str_len(refl), (void *) &ref, &dummy)) {
-    ud_error_push(&ud_errors, "could not get reference for link", refl);
-    return UD_TREE_FAIL;
-  }
+  ud_tryS(ud, ud_oht_get(&ud->ud_ref_names, refl, str_len(refl), (void *) &ref, &dummy),
+          UD_TREE_FAIL, "ud_oht_get", "could not get reference for link");
 
   /* only link to file if splitting */
   buffer_puts(out, "<a href=\"");
@@ -586,7 +584,7 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
  */
 
 static enum ud_tree_walk_stat 
-xhtm_init_once(struct udoc *doc, struct udr_ctx *rc)
+xhtm_init_once(struct udoc *ud, struct udr_ctx *rc)
 {
   struct xhtml_ctx *xc;
 
@@ -602,7 +600,7 @@ xhtm_init_once(struct udoc *doc, struct udr_ctx *rc)
 }
 
 static enum ud_tree_walk_stat 
-xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
+xhtm_file_init(struct udoc *ud, struct udr_ctx *rc)
 {
   unsigned long max;
   unsigned long ind;
@@ -612,16 +610,16 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
   struct buffer *out = &rc->uc_out->uoc_buf;
   const char *title = 0;
 
-  x_html_xml(out, doc->ud_encoding);
+  x_html_xml(out, ud->ud_encoding);
   x_html_doctype(out);
 
   buffer_puts(out, "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
   buffer_puts(out, "<head>\n");
 
   /* print style data */
-  max = ud_oht_size(&doc->ud_styles);
+  max = ud_oht_size(&ud->ud_styles);
   for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&doc->ud_styles, ind, (void *) &ref));
+    ud_assert(ud_oht_getind(&ud->ud_styles, ind, (void *) &ref));
     buffer_puts(out, "<link rel=\"stylesheet\" type=\"text/css\" href=\"");
     buffer_puts(out, ref->ur_node->un_next->un_data.un_str);
     buffer_puts(out, ".css\"/>\n");
@@ -632,7 +630,7 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
     title = ppart->up_title;
     if (!title) {
       if (ppart->up_index_parent == ppart->up_index_cur) break;
-      ud_oht_getind(&doc->ud_parts, ppart->up_index_parent, (void *) &ppart);
+      ud_oht_getind(&ud->ud_parts, ppart->up_index_parent, (void *) &ppart);
     } else {
       buffer_puts(out, "<title>");
       x_escape_puts(out, title, 0);
@@ -644,12 +642,12 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
   buffer_puts(out, "</head>\n<body>\n");
 
   /* render backend-specific header */
-  if (doc->ud_render_header)
-    if (!udr_print_file(doc, rc, doc->ud_render_header, 0, 0))
+  if (ud->ud_render_header)
+    if (!udr_print_file(ud, rc, ud->ud_render_header, 0, 0))
       return UD_TREE_FAIL;
 
-  if (doc->ud_opts.ud_split_thresh)
-    x_navbar(doc, out, part, "ud_navbar_head");
+  if (ud->ud_opts.ud_split_thresh)
+    x_navbar(ud, out, part, "ud_navbar_head");
 
   buffer_puts(out, "<div>\n");
 
@@ -661,26 +659,26 @@ xhtm_file_init(struct udoc *doc, struct udr_ctx *rc)
 }
 
 static enum ud_tree_walk_stat
-xhtm_list(struct udoc *doc, struct udr_ctx *rc)
+xhtm_list(struct udoc *ud, struct udr_ctx *rc)
 {
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-xhtm_symbol(struct udoc *doc, struct udr_ctx *rc)
+xhtm_symbol(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *sym = rc->uc_tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
   if (rc->uc_tree_ctx->utc_state->utc_list_pos == 0)
     if (ud_tag_by_name(sym, &tag))
-      return dispatch(tag_starts, tag_starts_size, doc, rc, tag);
+      return dispatch(tag_starts, tag_starts_size, ud, rc, tag);
 
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-xhtm_string(struct udoc *doc, struct udr_ctx *rc)
+xhtm_string(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *sym = rc->uc_tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym;
   enum ud_tag tag;
@@ -705,48 +703,46 @@ xhtm_string(struct udoc *doc, struct udr_ctx *rc)
         break;
     }
   }
-  if (!x_string(doc, rc)) return UD_TREE_FAIL;
+  if (!x_string(ud, rc)) return UD_TREE_FAIL;
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-xhtm_list_end(struct udoc *doc, struct udr_ctx *rc)
+xhtm_list_end(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *sym = rc->uc_tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym;
   enum ud_tag tag;
 
   if (ud_tag_by_name(sym, &tag))
-    return dispatch(tag_ends, tag_ends_size, doc, rc, tag);
+    return dispatch(tag_ends, tag_ends_size, ud, rc, tag);
 
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-xhtm_file_finish(struct udoc *doc, struct udr_ctx *rc)
+xhtm_file_finish(struct udoc *ud, struct udr_ctx *rc)
 {
   const struct ud_part *part = rc->uc_part;
   struct buffer *out = &rc->uc_out->uoc_buf;
 
-  x_footnotes(doc, rc);
+  x_footnotes(ud, rc);
   buffer_puts(out, "</div>\n");
 
-  if (doc->ud_opts.ud_split_thresh)
-    x_navbar(doc, out, part, "ud_navbar_foot");
+  if (ud->ud_opts.ud_split_thresh)
+    x_navbar(ud, out, part, "ud_navbar_foot");
 
   /* render backend-specific footer */
-  if (doc->ud_render_footer)
-    if (!udr_print_file(doc, rc, doc->ud_render_footer, 0, 0)) return UD_TREE_FAIL;
+  if (ud->ud_render_footer)
+    if (!udr_print_file(ud, rc, ud->ud_render_footer, 0, 0)) return UD_TREE_FAIL;
 
   buffer_puts(out, "</body>\n</html>");
-  if (buffer_flush(out) == -1) {
-    ud_error_pushsys(&ud_errors, "write");
-    return UD_TREE_FAIL;
-  }
+
+  ud_try_sys(ud, buffer_flush(out) != -1, UD_TREE_FAIL, "write");
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-xhtm_finish_once(struct udoc *doc, struct udr_ctx *rc)
+xhtm_finish_once(struct udoc *ud, struct udr_ctx *rc)
 {
   struct xhtml_ctx *xc = rc->uc_user_data;
   dstring_free(&xc->dstr);

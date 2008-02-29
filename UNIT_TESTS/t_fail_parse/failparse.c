@@ -10,7 +10,6 @@ main(int argc, char *argv[])
   log_level(6);
 
   test_assert(argc == 2);
-  test_assert(ud_error_init(&ud_errors) == 1);
   test_assert(ud_init(&doc) == 1);
   test_assert(ud_open(&doc, argv[1]) == 1);
   test_assert(ud_parse(&doc) == 0);

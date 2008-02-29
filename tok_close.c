@@ -4,7 +4,8 @@
 int
 token_close(struct tokenizer *t)
 {
-  if (close(t->buf.fd) == -1) return 0;
+  if (t->buf.fd != -1)
+    if (close(t->buf.fd) == -1) return 0;
   t->buf.fd = -1;
   return 1;
 }

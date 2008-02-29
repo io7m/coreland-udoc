@@ -5,3 +5,4 @@
                render callback (it was called prematurely due to recursion).
 20080229 code: ud_close() and token_close() implemented at last, to properly
                close all file descriptors whilst parsing and rendering.
+20080229 code: ud_documents and ud_errors are no longer global structures.

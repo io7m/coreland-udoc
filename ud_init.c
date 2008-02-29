@@ -15,19 +15,28 @@ int
 ud_init(struct udoc *ud)
 {
   bin_zero(ud, sizeof(*ud));
-  if (!ud_oht_init(&ud->ud_parts, sizeof(struct ud_part))) return 0;
-  if (!ud_oht_init(&ud->ud_link_exts, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->ud_refs, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->ud_ref_names, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->ud_footnotes, sizeof(struct ud_ref))) return 0;
-  if (!ud_oht_init(&ud->ud_styles, sizeof(struct ud_ref))) return 0;
+  if (!ud_oht_init(&ud->ud_parts, sizeof(struct ud_part))) goto FAIL;
+  if (!ud_oht_init(&ud->ud_link_exts, sizeof(struct ud_ref))) goto FAIL;
+  if (!ud_oht_init(&ud->ud_refs, sizeof(struct ud_ref))) goto FAIL;
+  if (!ud_oht_init(&ud->ud_ref_names, sizeof(struct ud_ref))) goto FAIL;
+  if (!ud_oht_init(&ud->ud_footnotes, sizeof(struct ud_ref))) goto FAIL;
+  if (!ud_oht_init(&ud->ud_styles, sizeof(struct ud_ref))) goto FAIL;
+  if (!dstack_init(&ud->ud_errors, 16, sizeof(struct ud_error))) goto FAIL;
+  if (!token_init(&ud->ud_tok)) goto FAIL;
+
   ud->ud_dirfd_pwd = open_ro(".");
-  if (ud->ud_dirfd_pwd == -1) return 0;
+  if (ud->ud_dirfd_pwd == -1) goto FAIL;
   ud->ud_dirfd_src = -1;
   ud->ud_dirfd_out = -1;
+  ud->ud_main_doc = ud;
 
+  ht_init(&ud->ud_documents);
   taia_now(&ud->ud_time_start);
-  return token_init(&ud->ud_tok);
+
+  return 1;
+  FAIL:
+  ud_free(ud);
+  return 0;
 }
 
 int

@@ -4,8 +4,6 @@
 #define UDOC_IMPLEMENTATION
 #include "ud_tag.h"
 
-struct hashtable ud_documents;
-
 /*
  * main tags list
  */

@@ -18,15 +18,12 @@
 static void 
 syntax(struct udoc *doc, const char *s)
 {
-  char buf[256];
   char cnum[FMT_ULONG];
-  struct sstring sstr = sstring_INIT(buf);
+  struct ud_error ue;
 
   cnum[fmt_ulong(cnum, doc->ud_tok.line)] = 0;
-  sstring_cats4(&sstr, "syntax: ", cnum, ": ", s);
-  sstring_0(&sstr);
-
-  ud_error_push(&ud_errors, doc->ud_name, sstr.s);
+  ud_error_fill(doc, &ue, "syntax", cnum, s, 0);
+  ud_error_push(doc, &ue);
 }
 
 static void 
@@ -55,12 +52,13 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
     syntax(doc, "the include symbol can only appear at the start of a list");
     goto FAIL;
   }
-  if (ud_get(file, &udp)) {
+  if (ud_get(doc, file, &udp)) {
     log_2xf(LOG_INFO, "include reused: ", file);
   } else {
     if (!ud_init(&ud_new)) goto FAIL;
+    ud_new.ud_main_doc = doc->ud_main_doc;
     if (!ud_open(&ud_new, file)) goto FAIL;
-    if (!ud_get(file, &udp)) goto FAIL;
+    if (!ud_get(doc, file, &udp)) goto FAIL;
     if (!ud_parse(udp)) goto FAIL;
     if (!ud_close(udp)) goto FAIL;
   }

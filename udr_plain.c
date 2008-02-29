@@ -252,10 +252,9 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
 
   dfo_break_line(dfo);
   dfo_break_line(dfo);
-  if (dfo_flush(dfo) == -1) {
-    ud_error_push(&ud_errors, "dfo_flush", dfo_errorstr(dfo->error));
-    return UD_TREE_FAIL;
-  }
+
+  ud_tryS(ud, dfo_flush(dfo) != -1, UD_TREE_FAIL, "dfo_flush",
+              dfo_errorstr(dfo->error));
 
   ud_table_measure(rc->uc_tree_ctx->utc_state->utc_list, &tab);
   dfo_constrain(dfo, PAGE_WIDTH, 2);
@@ -263,24 +262,19 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
   /* for each item in list, render list (row) */
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
-      if (!dfo_columns(dfo, tab.ut_cols, 2)) {
-        ud_error_push(&ud_errors, "dfo_columns", dfo_errorstr(dfo->error));
-        return UD_TREE_FAIL;
-      }
+      ud_tryS(ud, dfo_columns(dfo, tab.ut_cols, 2), UD_TREE_FAIL, "dfo_columns",
+                  dfo_errorstr(dfo->error));
       rtmp.uc_tree_ctx = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
-      if (!dfo_columns_end(dfo)) {
-        ud_error_push(&ud_errors, "dfo_columns_end", dfo_errorstr(dfo->error));
-        return UD_TREE_FAIL;
-      }
+      ud_tryS(ud, dfo_columns_end(dfo), UD_TREE_FAIL, "dfo_columns",
+                  dfo_errorstr(dfo->error));
     }
     if (n->un_next) n = n->un_next; else break;
   }
 
-  if (dfo_flush(dfo) == -1) {
-    ud_error_push(&ud_errors, "dfo_flush", dfo_errorstr(dfo->error));
-    return UD_TREE_FAIL;
-  }
+  ud_tryS(ud, dfo_flush(dfo) != -1, UD_TREE_FAIL, "dfo_flush",
+              dfo_errorstr(dfo->error));
+
   dfo_break_line(dfo);
   dfo_constrain(dfo, PAGE_WIDTH, 0);
   return UD_TREE_STOP_LIST;
@@ -394,10 +388,9 @@ rp_file_init(struct udoc *ud, struct udr_ctx *rc)
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
   if (!dfo_init(dfo, &rc->uc_out->uoc_buf, 0, 0)) return UD_TREE_FAIL;
-  if (!dfo_constrain(dfo, PAGE_WIDTH, 0)) {
-    ud_error_push(&ud_errors, "dfo_constrain", dfo_errorstr(dfo->error));
-    return UD_TREE_FAIL;
-  }
+
+  ud_tryS(ud, dfo_constrain(dfo, PAGE_WIDTH, 0), UD_TREE_FAIL, "dfo_constrain",
+              dfo_errorstr(dfo->error));
 
   if (ud->ud_render_header)
     if (!udr_print_file(ud, rc, ud->ud_render_header, plain_put, dfo))
@@ -497,10 +490,8 @@ rp_file_finish(struct udoc *ud, struct udr_ctx *rc)
     if (!udr_print_file(ud, rc, ud->ud_render_footer, plain_put, dfo))
       return UD_TREE_FAIL;
 
-  if (dfo_flush(dfo) == -1) {
-    ud_error_push(&ud_errors, "dfo_flush", dfo_errorstr(dfo->error));
-    return UD_TREE_FAIL;
-  }
+  ud_tryS(ud, dfo_flush(dfo) != -1, UD_TREE_FAIL, "dfo_flush",
+              dfo_errorstr(dfo->error));
   return UD_TREE_OK;
 }
 
