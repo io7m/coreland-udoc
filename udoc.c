@@ -128,5 +128,6 @@ int main(int argc, char *argv[])
   if (!ud_partition(&main_doc)) die("partitioning");
   log_1xf(LOG_DEBUG, "rendering");
   if (!ud_render_doc(&main_doc, &r_opts, r, outdir)) die("rendering");
+  if (!ud_close(&main_doc)) die("closing");
   return 0;
 }

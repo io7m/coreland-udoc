@@ -3,3 +3,5 @@
 20080228 code: massive structure field prefixing.
 20080229 code: added debug renderer and fixed bug involving the finish_once()
                render callback (it was called prematurely due to recursion).
+20080229 code: ud_close() and token_close() implemented at last, to properly
+               close all file descriptors whilst parsing and rendering.
