@@ -404,6 +404,14 @@ multiput.o:\
 cc-compile multiput.c multi.h 
 	./cc-compile multiput.c
 
+tok_close.o:\
+cc-compile tok_close.c token.h 
+	./cc-compile tok_close.c
+
+tok_free.o:\
+cc-compile tok_free.c token.h 
+	./cc-compile tok_free.c
+
 tok_init.o:\
 cc-compile tok_init.c token.h 
 	./cc-compile tok_init.c
@@ -417,16 +425,17 @@ cc-compile tok_open.c token.h
 	./cc-compile tok_open.c
 
 token.a:\
-cc-slib token.sld tok_init.o tok_next.o tok_open.o 
-	./cc-slib token tok_init.o tok_next.o tok_open.o 
+cc-slib token.sld tok_close.o tok_free.o tok_init.o tok_next.o tok_open.o 
+	./cc-slib token tok_close.o tok_free.o tok_init.o tok_next.o \
+	tok_open.o 
 
 ud.a:\
-cc-slib ud.sld ud_assert.o ud_data.o ud_error.o ud_free.o ud_init.o \
-ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o ud_render.o \
-ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o udr_context.o \
-udr_debug.o udr_nroff.o udr_null.o udr_plain.o udr_xhtml.o 
-	./cc-slib ud ud_assert.o ud_data.o ud_error.o ud_free.o ud_init.o \
-	ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
+cc-slib ud.sld ud_assert.o ud_close.o ud_data.o ud_error.o ud_free.o \
+ud_init.o ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
+ud_render.o ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o \
+udr_context.o udr_debug.o udr_nroff.o udr_null.o udr_plain.o udr_xhtml.o 
+	./cc-slib ud ud_assert.o ud_close.o ud_data.o ud_error.o ud_free.o \
+	ud_init.o ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
 	ud_render.o ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o \
 	udr_context.o udr_debug.o udr_nroff.o udr_null.o udr_plain.o \
 	udr_xhtml.o 
@@ -434,6 +443,10 @@ udr_debug.o udr_nroff.o udr_null.o udr_plain.o udr_xhtml.o
 ud_assert.o:\
 cc-compile ud_assert.c ud_assert.h log.h 
 	./cc-compile ud_assert.c
+
+ud_close.o:\
+cc-compile ud_close.c ud_tag.h udoc.h 
+	./cc-compile ud_close.c
 
 ud_data.o:\
 cc-compile ud_data.c ud_tag.h 
@@ -568,17 +581,18 @@ obj_clean:
 	UNIT_TESTS/t_pass_render/passrender.o \
 	UNIT_TESTS/t_pass_valid/passvalid \
 	UNIT_TESTS/t_pass_valid/passvalid.o UNIT_TESTS/t_token/t_token \
-	UNIT_TESTS/t_token/t_token.o ctxt/bindir.c ctxt/bindir.o ctxt/ctxt.a \
-	ctxt/dlibdir.c ctxt/dlibdir.o ctxt/incdir.c ctxt/incdir.o \
-	ctxt/repos.c ctxt/repos.o ctxt/slibdir.c ctxt/slibdir.o \
-	ctxt/version.c ctxt/version.o deinstaller deinstaller.o dfo.a \
-	dfo_column.o dfo_cons.o dfo_cur.o dfo_err.o dfo_free.o dfo_init.o \
-	dfo_put.o dfo_size.o dfo_tran.o dfo_wrap.o dfo_ws.o inst-check \
-	inst-check.o inst-copy inst-copy.o inst-dir inst-dir.o inst-link \
-	inst-link.o install_core.o install_error.o installer installer.o \
-	instchk instchk.o insthier.o log.a log.o multi.a multicats.o \
-	multiput.o 
-	rm -f tok_init.o tok_next.o tok_open.o token.a ud.a ud_assert.o \
+	UNIT_TESTS/t_token/t_token.o conf-cctype conf-ldtype conf-systype \
+	ctxt/bindir.c ctxt/bindir.o ctxt/ctxt.a ctxt/dlibdir.c \
+	ctxt/dlibdir.o ctxt/incdir.c ctxt/incdir.o ctxt/repos.c ctxt/repos.o \
+	ctxt/slibdir.c ctxt/slibdir.o ctxt/version.c ctxt/version.o \
+	deinstaller deinstaller.o dfo.a dfo_column.o dfo_cons.o dfo_cur.o \
+	dfo_err.o dfo_free.o dfo_init.o dfo_put.o dfo_size.o dfo_tran.o \
+	dfo_wrap.o dfo_ws.o inst-check inst-check.o inst-copy inst-copy.o \
+	inst-dir inst-dir.o inst-link inst-link.o install_core.o \
+	install_error.o installer installer.o instchk instchk.o insthier.o \
+	log.a log.o 
+	rm -f mk-ctxt multi.a multicats.o multiput.o tok_close.o tok_free.o \
+	tok_init.o tok_next.o tok_open.o token.a ud.a ud_assert.o ud_close.o \
 	ud_data.o ud_error.o ud_free.o ud_init.o ud_list.o ud_oht.o \
 	ud_open.o ud_parse.o ud_part.o ud_ref.o ud_render.o ud_table.o \
 	ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o udoc udoc-conf udoc-conf.o \

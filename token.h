@@ -26,5 +26,7 @@ struct tokenizer {
 int token_init(struct tokenizer *);
 int token_open(struct tokenizer *, const char *);
 int token_next(struct tokenizer *, char **, enum token_type *);
+int token_close(struct tokenizer *);
+void token_free(struct tokenizer *);
 
 #endif

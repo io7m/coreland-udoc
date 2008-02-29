@@ -1,4 +1,5 @@
 ud_assert.o
+ud_close.o
 ud_data.o
 ud_error.o
 ud_free.o

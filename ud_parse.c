@@ -62,6 +62,7 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
     if (!ud_open(&ud_new, file)) goto FAIL;
     if (!ud_get(file, &udp)) goto FAIL;
     if (!ud_parse(udp)) goto FAIL;
+    if (!ud_close(udp)) goto FAIL;
   }
   if (!udp->ud_nodes) {
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");

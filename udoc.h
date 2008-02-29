@@ -45,6 +45,7 @@ int ud_parse(struct udoc *);
 int ud_validate(struct udoc *);
 int ud_partition(struct udoc *);
 int ud_get(const char *, struct udoc **);
+int ud_close(struct udoc *);
 int ud_free(struct udoc *);
 
 extern struct hashtable ud_documents;
