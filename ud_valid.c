@@ -89,7 +89,6 @@ valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
   sstring_catb(&sb1, cnum, fmt_ulong(cnum, n->un_line_num));
   sstring_cats(&sb1, ": ");
   sstring_cats(&sb1, n->un_data.un_sym);
-  sstring_0(&sb1);
 
   switch (vc->error) {
     case V_TOO_FEW_ARGS:
@@ -114,6 +113,10 @@ valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
     default:
       break;
   }
+
+  sstring_0(&sb1);
+  sstring_0(&sb2);
+
   ud_error_extra(ud, sb1.s, sb2.s);
 }
 
@@ -194,7 +197,7 @@ check_parents(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
         got_par = 0;
         for (f = 0; f < ud_parent_rules[r].par_demand_size; ++f) {
           if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
-                                ud_parent_rules[r].par_demand[f])) {
+                                 ud_parent_rules[r].par_demand[f])) {
             got_par = 1;
             break;
           }
@@ -206,7 +209,7 @@ check_parents(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
       }
       for (f = 0; f < ud_parent_rules[r].par_forbid_size; ++f) {
         if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
-                                ud_parent_rules[r].par_forbid[f])) {
+                               ud_parent_rules[r].par_forbid[f])) {
           vc->error = V_ILLEGAL_PARENT;
           vc->tag = ud_parent_rules[r].par_forbid[f];
           return 0;
@@ -263,10 +266,7 @@ ud_validate(struct udoc *ud)
   struct validate_ctx vc;
 
   /* empty file is forbidden */
-  if (!ud->ud_nodes) {
-    ud_error(ud, "file is empty");
-    return 0;
-  }
+  ud_try(ud, ud->ud_nodes, 0, "file is empty");
 
   bin_zero(&ctx, sizeof(ctx));
   bin_zero(&state, sizeof(state));
