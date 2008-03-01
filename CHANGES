@@ -6,3 +6,5 @@
 20080229 code: ud_close() and token_close() implemented at last, to properly
                close all file descriptors whilst parsing and rendering.
 20080229 code: ud_documents and ud_errors are no longer global structures.
+20080301 code: new format for error structure.
+20080301 code: syntax errors are now pushed onto the error stack.
