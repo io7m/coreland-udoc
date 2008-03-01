@@ -48,6 +48,7 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
   struct udoc *udp;
   struct ud_node cur = {0, {0}, 0, 0};
 
+  bin_zero(&ud_new, sizeof(ud_new));
   if (list->unl_size) {
     syntax(doc, "the include symbol can only appear at the start of a list");
     goto FAIL;
@@ -66,6 +67,8 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");
     return 1;
   }
+
+  /* insert node pointing to new/reused document */
   cur.un_line_num = doc->ud_tok.line;
   cur.un_type = UDOC_TYPE_INCLUDE;
   cur.un_data.un_list = udp->ud_tree.ut_root;
@@ -74,6 +77,7 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
 
   return 1;
 FAIL:
+  ud_free(&ud_new);
   return 0;
 }
 
@@ -128,6 +132,7 @@ ud_tree_string(struct udoc *doc, const char *str, struct ud_node_list *list)
 
   return 1;
 FAIL:
+  if (cur.un_data.un_sym) dealloc_null(&cur.un_data.un_sym);
   return 0;
 }
 
