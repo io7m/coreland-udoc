@@ -32,4 +32,4 @@ const struct ud_tag_name ud_tags_by_name[] = {
   { "render-noescape", UDOC_TAG_RENDER_NOESCAPE },
 };
 const unsigned int ud_num_tags = sizeof(ud_tags_by_name)
-                                 / sizeof(ud_tags_by_name[0]);
+                               / sizeof(ud_tags_by_name[0]);

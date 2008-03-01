@@ -16,18 +16,18 @@
 #include "udoc.h"
 
 static void 
-syntax(struct udoc *doc, const char *s)
+syntax(struct udoc *ud, const char *s)
 {
   char cnum[FMT_ULONG];
-  struct ud_error ue;
+  struct ud_err ue;
 
-  cnum[fmt_ulong(cnum, doc->ud_tok.line)] = 0;
-  ud_error_fill(doc, &ue, "syntax", cnum, s, 0);
-  ud_error_push(doc, &ue);
+  cnum[fmt_ulong(cnum, ud->ud_tok.line)] = 0;
+  ud_error_fill(ud, &ue, "syntax", cnum, s, 0);
+  ud_error_push(ud, &ue);
 }
 
 static void 
-ud_tree_reduce(struct udoc *doc, struct ud_node_list *list)
+ud_tree_reduce(struct udoc *ud, struct ud_node_list *list)
 {
   struct ud_node *un;
 
@@ -42,7 +42,7 @@ ud_tree_reduce(struct udoc *doc, struct ud_node_list *list)
 }
 
 static int 
-ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
+ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
 {
   struct udoc ud_new;
   struct udoc *udp;
@@ -50,18 +50,18 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
 
   bin_zero(&ud_new, sizeof(ud_new));
   if (list->unl_size) {
-    syntax(doc, "the include symbol can only appear at the start of a list");
+    syntax(ud, "the include symbol can only appear at the start of a list");
     goto FAIL;
   }
-  if (ud_get(doc, file, &udp)) {
+  if (ud_get(ud, file, &udp)) {
     log_2xf(LOG_INFO, "include reused: ", file);
   } else {
-    if (!ud_init(&ud_new)) goto FAIL;
-    ud_new.ud_main_doc = doc->ud_main_doc;
-    if (!ud_open(&ud_new, file)) goto FAIL;
-    if (!ud_get(doc, file, &udp)) goto FAIL;
-    if (!ud_parse(udp)) goto FAIL;
-    if (!ud_close(udp)) goto FAIL;
+    ud_try_jump(ud, ud_init(&ud_new), FAIL, "ud_init failed");
+    ud_new.ud_main_doc = ud->ud_main_doc;
+    ud_try_jump(ud, ud_open(&ud_new, file), FAIL, "ud_open failed");
+    ud_try_jump(ud, ud_get(ud, file, &udp), FAIL, "ud_get failed");
+    ud_try_jump(ud, ud_parse(udp), FAIL, "ud_parse failed");
+    ud_try_jump(ud, ud_close(udp), FAIL, "ud_close failed");
   }
   if (!udp->ud_nodes) {
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");
@@ -69,12 +69,12 @@ ud_tree_include(struct udoc *doc, char *file, struct ud_node_list *list)
   }
 
   /* insert node pointing to new/reused document */
-  cur.un_line_num = doc->ud_tok.line;
+  cur.un_line_num = ud->ud_tok.line;
   cur.un_type = UDOC_TYPE_INCLUDE;
   cur.un_data.un_list = udp->ud_tree.ut_root;
-  if (!ud_list_cat(list, &cur)) goto FAIL;
-  ++doc->ud_nodes;
+  ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
 
+  ++ud->ud_nodes;
   return 1;
 FAIL:
   ud_free(&ud_new);
@@ -82,53 +82,29 @@ FAIL:
 }
 
 static int 
-ud_tree_symbol(struct udoc *doc, char *symbol, struct ud_node_list *list)
+ud_tree_symbol(struct udoc *ud, char *symbol, struct ud_node_list *list)
 {
   struct ud_node cur = {0, {0}, 0, 0};
-  enum token_type param_type;
-  char *param_token;
+  enum token_type par_type;
+  char *par_token;
 
   if (!str_same(symbol, "include")) {
     cur.un_type = UDOC_TYPE_SYMBOL;
-    cur.un_line_num = doc->ud_tok.line;
-    if (!str_dup(symbol, &cur.un_data.un_sym)) goto FAIL;
-    if (!ud_list_cat(list, &cur)) goto FAIL;
-    ++doc->ud_nodes;
+    cur.un_line_num = ud->ud_tok.line;
+    ud_try_sys_jump(ud, str_dup(symbol, &cur.un_data.un_sym), FAIL, "str_dup");
+    ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
+    ++ud->ud_nodes;
   } else {
-    if (!token_next(&doc->ud_tok, &param_token, &param_type)) {
-      if (!errno) syntax(doc, "malformed document (premature end of file)");
+    if (!token_next(&ud->ud_tok, &par_token, &par_type)) {
+      syntax(ud, "malformed document (premature end of file)");
       goto FAIL;
     }
-    if (param_type != TOKEN_TYPE_STRING) {
-      syntax(doc, "argument to include is not a string");
+    if (par_type != TOKEN_TYPE_STRING) {
+      syntax(ud, "argument to include is not a string");
       goto FAIL;
     }
-    if (!ud_tree_include(doc, param_token, list)) goto FAIL;
+    ud_try_jump(ud, ud_tree_include(ud, par_token, list), FAIL, "ud_tree_include failed");
   }
-
-  return 1;
-FAIL:
-  return 0;
-}
-
-static int 
-ud_tree_string(struct udoc *doc, const char *str, struct ud_node_list *list)
-{
-  struct ud_node cur = {0, {0}, 0, 0};
-
-  if (!list->unl_size) {
-    log_1xf(LOG_DEBUG, "inserting implicit para");
-    cur.un_type = UDOC_TYPE_SYMBOL;
-    cur.un_line_num = doc->ud_tok.line;
-    if (!str_dup("para", &cur.un_data.un_sym)) goto FAIL;
-    if (!ud_list_cat(list, &cur)) goto FAIL;
-    ++doc->ud_nodes;
-  }
-  cur.un_type = UDOC_TYPE_STRING;
-  cur.un_line_num = doc->ud_tok.line;
-  if (!str_dup(str, &cur.un_data.un_str)) goto FAIL;
-  if (!ud_list_cat(list, &cur)) goto FAIL;
-  ++doc->ud_nodes;
 
   return 1;
 FAIL:
@@ -137,7 +113,32 @@ FAIL:
 }
 
 static int 
-ud_tree_build(struct udoc *doc, struct ud_node_list *parent)
+ud_tree_string(struct udoc *ud, const char *str, struct ud_node_list *list)
+{
+  struct ud_node cur = {0, {0}, 0, 0};
+
+  if (!list->unl_size) {
+    log_1xf(LOG_DEBUG, "inserting implicit para");
+    cur.un_type = UDOC_TYPE_SYMBOL;
+    cur.un_line_num = ud->ud_tok.line;
+    ud_try_sys_jump(ud, str_dup("para", &cur.un_data.un_sym), FAIL, "str_dup");
+    ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
+    ++ud->ud_nodes;
+  }
+  cur.un_type = UDOC_TYPE_STRING;
+  cur.un_line_num = ud->ud_tok.line;
+  ud_try_sys_jump(ud, str_dup(str, &cur.un_data.un_str), FAIL, "str_dup");
+  ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
+  ++ud->ud_nodes;
+
+  return 1;
+FAIL:
+  if (cur.un_data.un_sym) dealloc_null(&cur.un_data.un_sym);
+  return 0;
+}
+
+static int 
+ud_tree_build(struct udoc *ud, struct ud_node_list *parent)
 {
   struct ud_node cur = {0, {0}, 0, 0};
   struct ud_node_list cur_list = {0, 0, 0};
@@ -145,54 +146,54 @@ ud_tree_build(struct udoc *doc, struct ud_node_list *parent)
   char cnum[FMT_ULONG];
   char *token;
 
-  cnum[fmt_ulong(cnum, doc->ud_depth)] = 0;
-  log_4xf(LOG_DEBUG, "processing ", doc->ud_name, " depth ", cnum);
+  cnum[fmt_ulong(cnum, ud->ud_depth)] = 0;
+  log_4xf(LOG_DEBUG, "processing ", ud->ud_name, " depth ", cnum);
 
   for (;;) {
     errno = 0;
     bin_zero(&cur, sizeof(cur));
-    if (!token_next(&doc->ud_tok, &token, &type)) {
-      if (!errno) syntax(doc, "malformed document (premature end of file)");
+    if (!token_next(&ud->ud_tok, &token, &type)) {
+      if (!errno) syntax(ud, "malformed document (premature end of file)");
       goto FAIL;
     }
     switch (type) {
     case TOKEN_TYPE_SYMBOL:
       log_2xf(LOG_DEBUG, "symbol: ", token);
-      if (!ud_tree_symbol(doc, token, &cur_list)) goto FAIL;
+      if (!ud_tree_symbol(ud, token, &cur_list)) goto FAIL;
       break;
     case TOKEN_TYPE_STRING:
       log_2xf(LOG_DEBUG, "string: ", token);
-      if (!ud_tree_string(doc, token, &cur_list)) goto FAIL;
+      if (!ud_tree_string(ud, token, &cur_list)) goto FAIL;
       break;
     case TOKEN_TYPE_PAREN_OPEN:
       log_1xf(LOG_DEBUG, "paren open");
-      ++doc->ud_depth;
+      ++ud->ud_depth;
       cur.un_type = UDOC_TYPE_LIST;
-      if (!ud_tree_build(doc, &cur.un_data.un_list)) goto FAIL;
+      if (!ud_tree_build(ud, &cur.un_data.un_list)) goto FAIL;
       if (cur.un_data.un_list.unl_size) {
-        if (!ud_list_cat(&cur_list, &cur)) goto FAIL;
-        ++doc->ud_nodes;
+        ud_try_sys_jump(ud, ud_list_cat(&cur_list, &cur), FAIL, "ud_list_cat");
+        ++ud->ud_nodes;
       }
       break;
     case TOKEN_TYPE_PAREN_CLOSE:
       log_1xf(LOG_DEBUG, "paren close");
-      if (!doc->ud_depth) {
-        syntax(doc, "unbalanced parenthesis");
+      if (!ud->ud_depth) {
+        syntax(ud, "unbalanced parenthesis");
         goto FAIL;
       }
-      --doc->ud_depth;
+      --ud->ud_depth;
       if (!cur_list.unl_size) goto EMPTY;
-      ud_tree_reduce(doc, &cur_list);
+      ud_tree_reduce(ud, &cur_list);
       goto SUCCESS;
     case TOKEN_TYPE_EOF:
       log_1xf(LOG_DEBUG, "eof");
-      if (doc->ud_depth) {
-        syntax(doc, "unbalanced parenthesis");
+      if (ud->ud_depth) {
+        syntax(ud, "unbalanced parenthesis");
         goto FAIL;
       }
       goto SUCCESS;
     default:
-      syntax(doc, "unknown token type");
+      syntax(ud, "unknown token type");
       goto FAIL;
     }
   }
@@ -216,12 +217,13 @@ EMPTY:
 }
 
 int 
-ud_parse(struct udoc *doc)
+ud_parse(struct udoc *ud)
 {
-  if (fchdir(doc->ud_dirfd_src) == -1) return 0;
-  if (!ud_tree_build(doc, &doc->ud_tree.ut_root)) {
-    fchdir(doc->ud_dirfd_pwd);
-    return 0;
-  }
-  return (fchdir(doc->ud_dirfd_src) != -1);
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
+  ud_try_jump(ud, ud_tree_build(ud, &ud->ud_tree.ut_root), FAIL, "ud_tree_build failed");
+  ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
+  return 1;
+  FAIL:
+  fchdir(ud->ud_dirfd_pwd);
+  return 0;
 }

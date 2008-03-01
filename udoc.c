@@ -44,7 +44,7 @@ void die(const char *func)
 {
   unsigned long ind;
   unsigned long max;
-  struct ud_error *ue;
+  struct ud_err *ue;
 
   max = ud_error_size(&main_doc.ud_errors);
   for (ind = 0; ind < max; ++ind) {

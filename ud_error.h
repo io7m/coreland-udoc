@@ -1,13 +1,14 @@
 #ifndef UD_ERROR_H
 #define UD_ERROR_H
 
+#include <corelib/dstack.h>
 #include <corelib/sstring.h>
 
 #define UD_ERROR_DOCNAME_MAX 256
 #define UD_ERROR_OP_MAX 32
 #define UD_ERROR_EXTRA_MAX 256
 
-struct ud_error {
+struct ud_err {
   struct udoc *ue_doc;
   const char *ue_func;
   char ue_op_buf[UD_ERROR_OP_MAX];
@@ -17,12 +18,12 @@ struct ud_error {
   int ue_errno_val;
 };
 
-void ud_error_display(struct udoc *, const struct ud_error *);
-void ud_error_fill(struct udoc *, struct ud_error *, const char *, const char *, const char *, int);
-void ud_error_push(struct udoc *, const struct ud_error *);
+void ud_error_display(struct udoc *, const struct ud_err *);
+void ud_error_fill(struct udoc *, struct ud_err *, const char *, const char *, const char *, int);
+void ud_error_push(struct udoc *, const struct ud_err *);
 void ud_try_fail(struct udoc *, const char *, const char *, const char *, int);
 
-int ud_error_pop(struct dstack *, struct ud_error **);
+int ud_error_pop(struct dstack *, struct ud_err **);
 unsigned long ud_error_size(const struct dstack *);
 
 #define ud_try_ret(ud, eval, retval, op, extra, errval) \
@@ -48,5 +49,19 @@ ud_try_goto((ud),(eval),label,(name),0,errno)
 ud_try_goto((ud),(eval),label,(name),(extra),0)
 #define ud_try_jump(ud, eval, label, name) \
 ud_try_goto((ud),(eval),label,(name),0,0)
+
+#define ud_error(ud, str) \
+do {                                                 \
+  struct ud_err ue_tmp;                              \
+  ud_error_fill(ud, &ue_tmp, __func__, (str), 0, 0); \
+  ud_error_push(ud);                                 \
+} while (0);
+
+#define ud_error_sys(ud, str) \
+do {                                                     \
+  struct ud_err ue_tmp;                                  \
+  ud_error_fill(ud, &ue_tmp, __func__, (str), 0, errno); \
+  ud_error_push(ud);                                     \
+} while (0);
 
 #endif

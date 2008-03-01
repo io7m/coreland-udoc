@@ -12,7 +12,7 @@
 #include "ud_error.h"
 
 void
-ud_error_display(struct udoc *ud, const struct ud_error *ue)
+ud_error_display(struct udoc *ud, const struct ud_err *ue)
 {
   if (ue->ue_extra.len) {
     if (ue->ue_errno_val)
@@ -28,7 +28,7 @@ ud_error_display(struct udoc *ud, const struct ud_error *ue)
 }
 
 void
-ud_error_fill(struct udoc *ud, struct ud_error *ue, const char *func,
+ud_error_fill(struct udoc *ud, struct ud_err *ue, const char *func,
   const char *op, const char *extra, int ev)
 {
   ue->ue_doc = ud;
@@ -43,24 +43,27 @@ ud_error_fill(struct udoc *ud, struct ud_error *ue, const char *func,
 }
 
 void
-ud_error_push(struct udoc *ud, const struct ud_error *ue)
+ud_error_push(struct udoc *ud, const struct ud_err *ue)
 {
-  if (!dstack_push(&ud->ud_main_doc->ud_errors, &ue)) {
-    log_1sys(LOG_ERROR, "could not push error onto stack. displaying immediately");
-    ud_error_display(ud, ue);
-  }
+  if (!ud->ud_main_doc) goto FAIL;
+  if (!dstack_push(&ud->ud_main_doc->ud_errors, &ue)) goto FAIL;
+  return;
+
+  FAIL:
+  log_1sys(LOG_ERROR, "could not push error onto stack. displaying immediately");
+  ud_error_display(ud, ue);
 }
 
 void
 ud_try_fail(struct udoc *ud, const char *func, const char *op, const char *extra, int ev)
 {
-  struct ud_error ue;
+  struct ud_err ue;
   ud_error_fill(ud, &ue, func, op, extra, ev);
   ud_error_push(ud, &ue);
 }
 
 int
-ud_error_pop(struct dstack *ds, struct ud_error **ue)
+ud_error_pop(struct dstack *ds, struct ud_err **ue)
 {
   return dstack_pop(ds, (void *) ue);
 }
