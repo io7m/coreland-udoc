@@ -2,20 +2,19 @@
 #define UD_ERROR_H
 
 #include <corelib/dstack.h>
-#include <corelib/sstring.h>
 
 #define UD_ERROR_DOCNAME_MAX 256
 #define UD_ERROR_OP_MAX 32
 #define UD_ERROR_EXTRA_MAX 256
 
+struct udoc;
 struct ud_err {
-  struct udoc *ue_doc;
   const char *ue_func;
-  char ue_op_buf[UD_ERROR_OP_MAX];
-  char ue_extra_buf[UD_ERROR_EXTRA_MAX];
-  struct sstring ue_op;
-  struct sstring ue_extra;
+  char ue_doc[UD_ERROR_DOCNAME_MAX];
+  char ue_op[UD_ERROR_OP_MAX];
+  char ue_extra[UD_ERROR_EXTRA_MAX];
   int ue_errno_val;
+  int ue_used_extra;
 };
 
 void ud_error_display(struct udoc *, const struct ud_err *);

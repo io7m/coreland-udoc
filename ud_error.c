@@ -1,4 +1,5 @@
 #include <corelib/alloc.h>
+#include <corelib/bin.h>
 #include <corelib/dstack.h>
 #include <corelib/hashtable.h>
 #include <corelib/error.h>
@@ -14,16 +15,16 @@
 void
 ud_error_display(struct udoc *ud, const struct ud_err *ue)
 {
-  if (ue->ue_extra.len) {
+  if (ue->ue_used_extra) {
     if (ue->ue_errno_val)
-      log_7x(LOG_ERROR, ue->ue_doc->ud_name, ": ", ue->ue_func, ": ", ue->ue_op.s, ": ", ue->ue_extra.s);
+      log_7sys(LOG_ERROR, ue->ue_doc, ": ", ue->ue_func, ": ", ue->ue_op, ": ", ue->ue_extra);
     else
-      log_7sys(LOG_ERROR, ue->ue_doc->ud_name, ": ", ue->ue_func, ": ", ue->ue_op.s, ": ", ue->ue_extra.s);
+      log_7x(LOG_ERROR, ue->ue_doc, ": ", ue->ue_func, ": ", ue->ue_op, ": ", ue->ue_extra);
   } else {
     if (ue->ue_errno_val)
-      log_5x(LOG_ERROR, ue->ue_doc->ud_name, ": ", ue->ue_func, ": ", ue->ue_op.s);
+      log_5sys(LOG_ERROR, ue->ue_doc, ": ", ue->ue_func, ": ", ue->ue_op);
     else
-      log_5sys(LOG_ERROR, ue->ue_doc->ud_name, ": ", ue->ue_func, ": ", ue->ue_op.s);
+      log_5x(LOG_ERROR, ue->ue_doc, ": ", ue->ue_func, ": ", ue->ue_op);
   }
 }
 
@@ -31,22 +32,33 @@ void
 ud_error_fill(struct udoc *ud, struct ud_err *ue, const char *func,
   const char *op, const char *extra, int ev)
 {
-  ue->ue_doc = ud;
+  struct sstring sstr_dn = sstring_INIT(ue->ue_doc);
+  struct sstring sstr_op = sstring_INIT(ue->ue_op);
+  struct sstring sstr_ex = sstring_INIT(ue->ue_extra);
+
+  bin_zero(ue, sizeof(*ue));
+
   ue->ue_func = func;
   ue->ue_errno_val = ev;
 
-  sstring_init(&ue->ue_op, ue->ue_op_buf, sizeof(ue->ue_op_buf));
-  sstring_init(&ue->ue_extra, ue->ue_extra_buf, sizeof(ue->ue_extra_buf));
+  sstring_cpys(&sstr_dn, ud->ud_name);
+  sstring_0(&sstr_dn);
 
-  sstring_cats(&ue->ue_op, op); sstring_0(&ue->ue_op);
-  if (extra) { sstring_cats(&ue->ue_extra, extra); sstring_0(&ue->ue_extra); }
+  sstring_cpys(&sstr_op, op);
+  sstring_0(&sstr_op);
+
+  if (extra) {
+    sstring_cpys(&sstr_ex, extra);
+    sstring_0(&sstr_ex);
+    ue->ue_used_extra = 1;
+  }
 }
 
 void
 ud_error_push(struct udoc *ud, const struct ud_err *ue)
 {
   if (!ud->ud_main_doc) goto FAIL;
-  if (!dstack_push(&ud->ud_main_doc->ud_errors, &ue)) goto FAIL;
+  if (!dstack_push(&ud->ud_main_doc->ud_errors, (struct ud_err *) ue)) goto FAIL;
   return;
 
   FAIL:

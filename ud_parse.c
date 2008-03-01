@@ -56,12 +56,12 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
   if (ud_get(ud, file, &udp)) {
     log_2xf(LOG_INFO, "include reused: ", file);
   } else {
-    ud_try_jump(ud, ud_init(&ud_new), FAIL, "ud_init failed");
+    if (!ud_init(&ud_new)) goto FAIL;
     ud_new.ud_main_doc = ud->ud_main_doc;
-    ud_try_jump(ud, ud_open(&ud_new, file), FAIL, "ud_open failed");
-    ud_try_jump(ud, ud_get(ud, file, &udp), FAIL, "ud_get failed");
-    ud_try_jump(ud, ud_parse(udp), FAIL, "ud_parse failed");
-    ud_try_jump(ud, ud_close(udp), FAIL, "ud_close failed");
+    if (!ud_open(&ud_new, file)) goto FAIL;
+    if (!ud_get(ud, file, &udp)) goto FAIL;
+    if (!ud_parse(udp)) goto FAIL;
+    if (!ud_close(udp)) goto FAIL;
   }
   if (!udp->ud_nodes) {
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");
@@ -220,7 +220,7 @@ int
 ud_parse(struct udoc *ud)
 {
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
-  ud_try_jump(ud, ud_tree_build(ud, &ud->ud_tree.ut_root), FAIL, "ud_tree_build failed");
+  if (!ud_tree_build(ud, &ud->ud_tree.ut_root)) goto FAIL;
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
   return 1;
   FAIL:
