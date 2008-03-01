@@ -2,10 +2,12 @@
 #include <corelib/bin.h>
 #include <corelib/fmt.h>
 #include <corelib/hashtable.h>
+#include <corelib/sstring.h>
 #include <corelib/open.h>
 #include <corelib/read.h>
 
 #include "log.h"
+#include "multi.h"
 
 #define UDOC_IMPLEMENTATION
 #include "ud_tag.h"
@@ -73,55 +75,66 @@ struct validate_ctx {
 };
 
 static void
-valid_error(struct udoc *doc, const struct ud_node *n, struct validate_ctx *vc)
+valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
 {
-  char ln[FMT_ULONG];
-  char ns[FMT_ULONG];
+  char buf1[256];
+  char buf2[256];
+  char cnum[FMT_ULONG];
+  struct sstring sb1;
+  struct sstring sb2;
 
-  ln[fmt_ulong(ln, n->un_line_num)] = 0;
-  ns[fmt_ulong(ns, vc->arg + 1)] = 0;
+  sstring_init(&sb1, buf1, sizeof(buf1));
+  sstring_init(&sb2, buf2, sizeof(buf2));
+
+  sstring_catb(&sb1, cnum, fmt_ulong(cnum, n->un_line_num));
+  sstring_cats(&sb1, ": ");
+  sstring_cats(&sb1, n->un_data.un_sym);
+  sstring_0(&sb1);
+
   switch (vc->error) {
     case V_TOO_FEW_ARGS:
-      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": too few args");
+      sstring_cats(&sb2, "too few args");
       break;
     case V_TOO_MANY_ARGS:
-      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": too many args");
+      sstring_cats(&sb2, "too many args");
       break;
     case V_BAD_TYPE:
-      log_5x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": invalid type for argument ", ns);
+      cnum[fmt_ulong(cnum, vc->arg + 1)] = 0;
+      sstring_cats2(&sb2, "invalid type for argument ", cnum);
       break;
     case V_SECTION_AT_START:
-      log_2x(LOG_ERROR, ln, ": symbol at root cannot be \"section\"");
+      sstring_cats(&sb2, "symbol at root cannot be \"section\"");
       break;
     case V_ILLEGAL_PARENT:
-      log_5x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": cannot be child of ", ud_tag_name(vc->tag));
+      sstring_cats2(&sb2, "cannot be child of ", ud_tag_name(vc->tag));
       break;
     case V_NO_DEMANDED_PARENTS:
-      log_4x(LOG_ERROR, ln, ": ", n->un_data.un_sym, ": invalid parent");
+      sstring_cats(&sb2, "invalid parent");
       break;
     default:
       break;
   }
+  ud_error_extra(ud, sb1.s, sb2.s);
 }
 
 static void
-validate_error(struct udoc *doc, struct ud_tree_ctx *ctx)
+validate_error(struct udoc *ud, struct ud_tree_ctx *ctx)
 {
-  valid_error(doc, ctx->utc_state->utc_node, ctx->utc_state->utc_user_data);
+  valid_error(ud, ctx->utc_state->utc_node, ctx->utc_state->utc_user_data);
 }
 
 static enum ud_tree_walk_stat
-validate_init(struct udoc *doc, struct ud_tree_ctx *ctx)
+validate_init(struct udoc *ud, struct ud_tree_ctx *ctx)
 {
   struct validate_ctx *vc = ctx->utc_state->utc_user_data;
   enum ud_tag tag;
 
   /* to simplify chunking, a symbol at the root cannot be 'section' */
-  if (doc->ud_tree.ut_root.unl_head->un_type == UDOC_TYPE_SYMBOL) {
-    if (ud_tag_by_name(doc->ud_tree.ut_root.unl_head->un_data.un_sym, &tag)) {
+  if (ud->ud_tree.ut_root.unl_head->un_type == UDOC_TYPE_SYMBOL) {
+    if (ud_tag_by_name(ud->ud_tree.ut_root.unl_head->un_data.un_sym, &tag)) {
       if (tag == UDOC_TAG_SECTION) {
         vc->error = V_SECTION_AT_START;
-        valid_error(doc, doc->ud_tree.ut_root.unl_head, vc);
+        valid_error(ud, ud->ud_tree.ut_root.unl_head, vc);
         return UD_TREE_FAIL;
       }
     }
@@ -130,7 +143,7 @@ validate_init(struct udoc *doc, struct ud_tree_ctx *ctx)
 }
 
 static int
-check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
+check_list(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
   const struct ud_markup_rule *rule = 0;
   const struct ud_node *n = ctx->utc_state->utc_node;
@@ -168,7 +181,7 @@ check_list(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
 }
 
 static int
-check_parents(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
+check_parents(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
   unsigned int r;
   unsigned int f;
@@ -205,7 +218,7 @@ check_parents(struct udoc *doc, struct ud_tree_ctx *ctx, enum ud_tag tag)
 }
 
 static enum ud_tree_walk_stat
-validate_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
+validate_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
 {
   char ln[FMT_ULONG];
   const struct ud_node *n = ctx->utc_state->utc_node;
@@ -213,17 +226,17 @@ validate_symbol(struct udoc *doc, struct ud_tree_ctx *ctx)
 
   if (ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
   if (!ud_tag_by_name(n->un_data.un_sym, &tag)) return UD_TREE_OK;
-  if (!check_list(doc, ctx, tag)) return UD_TREE_FAIL;
-  if (!check_parents(doc, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_list(ud, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_parents(ud, ctx, tag)) return UD_TREE_FAIL;
 
   switch (tag) {
     case UDOC_TAG_ENCODING:
-      if (doc->ud_encoding) {
+      if (ud->ud_encoding) {
         ln[fmt_ulong(ln, n->un_next->un_line_num)] = 0;
         log_4x(LOG_WARN, ln, ": ignored extra encoding tag (\"",
                n->un_next->un_data.un_str, "\")");
       } else
-        doc->ud_encoding = n->un_next->un_data.un_str;
+        ud->ud_encoding = n->un_next->un_data.un_str;
       break;
     default:
       break;
@@ -249,7 +262,11 @@ ud_validate(struct udoc *ud)
   struct ud_tree_ctx_state state;
   struct validate_ctx vc;
 
-  if (!ud->ud_nodes) return 0; /* empty file is forbidden */
+  /* empty file is forbidden */
+  if (!ud->ud_nodes) {
+    ud_error(ud, "file is empty");
+    return 0;
+  }
 
   bin_zero(&ctx, sizeof(ctx));
   bin_zero(&state, sizeof(state));

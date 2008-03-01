@@ -53,14 +53,21 @@ ud_try_goto((ud),(eval),label,(name),0,0)
 do {                                                 \
   struct ud_err ue_tmp;                              \
   ud_error_fill(ud, &ue_tmp, __func__, (str), 0, 0); \
-  ud_error_push(ud);                                 \
+  ud_error_push(ud, &ue_tmp);                        \
+} while (0);
+
+#define ud_error_extra(ud, str1, str2) \
+do {                                                       \
+  struct ud_err ue_tmp;                                    \
+  ud_error_fill(ud, &ue_tmp, __func__, (str1), (str2), 0); \
+  ud_error_push(ud, &ue_tmp);                              \
 } while (0);
 
 #define ud_error_sys(ud, str) \
 do {                                                     \
   struct ud_err ue_tmp;                                  \
   ud_error_fill(ud, &ue_tmp, __func__, (str), 0, errno); \
-  ud_error_push(ud);                                     \
+  ud_error_push(ud, &ue_tmp);                            \
 } while (0);
 
 #endif
