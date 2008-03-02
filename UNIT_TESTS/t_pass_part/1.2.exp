@@ -5,7 +5,7 @@ debug: ud_tree_build: processing 1.t depth 0
 debug: ud_tree_build: paren open
 debug: ud_tree_build: processing 1.t depth 1
 debug: ud_tree_build: symbol: para
-debug: ud_tree_build: string: hello
+debug: ud_tree_build: string: para_s0
 debug: ud_tree_build: paren close
 debug: ud_tree_build: success depth 1
 debug: ud_tree_build: eof
@@ -15,7 +15,7 @@ debug: ud_walk: processing 1.t depth 0
 debug: ud_walk: list
 debug: ud_walk: processing 1.t depth 1
 debug: ud_walk: symbol: para
-debug: ud_walk: string: "hello"
+debug: ud_walk: string: "para_s0"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
@@ -28,7 +28,7 @@ debug: ud_walk: processing 1.t depth 0
 debug: ud_walk: list
 debug: ud_walk: processing 1.t depth 1
 debug: ud_walk: symbol: para
-debug: ud_walk: string: "hello"
+debug: ud_walk: string: "para_s0"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
