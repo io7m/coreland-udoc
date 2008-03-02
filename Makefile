@@ -5,10 +5,11 @@ default: all
 all:\
 UNIT_TESTS/t_fail_parse/failparse UNIT_TESTS/t_fail_part/failpart \
 UNIT_TESTS/t_fail_render/failrender UNIT_TESTS/t_fail_valid/failvalid \
-UNIT_TESTS/t_pass_parse/passparse UNIT_TESTS/t_pass_render/passrender \
-UNIT_TESTS/t_pass_valid/passvalid UNIT_TESTS/t_token/t_token ctxt/ctxt.a \
-deinstaller dfo.a inst-check inst-copy inst-dir inst-link installer instchk \
-log.a multi.a token.a ud.a udoc udoc-conf 
+UNIT_TESTS/t_pass_parse/passparse UNIT_TESTS/t_pass_part/passpart \
+UNIT_TESTS/t_pass_render/passrender UNIT_TESTS/t_pass_valid/passvalid \
+UNIT_TESTS/t_token/t_token ctxt/ctxt.a deinstaller dfo.a inst-check \
+inst-copy inst-dir inst-link installer instchk log.a multi.a token.a ud.a \
+udoc udoc-conf 
 
 # -- SYSDEPS start
 flags-chrono:
@@ -122,6 +123,18 @@ UNIT_TESTS/t_pass_parse/passparse.o:\
 cc-compile UNIT_TESTS/t_pass_parse/passparse.c UNIT_TESTS/t_assert.h udoc.h \
 log.h 
 	./cc-compile UNIT_TESTS/t_pass_parse/passparse.c
+
+UNIT_TESTS/t_pass_part/passpart:\
+cc-link UNIT_TESTS/t_pass_part/passpart.ld UNIT_TESTS/t_pass_part/passpart.o \
+UNIT_TESTS/t_assert.o ud.a token.a log.a multi.a 
+	./cc-link UNIT_TESTS/t_pass_part/passpart \
+	UNIT_TESTS/t_pass_part/passpart.o UNIT_TESTS/t_assert.o ud.a token.a \
+	log.a multi.a 
+
+UNIT_TESTS/t_pass_part/passpart.o:\
+cc-compile UNIT_TESTS/t_pass_part/passpart.c UNIT_TESTS/t_assert.h udoc.h \
+log.h 
+	./cc-compile UNIT_TESTS/t_pass_part/passpart.c
 
 UNIT_TESTS/t_pass_render/passrender:\
 cc-link UNIT_TESTS/t_pass_render/passrender.ld \
@@ -445,7 +458,7 @@ cc-compile ud_assert.c ud_assert.h log.h
 	./cc-compile ud_assert.c
 
 ud_close.o:\
-cc-compile ud_close.c ud_tag.h udoc.h 
+cc-compile ud_close.c ud_error.h udoc.h 
 	./cc-compile ud_close.c
 
 ud_data.o:\
@@ -453,7 +466,7 @@ cc-compile ud_data.c ud_tag.h
 	./cc-compile ud_data.c
 
 ud_error.o:\
-cc-compile ud_error.c log.h ud_error.h 
+cc-compile ud_error.c log.h udoc.h ud_error.h 
 	./cc-compile ud_error.c
 
 ud_free.o:\
@@ -519,7 +532,7 @@ cc-compile ud_tree.c log.h ud_assert.h ud_tag.h ud_tree.h udoc.h
 	./cc-compile ud_tree.c
 
 ud_valid.o:\
-cc-compile ud_valid.c log.h ud_tag.h ud_tree.h ud_valid.h udoc.h 
+cc-compile ud_valid.c log.h multi.h ud_tag.h ud_tree.h ud_valid.h udoc.h 
 	./cc-compile ud_valid.c
 
 udoc:\
@@ -576,7 +589,8 @@ obj_clean:
 	UNIT_TESTS/t_fail_valid/failvalid \
 	UNIT_TESTS/t_fail_valid/failvalid.o \
 	UNIT_TESTS/t_pass_parse/passparse \
-	UNIT_TESTS/t_pass_parse/passparse.o \
+	UNIT_TESTS/t_pass_parse/passparse.o UNIT_TESTS/t_pass_part/passpart \
+	UNIT_TESTS/t_pass_part/passpart.o \
 	UNIT_TESTS/t_pass_render/passrender \
 	UNIT_TESTS/t_pass_render/passrender.o \
 	UNIT_TESTS/t_pass_valid/passvalid \
@@ -589,15 +603,14 @@ obj_clean:
 	dfo_err.o dfo_free.o dfo_init.o dfo_put.o dfo_size.o dfo_tran.o \
 	dfo_wrap.o dfo_ws.o inst-check inst-check.o inst-copy inst-copy.o \
 	inst-dir inst-dir.o inst-link inst-link.o install_core.o \
-	install_error.o installer installer.o instchk instchk.o insthier.o \
-	log.a log.o 
-	rm -f mk-ctxt multi.a multicats.o multiput.o tok_close.o tok_free.o \
-	tok_init.o tok_next.o tok_open.o token.a ud.a ud_assert.o ud_close.o \
-	ud_data.o ud_error.o ud_free.o ud_init.o ud_list.o ud_oht.o \
-	ud_open.o ud_parse.o ud_part.o ud_ref.o ud_render.o ud_table.o \
-	ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o udoc udoc-conf udoc-conf.o \
-	udoc.o udr_context.o udr_debug.o udr_nroff.o udr_null.o udr_plain.o \
-	udr_xhtml.o 
+	install_error.o installer installer.o instchk instchk.o insthier.o 
+	rm -f log.a log.o mk-ctxt multi.a multicats.o multiput.o \
+	tok_close.o tok_free.o tok_init.o tok_next.o tok_open.o token.a ud.a \
+	ud_assert.o ud_close.o ud_data.o ud_error.o ud_free.o ud_init.o \
+	ud_list.o ud_oht.o ud_open.o ud_parse.o ud_part.o ud_ref.o \
+	ud_render.o ud_table.o ud_tag.o ud_tag_st.o ud_tree.o ud_valid.o \
+	udoc udoc-conf udoc-conf.o udoc.o udr_context.o udr_debug.o \
+	udr_nroff.o udr_null.o udr_plain.o udr_xhtml.o 
 
 deinstall: deinstaller inst-check inst-copy inst-dir inst-link
 	./deinstaller

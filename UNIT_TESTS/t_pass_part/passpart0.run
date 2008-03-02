@@ -1,0 +1,23 @@
+#!/bin/sh
+
+fatal()
+{
+  echo "fatal: $1"
+  exit 1
+}
+
+if [ $# -ne 1 ]; then fatal "not enough arguments (file)"; fi
+if [ ! -x passpart ]; then fatal "passpart not found or not executable"; fi
+
+file="$1"
+split=0
+file_exp="$file.$split.exp"
+file_out="$file.$split.out"
+nparts=`head -n 1 $file.$split.nparts`
+nfiles=`head -n 1 $file.$split.nfiles`
+
+rm -f "$file_out"
+./passpart "$file.t" "$split" "$nparts" "$nfiles" >"$file_out" 2>&1
+if [ $? -ne 0 ]; then fatal "test failed"; fi
+
+cmp "$file_out" "$file_exp"

@@ -32,6 +32,8 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
   struct ud_part *p_cur = 0;
   struct ud_part *p_up = 0;
   struct ud_part *pp_new = 0;
+  int flag_part = 0;
+  int flag_strdup = 0;
 
   bin_zero(&p_new, sizeof(p_new));
   if (ud_part_getcur(ud, &p_cur)) {
@@ -52,6 +54,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
     p_new.up_index_parent = p_up->up_index_cur;
 
   ud_try_sys_jump(ud, ud_part_add(ud, &p_new), FAIL, "part_add");
+  flag_part = 1;
 
   /* get pointer to added part */
   ud_assert(ud_part_getcur(ud, &pp_new));
@@ -59,6 +62,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
   /* work out string for use in table of contents, etc */
   ud_try_sys_jump(ud, ud_part_num_fmt(ud, pp_new, &pctx->dstr1), FAIL, "num_fmt");
   ud_try_sys_jump(ud, str_dup(pctx->dstr1.s, (char **) &pp_new->up_num_string), FAIL, "str_dup");
+  flag_strdup = 1;
  
   /* push part onto stack */
   ud_try_sys_jump(ud, ud_part_ind_stack_push(&pctx->ind_stack,
@@ -71,10 +75,11 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
     cnum[fmt_ulong(cnum, p_new.up_file)] = 0;
     log_2xf(LOG_DEBUG, "part split ", cnum);
   }
-  return 1;
+  return UD_TREE_OK;
 
   FAIL:
-  /* XXX: undo the damage inevitably done above */
+  if (flag_part) flag_part = 1; /* TODO: remove part, fix links... */
+  if (flag_strdup) dealloc_null(&pp_new->up_num_string);
   return UD_TREE_FAIL;
 }
 
@@ -158,8 +163,8 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
     case UDOC_TAG_STYLE:
-      ud_part_ind_stack_peek(&pctx->ind_stack, &ind);
-      ud_oht_getind(&ud->ud_parts, *ind, (void *) &part);
+      ud_assert(ud_part_ind_stack_peek(&pctx->ind_stack, &ind));
+      ud_assert(ud_oht_getind(&ud->ud_parts, *ind, (void *) &part));
       break;
     default:
       break;
@@ -216,7 +221,7 @@ cb_part_list_end(struct udoc *ud, struct ud_tree_ctx *ctx)
   if (!ud_tag_by_name(first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_SECTION:
-      ud_part_ind_stack_pop(&pctx->ind_stack, &ind);
+      ud_assert(ud_part_ind_stack_pop(&pctx->ind_stack, &ind));
       cnum[fmt_ulong(cnum, ud_part_ind_stack_size(&pctx->ind_stack))] = 0;
       log_2xf(LOG_DEBUG, "part stack size ", cnum);
       break;
@@ -377,6 +382,10 @@ ud_part_getfirst_wdepth_noskip(struct udoc *ud, const struct ud_part *cur,
   *prev = part_first;
 }
 
+/*
+ * find closest previous node of a lower depth (closer to the root)
+ */
+
 int
 ud_part_getprev_up(struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
@@ -401,6 +410,10 @@ ud_part_add(struct udoc *ud, const struct ud_part *ch)
   }
 }
 
+/*
+ * get closest next part from a different file
+ */
+
 int
 ud_part_getnext_file(struct udoc *ud, const struct ud_part *cur,
   struct ud_part **next)
@@ -419,6 +432,10 @@ ud_part_getnext_file(struct udoc *ud, const struct ud_part *cur,
   }
   return 0;
 }
+
+/*
+ * get closest previous part from a different file
+ */
 
 int
 ud_part_getprev_file(struct udoc *ud, const struct ud_part *cur,

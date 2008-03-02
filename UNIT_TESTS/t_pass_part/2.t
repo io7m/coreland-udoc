@@ -1,0 +1,2 @@
+(section
+  (para "hello"))

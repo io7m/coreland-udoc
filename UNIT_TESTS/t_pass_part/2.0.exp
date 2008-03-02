@@ -1,0 +1,62 @@
+[0] pass: main: 57: argc == 5
+[1] pass: main: 64: ud_init(&doc) == 1
+[2] pass: main: 68: ud_open(&doc, file) == 1
+debug: ud_tree_build: processing 2.t depth 0
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 2.t depth 1
+debug: ud_tree_build: symbol: section
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 2.t depth 2
+debug: ud_tree_build: symbol: para
+debug: ud_tree_build: string: hello
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 1
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 69: ud_parse(&doc) == 1
+debug: ud_walk: processing 2.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing 2.t depth 1
+debug: ud_walk: symbol: section
+debug: ud_walk: list
+debug: ud_walk: processing 2.t depth 2
+debug: ud_walk: symbol: para
+debug: ud_walk: string: "hello"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list: end
+debug: ud_walk: success depth 1
+debug: ud_walk: list: end
+debug: ud_walk: success depth 0
+[4] pass: main: 70: ud_validate(&doc) == 1
+debug: cb_part_init: adding root part
+debug: part_add: part 0
+debug: part_add: part split 0
+debug: ud_walk: processing 2.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing 2.t depth 1
+debug: ud_walk: symbol: section
+debug: part_section: part stack size 1
+debug: part_section: split threshold exceeded - not splitting
+debug: part_add: part 1
+debug: ud_walk: list
+debug: ud_walk: processing 2.t depth 2
+debug: ud_walk: symbol: para
+debug: ud_walk: string: "hello"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list: end
+debug: cb_part_list_end: part stack size 1
+debug: ud_walk: success depth 1
+debug: ud_walk: list: end
+debug: ud_walk: success depth 0
+debug: cb_part_finish: 2 parts, 1 files
+[5] pass: main: 71: ud_partition(&doc) == 1
+[6] pass: main: 73: num_parts == ud_oht_size(&doc.ud_parts)
+[7] pass: files: 12: ud_oht_getind(oht, ud_oht_size(oht) - 1, (void *) &p)
+[8] pass: main: 74: num_files == files(&doc.ud_parts)
+[9] pass: main: 78: ud_free(&doc) == 1
+part:0 file:0 depth:0 prev:0 cur:0 next:1 parent:0 flags:00000001 title:(null) num_string:"0." 
+part:1 file:0 depth:1 prev:0 cur:1 next:0 parent:0 flags:00000000 title:(null) num_string:"1." 
