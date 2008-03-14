@@ -1,0 +1,99 @@
+[0] pass: main: 64: argc == 5
+[1] pass: main: 71: ud_init(&doc) == 1
+[2] pass: main: 75: ud_open(&doc, file) == 1
+debug: ud_tree_build: processing 6.t depth 0
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 6.t depth 1
+debug: ud_tree_build: symbol: title
+debug: ud_tree_build: string: title_s0
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 1
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 6.t depth 1
+debug: ud_tree_build: symbol: section
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 6.t depth 2
+debug: ud_tree_build: symbol: title
+debug: ud_tree_build: string: title_s1
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing 6.t depth 2
+debug: ud_tree_build: symbol: para
+debug: ud_tree_build: string: para_s1
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 1
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 76: ud_parse(&doc) == 1
+debug: ud_walk: processing 6.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 1
+debug: ud_walk: symbol: title
+debug: ud_walk: string: "title_s0"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 1
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 1
+debug: ud_walk: symbol: section
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 2
+debug: ud_walk: symbol: title
+debug: ud_walk: string: "title_s1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 2
+debug: ud_walk: symbol: para
+debug: ud_walk: string: "para_s1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list: end
+debug: ud_walk: success depth 1
+debug: ud_walk: list: end
+debug: ud_walk: success depth 0
+[4] pass: main: 77: ud_validate(&doc) == 1
+debug: cb_part_init: adding root part
+debug: part_add: part 0
+debug: part_add: part split 0
+debug: ud_walk: processing 6.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 1
+debug: ud_walk: symbol: title
+debug: part_title: part title title_s0
+debug: ud_walk: string: "title_s0"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 1
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 1
+debug: ud_walk: symbol: section
+debug: part_section: part stack size 1
+debug: part_add: part 1
+debug: part_add: part split 1
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 2
+debug: ud_walk: symbol: title
+debug: part_title: part title title_s1
+debug: ud_walk: string: "title_s1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list
+debug: ud_walk: processing 6.t depth 2
+debug: ud_walk: symbol: para
+debug: ud_walk: string: "para_s1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list: end
+debug: cb_part_list_end: part stack size 1
+debug: ud_walk: success depth 1
+debug: ud_walk: list: end
+debug: ud_walk: success depth 0
+debug: cb_part_finish: 2 parts, 2 files
+[5] pass: main: 78: ud_partition(&doc) == 1
+[6] pass: main: 80: num_parts == ud_oht_size(&doc.ud_parts)
+[7] pass: main: 81: num_files == files(&doc.ud_parts)
+[8] pass: main: 85: ud_free(&doc) == 1
+part:0 file:0 depth:0 prev:0 cur:0 next:1 parent:0 flags:00000001 title:"title_s0" num_string:"0." 
+part:1 file:1 depth:1 prev:0 cur:1 next:0 parent:0 flags:00000001 title:"title_s1" num_string:"1." 

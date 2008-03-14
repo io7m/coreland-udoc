@@ -9,8 +9,15 @@ unsigned long
 files(struct ud_ordered_ht *oht)
 {
   struct ud_part *p;
-  test_assert(ud_oht_getind(oht, ud_oht_size(oht) - 1, (void *) &p));
-  return p->up_file + 1;
+  unsigned long ind;
+  unsigned long max = ud_oht_size(oht);
+  unsigned long nfiles = 0;
+
+  for (ind = 0; ind < max; ++ind) {
+    ud_oht_getind(oht, ind, (void *) &p);
+    if (p->up_flags & UD_PART_SPLIT) ++nfiles;
+  }
+  return nfiles;
 }
 
 void
