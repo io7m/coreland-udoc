@@ -142,7 +142,8 @@ rt_tag_section(struct udoc *ud, struct udr_ctx *rc)
   }
 
   buffer_puts4(buf, st, "{", rc->uc_part->up_num_string, " ");
-  tex_escape_puts(buf, rc->uc_part->up_title, rc->uc_user_data);
+  if (rc->uc_part->up_title)
+    tex_escape_puts(buf, rc->uc_part->up_title, rc->uc_user_data);
   buffer_puts(buf, "}\n\n");
   return 1;
 }
