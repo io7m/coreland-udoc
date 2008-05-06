@@ -123,6 +123,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
             rtmp.uc_part = part;
 
             if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
+            log_1xf(LOG_DEBUG, "finished part split");
             if (!r_output_close(ud, &out)) return UD_TREE_FAIL;
             return UD_TREE_STOP_LIST;
           }
