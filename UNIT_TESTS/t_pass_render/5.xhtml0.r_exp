@@ -5,23 +5,14 @@
 <head>
 </head>
 <body>
-
-<!--navbar-->
-<div class="ud_navbar ud_navbar_head">
-<a href="0.html">top</a>
-<a href="0.html">up</a>
-</div>
-
 <div>
+
+<div class="ud_section">
+<h3>1. </h3>
+<a name="sect_1."></a>
 <p>
 hello</p>
 </div>
-
-<!--navbar-->
-<div class="ud_navbar ud_navbar_foot">
-<a href="0.html">top</a>
-<a href="0.html">up</a>
 </div>
-
 </body>
 </html>

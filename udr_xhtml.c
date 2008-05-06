@@ -506,6 +506,8 @@ x_navbar(struct udoc *ud, struct buffer *out, const struct ud_part *part_cur,
   struct ud_part *part_next = 0;
   struct ud_part *part_parent = 0;
 
+  buffer_puts(out, "\n");
+  buffer_puts(out, "<!--navbar-->\n");
   buffer_puts(out, "<div class=\"ud_navbar ");
   if (class)
     buffer_puts(out, class);
