@@ -115,8 +115,9 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
             ud_try_sys(ud, fchdir(ud->ud_dirfd_src) != -1, UD_TREE_FAIL, "fchdir");
 
             /* save uc_part on stack (will be popped in r_finish) */
-            ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack, &part->up_index_cur),
-                       UD_TREE_FAIL, "stack_push");
+            ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
+              &part->up_index_cur), UD_TREE_FAIL, "stack_push");
+
             rtmp = *r;
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
@@ -130,8 +131,9 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
         }
 
         /* save uc_part on stack */
-        ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack, &r->uc_part->up_index_cur),
-                   UD_TREE_FAIL, "stack_push");
+        ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
+          &r->uc_part->up_index_cur), UD_TREE_FAIL, "stack_push");
+
         r->uc_part = part;
         break;
       default:
@@ -160,7 +162,6 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
   if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
       case UDOC_TAG_SECTION:
-        /* restore uc_part */
         ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind));
         ud_assert(ud_oht_getind(&ud->ud_parts, *ind, (void *) &r->uc_part));
         break;

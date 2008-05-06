@@ -651,6 +651,7 @@ xhtm_file_init(struct udoc *ud, struct udr_ctx *rc)
   if (ud->ud_opts.ud_split_thresh)
     x_navbar(ud, out, part, "ud_navbar_head");
 
+  buffer_puts(out, "<!--file_init-->\n");
   buffer_puts(out, "<div>\n");
 
   /* only print large title on first page */
@@ -728,6 +729,8 @@ xhtm_file_finish(struct udoc *ud, struct udr_ctx *rc)
   struct buffer *out = &rc->uc_out->uoc_buf;
 
   x_footnotes(ud, rc);
+
+  buffer_puts(out, "\n<!--file_finish-->\n");
   buffer_puts(out, "</div>\n");
 
   if (ud->ud_opts.ud_split_thresh)
