@@ -8,5 +8,4 @@ UNIT_TESTS/t_pass_part
 UNIT_TESTS/t_pass_render
 UNIT_TESTS/t_pass_valid
 UNIT_TESTS/t_token
-UNIT_TESTS/t_token
 ctxt
