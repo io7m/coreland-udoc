@@ -7,6 +7,8 @@
 #include <corelib/str.h>
 #include <corelib/write.h>
 
+#include <stdio.h>
+
 #define UDOC_IMPLEMENTATION
 #include "udoc.h"
 #include "ud_assert.h"
@@ -66,9 +68,11 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
        ? r->uc_render->ur_funcs.urf_init(ud, r) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
 
-  if (r->uc_part->up_list == tctx->utc_state->utc_list)
+  if (r->uc_part->up_list == tctx->utc_state->utc_list) {
+    log_1xf(LOG_DEBUG, "file init");
     return (r->uc_render->ur_funcs.urf_file_init) ?
             r->uc_render->ur_funcs.urf_file_init(ud, r) : UD_TREE_OK;
+  }
 
   return UD_TREE_OK;
 }
@@ -106,6 +110,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
         ud_assert_s(ud_part_getfromnode(ud, cur_node, &part, &ind),
           "could not get part for node");
 
+        /* split? */
         if (part != r->uc_part) {
           if (part->up_flags & UD_PART_SPLIT) {
             log_1xf(LOG_DEBUG, "starting part split");
@@ -117,6 +122,8 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
             /* save uc_part on stack (will be popped in r_finish) */
             ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
               &part->up_index_cur), UD_TREE_FAIL, "stack_push");
+
+            log_1xf(LOG_DEBUG, "pushed part");
 
             rtmp = *r;
             rtmp.uc_out = &out;
@@ -133,6 +140,8 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
         /* save uc_part on stack */
         ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
           &r->uc_part->up_index_cur), UD_TREE_FAIL, "stack_push");
+
+        log_1xf(LOG_DEBUG, "pushed part");
 
         r->uc_part = part;
         break;
@@ -156,15 +165,15 @@ static enum ud_tree_walk_stat
 r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
-  unsigned long *ind;
+  unsigned long *ind_ptr;
   enum ud_tag tag;
 
   if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
       case UDOC_TAG_SECTION:
-        ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind));
-        ud_assert(ud_oht_getind(&ud->ud_parts, *ind, (void *) &r->uc_part));
-        break;
+        ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind_ptr));
+        ud_assert(ud_oht_getind(&ud->ud_parts, *ind_ptr, (void *) &r->uc_part));
+        log_1xf(LOG_DEBUG, "popped part");
       default:
         break;
     }
@@ -179,9 +188,10 @@ r_finish(struct udoc *ud, struct ud_tree_ctx *tctx)
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
-  if (r->uc_render->ur_funcs.urf_file_finish)
-    if (r->uc_part->up_list == tctx->utc_state->utc_list)
-      return r->uc_render->ur_funcs.urf_file_finish(ud, r);
+  if (r->uc_render->ur_funcs.urf_file_finish) {
+    log_1xf(LOG_DEBUG, "file finish");
+    return r->uc_render->ur_funcs.urf_file_finish(ud, r);
+  }
 
   /* decrement refcount for finish_once(), if zero, call it */
   if (r->uc_render->ur_funcs.urf_finish_once) {
@@ -244,6 +254,8 @@ ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
     ud_assert(ud_part_ind_stack_size(&rctx.uc_part_stack) == 0);
 
   ud_part_ind_stack_free(&rctx.uc_part_stack);
+
+  log_1xf(LOG_DEBUG, "rendering done");
   return ret != UD_TREE_FAIL;
 }
 
@@ -266,7 +278,7 @@ ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
 
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_out) != -1, FAIL, "fchdir");
   ud_try_jumpS(ud, ud_oht_getind(&ud->ud_parts, 0, (void *) &p), FAIL,
-               "ud_oht_getind", "could not get root part");
+    "ud_oht_getind", "could not get root part");
   if (!r_output_open(ud, r, &out, p)) goto FAIL;
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
 

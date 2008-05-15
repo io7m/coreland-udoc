@@ -174,7 +174,11 @@ x_tag_section(struct udoc *ud, struct udr_ctx *r)
   struct ud_part *part;
   unsigned long ind;
 
+  log_1xf(LOG_DEBUG, "section open");
+
   buffer_put(out, "\n", 1);
+  buffer_puts(out, "<!--section_open-->\n");
+
   ret = x_tag_generic(ud, r, "div", "ud_section");
   if (ret == UD_TREE_OK)
     if (ud_part_getfromnode(ud, r->uc_tree_ctx->utc_state->utc_node, &part, &ind)) {
@@ -426,6 +430,8 @@ x_tag_end_para_verbatim(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_end_section(struct udoc *ud, struct udr_ctx *r)
 {
+  log_1xf(LOG_DEBUG, "section close");
+  buffer_puts(&r->uc_out->uoc_buf, "\n<!--section_close-->\n");
   return x_tag_end_generic(ud, r, "div", 0);
 }
 
