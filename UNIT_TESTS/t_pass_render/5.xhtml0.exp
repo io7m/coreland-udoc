@@ -58,10 +58,13 @@ debug: cb_part_finish: 2 parts, 1 files
 debug: ud_render_doc: rendering
 notice: create 0.html
 debug: ud_render_node: rendering
+debug: r_init: file init
 debug: ud_walk: processing 5.t depth 0
 debug: ud_walk: list
 debug: ud_walk: processing 5.t depth 1
 debug: ud_walk: symbol: section
+debug: r_symbol: pushed part
+debug: x_tag_section: section open
 debug: ud_walk: list
 debug: ud_walk: processing 5.t depth 2
 debug: ud_walk: symbol: para
@@ -69,8 +72,12 @@ debug: ud_walk: string: "hello"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 2
 debug: ud_walk: list: end
+debug: r_list_end: popped part
+debug: x_tag_end_section: section close
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0
+debug: r_finish: file finish
+debug: ud_render_node: rendering done
 [7] pass: main: 51: ud_render_doc(&doc, &r_opts, r, ".") == 1
 [8] pass: main: 52: ud_free(&doc) == 1

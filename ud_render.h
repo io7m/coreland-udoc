@@ -44,6 +44,7 @@ struct udr_ctx {
   void *uc_user_data;
   unsigned int uc_init_once_done;
   unsigned int uc_finish_once_refcount;
+  unsigned int uc_split_flag;
 };
 struct ud_renderer {
   const struct udr_funcs ur_funcs;

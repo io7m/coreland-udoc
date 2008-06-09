@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"
+"http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+
+<!--navbar-->
+<div class="ud_navbar ud_navbar_head">
+<a href="0.html">top</a>
+<a href="0.html">prev</a>
+<a href="0.html">up</a>
+</div>
+
+<!--file_init-->
+<div>
+
+<!--section_open-->
+<div class="ud_section">
+<h3>1 </h3>
+<a name="sect_1"></a>
+<p>
+hello</p>
+
+<!--section_close-->
+</div>
+
+<!--file_finish-->
+</div>
+
+<!--navbar-->
+<div class="ud_navbar ud_navbar_foot">
+<a href="0.html">top</a>
+<a href="0.html">prev</a>
+<a href="0.html">up</a>
+</div>
+
+</body>
+</html>

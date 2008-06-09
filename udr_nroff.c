@@ -130,7 +130,7 @@ rn_tag_contents(struct udoc *ud, struct udr_ctx *rc)
       if (part_cur != part_first) break;
 
     dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + ((part_cur->up_depth - part_first->up_depth) * 2));
-    dfo_puts3(dfo, part_cur->up_num_string, " ", part_cur->up_title);
+    dfo_puts3(dfo, part_cur->up_num_string, ". ", part_cur->up_title);
     dfo_break_line(dfo);
     dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent - ((part_cur->up_depth - part_first->up_depth) * 2));
 
@@ -234,7 +234,7 @@ rn_tag_section(struct udoc *ud, struct udr_ctx *rc)
 {
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
-  dfo_puts(dfo, rc->uc_part->up_num_string);
+  dfo_puts2(dfo, rc->uc_part->up_num_string, ".");
   if (rc->uc_part->up_title)
     dfo_puts2(dfo, " ", rc->uc_part->up_title);
 

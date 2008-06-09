@@ -8,3 +8,4 @@
 20080229 code: ud_documents and ud_errors are no longer global structures.
 20080301 code: new format for error structure.
 20080301 code: syntax errors are now pushed onto the error stack.
+20080609 code: fixed r_list_end repetition with uc_split_flag in render context.

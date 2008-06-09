@@ -5,11 +5,14 @@
 <head>
 </head>
 <body>
+<!--file_init-->
 <div>
 <p>
 <p>
 hello</p>
 </p>
+
+<!--file_finish-->
 </div>
 </body>
 </html>

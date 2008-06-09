@@ -39,6 +39,7 @@ debug: cb_part_finish: 1 parts, 1 files
 debug: ud_render_doc: rendering
 notice: create 0.txt
 debug: ud_render_node: rendering
+debug: r_init: file init
 debug: ud_walk: processing 3.t depth 0
 debug: ud_walk: list
 debug: ud_walk: processing 3.t depth 1
@@ -48,5 +49,7 @@ debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0
+debug: r_finish: file finish
+debug: ud_render_node: rendering done
 [7] pass: main: 51: ud_render_doc(&doc, &r_opts, r, ".") == 1
 [8] pass: main: 52: ud_free(&doc) == 1

@@ -1,0 +1,21 @@
+% udoc preamble
+\setupinteraction[state=start]
+\placebookmarks[chapter,section,section,subsection,subsubsection][chapter,section]
+\setupinteractionscreen[option=bookmark]
+\setuphead[chapter][number=no]
+\setuphead[section][number=no]
+\setuphead[subsection][number=no]
+\setuphead[subsubsection][number=no]
+
+% urls
+
+% styles
+
+\starttext
+% render-header
+\chapter{1. }
+
+hello
+
+% render-footer
+\stoptext

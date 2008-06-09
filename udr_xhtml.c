@@ -348,9 +348,8 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
       buffer_put(out, cnum, fmt_ulong(cnum, part_cur->up_file));
       buffer_puts2(out, ".", r->uc_render->ur_data.ur_suffix);
     }
-
     buffer_puts2(out, "#sect_", part_cur->up_num_string);
-    buffer_puts5(out, "\">", part_cur->up_num_string, " ", part_cur->up_title, "</a><br/>\n");
+    buffer_puts5(out, "\">", part_cur->up_num_string, ". ", part_cur->up_title, "</a><br/>\n");
     if (!part_cur->up_index_next) break;
     ind = part_cur->up_index_next;
   }
@@ -746,7 +745,7 @@ xhtm_file_finish(struct udoc *ud, struct udr_ctx *rc)
   if (ud->ud_render_footer)
     if (!udr_print_file(ud, rc, ud->ud_render_footer, 0, 0)) return UD_TREE_FAIL;
 
-  buffer_puts(out, "</body>\n</html>");
+  buffer_puts(out, "</body>\n</html>\n");
 
   ud_try_sys(ud, buffer_flush(out) != -1, UD_TREE_FAIL, "write");
   return UD_TREE_OK;

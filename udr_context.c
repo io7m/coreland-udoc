@@ -141,7 +141,7 @@ rt_tag_section(struct udoc *ud, struct udr_ctx *rc)
     default: st = "\\subsubsection"; break;
   }
 
-  buffer_puts4(buf, st, "{", rc->uc_part->up_num_string, " ");
+  buffer_puts4(buf, st, "{", rc->uc_part->up_num_string, ". ");
   if (rc->uc_part->up_title)
     tex_escape_puts(buf, rc->uc_part->up_title, rc->uc_user_data);
   buffer_puts(buf, "}\n\n");

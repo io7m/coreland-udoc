@@ -5,9 +5,12 @@
 <head>
 </head>
 <body>
+<!--file_init-->
 <div>
 <p>
 hello</p>
+
+<!--file_finish-->
 </div>
 </body>
 </html>

@@ -168,8 +168,8 @@ debug: cb_part_finish: 5 parts, 3 files
 [6] pass: main: 80: num_parts == ud_oht_size(&doc.ud_parts)
 [7] pass: main: 81: num_files == files(&doc.ud_parts)
 [8] pass: main: 85: ud_free(&doc) == 1
-part:0 file:0 depth:0 prev:0 cur:0 next:1 parent:0 flags:00000001 title:(null) num_string:"0." 
-part:1 file:1 depth:1 prev:0 cur:1 next:2 parent:0 flags:00000001 title:(null) num_string:"1." 
-part:2 file:1 depth:2 prev:1 cur:2 next:3 parent:1 flags:00000000 title:(null) num_string:"1.1." 
-part:3 file:3 depth:1 prev:2 cur:3 next:4 parent:0 flags:00000001 title:(null) num_string:"2." 
-part:4 file:3 depth:2 prev:3 cur:4 next:0 parent:3 flags:00000000 title:(null) num_string:"2.1." 
+part:0 file:0 depth:0 prev:0 cur:0 next:1 parent:0 flags:00000001 title:(null) num_string:"0" 
+part:1 file:1 depth:1 prev:0 cur:1 next:2 parent:0 flags:00000001 title:(null) num_string:"1" 
+part:2 file:1 depth:2 prev:1 cur:2 next:3 parent:1 flags:00000000 title:(null) num_string:"1.1" 
+part:3 file:3 depth:1 prev:2 cur:3 next:4 parent:0 flags:00000001 title:(null) num_string:"2" 
+part:4 file:3 depth:2 prev:3 cur:4 next:0 parent:3 flags:00000000 title:(null) num_string:"2.1" 

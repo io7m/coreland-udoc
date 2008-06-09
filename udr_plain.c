@@ -156,7 +156,7 @@ rp_tag_section(struct udoc *ud, struct udr_ctx *rc)
 {
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
-  dfo_puts(dfo, rc->uc_part->up_num_string);
+  dfo_puts2(dfo, rc->uc_part->up_num_string, ".");
   if (rc->uc_part->up_title)
     dfo_puts2(dfo, " ", rc->uc_part->up_title);
 

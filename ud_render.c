@@ -130,6 +130,8 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
             rtmp.uc_tree_ctx = 0;
             rtmp.uc_part = part;
 
+            r->uc_split_flag = 1;
+
             if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
             log_1xf(LOG_DEBUG, "finished part split");
             if (!r_output_close(ud, &out)) return UD_TREE_FAIL;
@@ -167,16 +169,24 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
   unsigned long *ind_ptr;
   enum ud_tag tag;
+  int section = 0;
 
   if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
       case UDOC_TAG_SECTION:
+        section = 1;
         ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind_ptr));
         ud_assert(ud_oht_getind(&ud->ud_parts, *ind_ptr, (void *) &r->uc_part));
         log_1xf(LOG_DEBUG, "popped part");
-      default:
+     default:
         break;
     }
+
+  if (section && r->uc_split_flag) {
+    log_1xf(LOG_DEBUG, "section closed by previous render");
+    r->uc_split_flag = 0;
+    return UD_TREE_OK;
+  }
 
   return (r->uc_render->ur_funcs.urf_list_end)
         ? r->uc_render->ur_funcs.urf_list_end(ud, r) : UD_TREE_OK;
@@ -248,6 +258,9 @@ ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
   /* set tree_ctx */
   rctx.uc_tree_ctx = &tctx;
   ret = ud_tree_walk(ud, &tctx);
+
+  /* reset split flag */
+  rctx.uc_split_flag = 0;
 
   /* the uc_part stack will only be empty if everything was successful */
   if (ret != UD_TREE_FAIL)

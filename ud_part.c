@@ -514,6 +514,9 @@ ud_part_num_fmt(struct udoc *ud, const struct ud_part *part,
     if (!dstring_catb(ds, ".", 1)) return 0;
   }
 
+  /* remove possible trailing '.' */
+  if (ds->s[ds->len - 1] == '.') dstring_chop (ds, ds->len - 1);
+
   dstring_0(ds);
   return 1;
 }
