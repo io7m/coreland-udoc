@@ -129,7 +129,9 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
             rtmp.uc_part = part;
+            rtmp.uc_finish_file = 1;
 
+            /* tell current renderer that split is being handled */
             r->uc_split_flag = 1;
 
             if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
@@ -198,10 +200,11 @@ r_finish(struct udoc *ud, struct ud_tree_ctx *tctx)
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
-  if (r->uc_render->ur_funcs.urf_file_finish) {
-    log_1xf(LOG_DEBUG, "file finish");
-    return r->uc_render->ur_funcs.urf_file_finish(ud, r);
-  }
+  if (r->uc_finish_file)
+    if (r->uc_render->ur_funcs.urf_file_finish) {
+      log_1xf(LOG_DEBUG, "file finish");
+      return r->uc_render->ur_funcs.urf_file_finish(ud, r);
+    }
 
   /* decrement refcount for finish_once(), if zero, call it */
   if (r->uc_render->ur_funcs.urf_finish_once) {
@@ -249,18 +252,18 @@ ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
   if (!ud_part_ind_stack_init(&rctx.uc_part_stack, ud_oht_size(&ud->ud_parts)))
     return 0;
 
+  /* set flags and tree_ctx */
+  rctx.uc_tree_ctx = &tctx;
+  rctx.uc_split_flag = 0;
+
   /* backend render is passed as user data to tree_ctx */
   tctx_state.utc_list = root;
   tctx_state.utc_user_data = &rctx;
   tctx.utc_funcs = &render_funcs;
   tctx.utc_state = &tctx_state;
 
-  /* set tree_ctx */
-  rctx.uc_tree_ctx = &tctx;
+  /* walk */
   ret = ud_tree_walk(ud, &tctx);
-
-  /* reset split flag */
-  rctx.uc_split_flag = 0;
 
   /* the uc_part stack will only be empty if everything was successful */
   if (ret != UD_TREE_FAIL)
@@ -301,6 +304,7 @@ ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
   rctx.uc_part = p;
   rctx.uc_opts = opts;
   rctx.uc_out = &out;
+  rctx.uc_finish_file = 1;
 
   if (!ud_render_node(ud, &rctx, p->up_list)) return 0;
   if (!r_output_close(ud, &out)) return 0;

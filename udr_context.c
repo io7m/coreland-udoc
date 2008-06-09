@@ -259,8 +259,11 @@ rt_tag_list(struct udoc *ud, struct udr_ctx *rc)
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
       buffer_puts(buf, "\\item ");
+
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
+
       buffer_puts(buf, "\n");
     }
     if (n->un_next) n = n->un_next; else break;

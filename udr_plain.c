@@ -135,8 +135,11 @@ rp_footnotes(struct udoc *ud, struct udr_ctx *rc)
 
     old_indent = dfo->page_indent;
     dfo_constrain(dfo, PAGE_WIDTH, len);
+
     rtmp.uc_tree_ctx = 0;
+    rtmp.uc_finish_file = 0;
     if (!ud_render_node(ud, &rtmp, &u->ur_list->unl_head->un_next->un_data.un_list)) return 0;
+
     dfo_constrain(dfo, PAGE_WIDTH, old_indent);
 
     dfo_break_line(dfo);
@@ -264,8 +267,11 @@ rp_tag_table(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_type == UDOC_TYPE_LIST) {
       ud_tryS(ud, dfo_columns(dfo, tab.ut_cols, 2), UD_TREE_FAIL, "dfo_columns",
                   dfo_errorstr(dfo->error));
+
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
+
       ud_tryS(ud, dfo_columns_end(dfo), UD_TREE_FAIL, "dfo_columns",
                   dfo_errorstr(dfo->error));
     }
@@ -291,8 +297,11 @@ rp_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
       dfo_columns_start(dfo);
+
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
+
       dfo_break(dfo);
     }
     if (n->un_next) n = n->un_next; else break;
@@ -312,8 +321,11 @@ rp_tag_list(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_type == UDOC_TYPE_LIST) {
       dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + 2);
       dfo_puts(dfo, "* ");
+
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
+
       dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent - 2);
       dfo_break(dfo);
     }

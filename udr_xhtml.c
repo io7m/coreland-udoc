@@ -260,6 +260,7 @@ x_tag_table(struct udoc *ud, struct udr_ctx *rc)
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
     }
     if (n->un_next) n = n->un_next; else break;
@@ -282,13 +283,11 @@ x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_type == UDOC_TYPE_LIST) {
       buffer_puts(&rc->uc_out->uoc_buf, "<td>");
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
       buffer_puts(&rc->uc_out->uoc_buf, "</td>\n");
     }
-    if (n->un_next)
-      n = n->un_next;
-    else
-      break;
+    if (n->un_next) n = n->un_next; else break;
   }
 
   if (x_tag_end_generic(ud, rc, "tr", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
@@ -308,6 +307,7 @@ x_tag_list(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_type == UDOC_TYPE_LIST) {
       buffer_puts(&rc->uc_out->uoc_buf, "<li>");
       rtmp.uc_tree_ctx = 0;
+      rtmp.uc_finish_file = 0;
       if (!ud_render_node(ud, &rtmp, &n->un_data.un_list)) return UD_TREE_FAIL;
       buffer_puts(&rc->uc_out->uoc_buf, "</li>\n");
     }
@@ -573,6 +573,7 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
         buffer_puts(out, "</td>\n");
         buffer_puts(out, "<td>\n");
         rtmp.uc_tree_ctx = 0;
+        rtmp.uc_finish_file = 0;
         if (!ud_render_node(ud, &rtmp,
           &note->ur_list->unl_head->un_next->un_data.un_list)) return 0;
         buffer_puts(out, "</td>\n");
