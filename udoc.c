@@ -5,16 +5,18 @@
 #include <corelib/str.h>
 #include <corelib/syserr.h>
 
+#include "ctxt.h"
 #include "log.h"
 #include "multi.h"
 #include "udoc.h"
 
-const char *usage_s = "[-hn] [-L lev] [-s threshold] [-r renderer] file outdir";
+const char *usage_s = "[-hnV] [-L lev] [-s threshold] [-r renderer] file outdir";
 const char *help_s =
 "   -s: split threshold (default: 0 - no splitting)\n"
 "   -r: select output renderer (default: udoc, ? to list available backends)\n"
 "   -L: log level (max 6, min 0, default 5)\n"
 "   -n: no output (do not render document)\n"
+"   -V: version\n"
 "   -h: this message";
 
 struct udoc main_doc;
@@ -64,7 +66,7 @@ int main(int argc, char *argv[])
   const struct ud_renderer *r = renderers[0];
 
   log_progname("udoc");
-  while ((ch = get_opt(argc, argv, "hnL:r:s:")) != opteof)
+  while ((ch = get_opt(argc, argv, "hnL:Vr:s:")) != opteof)
     switch (ch) {
       case 's':
         if (!scan_ulong(optarg, &main_opts.ud_split_thresh))
@@ -96,6 +98,11 @@ int main(int argc, char *argv[])
         }
         if (!r) log_die1x(LOG_FATAL, 111, "unknown renderer");
         break;
+      case 'V':
+        buffer_puts2(buffer1, ctxt_version, "\n");
+        if (buffer_flush(buffer1) == -1)
+          log_die1sys(LOG_FATAL, 112, "write");
+        return 0;
       default: usage();
     }
   argc -= optind;

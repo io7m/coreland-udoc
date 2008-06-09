@@ -215,11 +215,11 @@ cc-slib:\
 conf-systype
 
 conf-cctype:\
-conf-cc mk-cctype
+conf-cc conf-cc mk-cctype
 	./mk-cctype > conf-cctype.tmp && mv conf-cctype.tmp conf-cctype
 
 conf-ldtype:\
-conf-ld mk-ldtype
+conf-ld conf-ld mk-ldtype
 	./mk-ldtype > conf-ldtype.tmp && mv conf-ldtype.tmp conf-ldtype
 
 conf-sosuffix:\
@@ -570,8 +570,8 @@ cc-compile ud_valid.c log.h multi.h ud_tag.h ud_tree.h ud_valid.h udoc.h
 	./cc-compile ud_valid.c
 
 udoc:\
-cc-link udoc.ld udoc.o ud.a token.a log.a multi.a dfo.a
-	./cc-link udoc udoc.o ud.a token.a log.a multi.a dfo.a
+cc-link udoc.ld udoc.o ud.a token.a log.a multi.a dfo.a ctxt/ctxt.a
+	./cc-link udoc udoc.o ud.a token.a log.a multi.a dfo.a ctxt/ctxt.a
 
 udoc-conf:\
 cc-link udoc-conf.ld udoc-conf.o ctxt/ctxt.a
@@ -585,7 +585,7 @@ udoc.h:\
 token.h ud_error.h ud_oht.h ud_tree.h ud_render.h
 
 udoc.o:\
-cc-compile udoc.c log.h multi.h udoc.h
+cc-compile udoc.c ctxt.h log.h multi.h udoc.h
 	./cc-compile udoc.c
 
 udr_context.o:\
