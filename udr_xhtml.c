@@ -119,9 +119,13 @@ x_tag_collect_css(struct dstring *buf, struct udr_ctx *rc)
   return 1;
 }
 
+enum {
+  TAG_NEWLINE = 0x0001,
+};
+
 static enum ud_tree_walk_stat
 x_tag_generic(struct udoc *ud, struct udr_ctx *r,
-              const char *tag, const char *def_attrib)
+  const char *tag, const char *def_attrib, unsigned long flags)
 {
   struct xhtml_ctx *xc = r->uc_user_data;
   struct buffer *out = &r->uc_out->uoc_buf;
@@ -138,15 +142,18 @@ x_tag_generic(struct udoc *ud, struct udr_ctx *r,
   if (xc->dstr.len)
     buffer_puts3(out, " class=\"", xc->dstr.s, "\"");
 
-  buffer_puts(out, ">\n");
+  buffer_put(out, ">", 1);
+
+  if (flags & TAG_NEWLINE) buffer_put(out, "\n", 1);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
 x_tag_end_generic(struct udoc *ud, struct udr_ctx *r,
-              const char *tag, const char *def_attrib)
+  const char *tag, const char *def_attrib, unsigned long flags)
 {
-  buffer_puts3(&r->uc_out->uoc_buf, "</", tag, ">\n");
+  buffer_puts3(&r->uc_out->uoc_buf, "</", tag, ">");
+  if (flags & TAG_NEWLINE) buffer_put(&r->uc_out->uoc_buf, "\n", 1);
   return UD_TREE_OK;
 }
 
@@ -157,13 +164,13 @@ x_tag_end_generic(struct udoc *ud, struct udr_ctx *r,
 static enum ud_tree_walk_stat
 x_tag_para(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_generic(ud, r, "p", 0);
+  return x_tag_generic(ud, r, "p", 0, TAG_NEWLINE);
 }
 
 static enum ud_tree_walk_stat
 x_tag_para_verbatim(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_generic(ud, r, "pre", 0);
+  return x_tag_generic(ud, r, "pre", 0, TAG_NEWLINE);
 }
 
 static enum ud_tree_walk_stat
@@ -179,7 +186,7 @@ x_tag_section(struct udoc *ud, struct udr_ctx *r)
   buffer_put(out, "\n", 1);
   buffer_puts(out, "<!--section_open-->\n");
 
-  ret = x_tag_generic(ud, r, "div", "ud_section");
+  ret = x_tag_generic(ud, r, "div", "ud_section", TAG_NEWLINE);
   if (ret == UD_TREE_OK)
     if (ud_part_getfromnode(ud, r->uc_tree_ctx->utc_state->utc_node, &part, &ind)) {
       buffer_puts5(out, "<h3>", part->up_num_string, " ", part->up_title, "</h3>\n");
@@ -192,7 +199,7 @@ x_tag_section(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_item(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_generic(ud, r, "span", 0);
+  return x_tag_generic(ud, r, "span", 0, 0);
 }
 
 static enum ud_tree_walk_stat
@@ -254,7 +261,8 @@ x_tag_table(struct udoc *ud, struct udr_ctx *rc)
   const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
   struct udr_ctx rtmp = *rc;
 
-  if (x_tag_generic(ud, rc, "table", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_generic(ud, rc, "table", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
 
   /* for each item in list, render list (row) */
   for (;;) {
@@ -266,7 +274,9 @@ x_tag_table(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_next) n = n->un_next; else break;
   }
 
-  if (x_tag_end_generic(ud, rc, "table", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_end_generic(ud, rc, "table", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
+
   return UD_TREE_STOP_LIST;
 }
 
@@ -276,7 +286,8 @@ x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
   const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
   struct udr_ctx rtmp = *rc;
 
-  if (x_tag_generic(ud, rc, "tr", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_generic(ud, rc, "tr", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
 
   /* for each item in list, render list (cell) */
   for (;;) {
@@ -290,7 +301,9 @@ x_tag_table_row(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_next) n = n->un_next; else break;
   }
 
-  if (x_tag_end_generic(ud, rc, "tr", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_end_generic(ud, rc, "tr", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
+
   return UD_TREE_STOP_LIST;
 }
 
@@ -300,7 +313,8 @@ x_tag_list(struct udoc *ud, struct udr_ctx *rc)
   const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
   struct udr_ctx rtmp = *rc;
 
-  if (x_tag_generic(ud, rc, "ul", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_generic(ud, rc, "ul", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
 
   /* for each item in list, render list */
   for (;;) {
@@ -314,7 +328,9 @@ x_tag_list(struct udoc *ud, struct udr_ctx *rc)
     if (n->un_next) n = n->un_next; else break;
   }
 
-  if (x_tag_end_generic(ud, rc, "ul", 0) == UD_TREE_FAIL) return UD_TREE_FAIL;
+  if (x_tag_end_generic(ud, rc, "ul", 0, TAG_NEWLINE) == UD_TREE_FAIL)
+    return UD_TREE_FAIL;
+
   return UD_TREE_STOP_LIST;
 }
 
@@ -390,7 +406,6 @@ x_tag_date(struct udoc *ud, struct udr_ctx *r)
 
   caltime_local(&ct, &ud->ud_time_start.sec, 0, 0);
   buffer_put(out, buf, caltime_fmt(buf, &ct));
-  buffer_put(out, "\n", 1);
   return UD_TREE_OK;
 }
 
@@ -417,13 +432,13 @@ x_tag_render_noescape(struct udoc *ud, struct udr_ctx *r)
 static enum ud_tree_walk_stat
 x_tag_end_para(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_end_generic(ud, r, "p", 0);
+  return x_tag_end_generic(ud, r, "p", 0, TAG_NEWLINE);
 }
 
 static enum ud_tree_walk_stat
 x_tag_end_para_verbatim(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_end_generic(ud, r, "pre", 0);
+  return x_tag_end_generic(ud, r, "pre", 0, TAG_NEWLINE);
 }
 
 static enum ud_tree_walk_stat
@@ -431,13 +446,13 @@ x_tag_end_section(struct udoc *ud, struct udr_ctx *r)
 {
   log_1xf(LOG_DEBUG, "section close");
   buffer_puts(&r->uc_out->uoc_buf, "\n<!--section_close-->\n");
-  return x_tag_end_generic(ud, r, "div", 0);
+  return x_tag_end_generic(ud, r, "div", 0, TAG_NEWLINE);
 }
 
 static enum ud_tree_walk_stat
 x_tag_end_item(struct udoc *ud, struct udr_ctx *r)
 {
-  return x_tag_end_generic(ud, r, "span", 0);
+  return x_tag_end_generic(ud, r, "span", 0, 0);
 }
 
 /* tables */

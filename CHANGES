@@ -11,3 +11,4 @@
 20080609 code: fixed r_list_end repetition with uc_split_flag in render context.
 20080609 code: added -V flag.
 20080609 version: udoc 0.11
+20080612 code: item tags no longer create newlines in xhtml.

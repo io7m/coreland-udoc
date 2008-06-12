@@ -1,5 +1,22 @@
 UNIT_TESTS
 
+Table cells can't be styled with CSS in HTML. It may be necessary
+to add a 't-cell' tag.
+
+'item' should not print a newline after the </span> in HTML.
+
+Symbols may only contain [A-Za-z0-9] and may not start with a
+number.
+
+Tags need formal definitions. For example, how should descendents
+of para-verbatim tags behave?
+
+Improve error messages (link to missing ref, for example).
+
+A subsection tag seems desirable. Behaves exactly like a 'section'
+except that it never appears in tables of contents and never causes
+a split.
+
 Use dfo.h. udr_xhtml doesn't appear to be using it, for example.
 
 The whole render API has too many structures. I don't like it.
