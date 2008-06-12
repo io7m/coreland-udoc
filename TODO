@@ -3,7 +3,7 @@ UNIT_TESTS
 Table cells can't be styled with CSS in HTML. It may be necessary
 to add a 't-cell' tag.
 
-Symbols may only contain [A-Za-z0-9] and may not start with a
+Symbols may only contain [A-Za-z0-9_-] and may not start with a
 number.
 
 Tags need formal definitions. For example, how should descendents
@@ -22,8 +22,6 @@ The whole render API has too many structures. I don't like it.
 Push root nodes and nodes from (include) into a hash table,
 removing on the way out of the tree. If the same node is
 entered twice, the document has recursively included itself.
-
-Show titles of previous, next and upper pages on navbar?
 
 Fix ConTeXt text output (dfo.h).
 
