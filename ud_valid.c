@@ -12,10 +12,16 @@
 #define UDOC_IMPLEMENTATION
 #include "ud_tag.h"
 #include "ud_tree.h"
-#include "ud_valid.h"
 #include "udoc.h"
 
 #define UD_ARRAY_SIZEOF(x) (sizeof((x)) / sizeof((x)[0]))
+
+struct ud_markup_rule {
+  enum ud_tag umr_tag;
+  const enum ud_node_type *umr_arg_types;
+  unsigned long umr_req_args;
+  unsigned long umr_max_args;
+};
 
 static const enum ud_node_type rules_footnote[] = { UDOC_TYPE_LIST };
 static const enum ud_node_type rules_style[] = { UDOC_TYPE_STRING };

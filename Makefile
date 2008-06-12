@@ -566,7 +566,7 @@ cc-compile ud_tree.c log.h ud_assert.h ud_tag.h ud_tree.h udoc.h
 	./cc-compile ud_tree.c
 
 ud_valid.o:\
-cc-compile ud_valid.c log.h multi.h ud_tag.h ud_tree.h ud_valid.h udoc.h
+cc-compile ud_valid.c log.h multi.h ud_tag.h ud_tree.h udoc.h
 	./cc-compile ud_valid.c
 
 udoc:\
