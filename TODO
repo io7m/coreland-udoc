@@ -3,9 +3,6 @@ UNIT_TESTS
 Table cells can't be styled with CSS in HTML. It may be necessary
 to add a 't-cell' tag.
 
-Symbols may only contain [A-Za-z0-9_-] and may not start with a
-number.
-
 Tags need formal definitions. For example, how should descendents
 of para-verbatim tags behave?
 

@@ -12,3 +12,5 @@
 20080609 code: added -V flag.
 20080609 version: udoc 0.11
 20080612 code: item tags no longer create newlines in xhtml.
+20080612 code: restrictions on symbol format (alphanumeric, -, _, no starting
+               numeric).

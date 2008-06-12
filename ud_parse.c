@@ -26,6 +26,31 @@ syntax(struct udoc *ud, const char *s)
   ud_error_push(ud, &ue);
 }
 
+static int
+symbol_check(struct udoc *ud, const char *s)
+{
+  unsigned int max = str_len (s);
+  unsigned int pos;
+  char ch;
+
+  if (s[0] >= '0' && s[0] <= '9') {
+    syntax(ud, "first character of symbol cannot be numeric");
+    return 0;
+  }
+
+  for (pos = 0; pos < max; ++pos) {
+    ch = s[pos];
+    if (ch == '-') continue;
+    if (ch == '_') continue;
+    if (ch >= '0' && ch <= '9') continue;
+    if (ch >= 'A' && ch <= 'Z') continue;
+    if (ch >= 'a' && ch <= 'z') continue;
+    syntax(ud, "invalid character in symbol (must be alphanumeric, '-' or '_')");
+    return 0;
+  }
+  return 1;
+}
+
 static void 
 ud_tree_reduce(struct udoc *ud, struct ud_node_list *list)
 {
@@ -89,6 +114,7 @@ ud_tree_symbol(struct udoc *ud, char *symbol, struct ud_node_list *list)
   char *par_token;
 
   if (!str_same(symbol, "include")) {
+    if (!symbol_check(ud, symbol)) goto FAIL;
     cur.un_type = UDOC_TYPE_SYMBOL;
     cur.un_line_num = ud->ud_tok.line;
     ud_try_sys_jump(ud, str_dup(symbol, &cur.un_data.un_sym), FAIL, "str_dup");
