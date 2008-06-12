@@ -80,8 +80,6 @@ struct install_item insthier[] = {
   {INST_COPY, "ud_tag.h", 0, ctxt_incdir, 0, 0, 0644},
   {INST_COPY, "ud_tree.h", 0, ctxt_repos, 0, 0, 0644},
   {INST_COPY, "ud_tree.h", 0, ctxt_incdir, 0, 0, 0644},
-  {INST_COPY, "ud_valid.h", 0, ctxt_repos, 0, 0, 0644},
-  {INST_COPY, "ud_valid.h", 0, ctxt_incdir, 0, 0, 0644},
   {INST_COPY, "udoc.h", 0, ctxt_repos, 0, 0, 0644},
   {INST_COPY, "udoc.h", 0, ctxt_incdir, 0, 0, 0644},
   {INST_COPY, "dfo.sld", 0, ctxt_repos, 0, 0, 0644},
