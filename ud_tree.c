@@ -211,3 +211,14 @@ ud_tree_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
   ud_tag_stack_free(&ctx->utc_state->utc_tag_stack);
   return 0;
 }
+
+const char *
+ud_node_type_name(enum ud_node_type nt)
+{
+  unsigned int ind;
+  for (ind = 0; ind < ud_num_node_types; ++ind) {
+    if (ud_node_types_by_name[ind].unt_type == nt)
+      return ud_node_types_by_name[ind].unt_name;
+  }
+  return 0;
+}

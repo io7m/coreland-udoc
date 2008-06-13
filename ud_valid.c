@@ -16,57 +16,6 @@
 
 #define UD_ARRAY_SIZEOF(x) (sizeof((x)) / sizeof((x)[0]))
 
-struct ud_markup_rule {
-  enum ud_tag umr_tag;
-  const enum ud_node_type *umr_arg_types;
-  unsigned long umr_req_args;
-  unsigned long umr_max_args;
-};
-
-static const enum ud_node_type rules_footnote[] = { UDOC_TYPE_LIST };
-static const enum ud_node_type rules_style[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_encoding[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_ref[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_title[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_link[] = { UDOC_TYPE_STRING, UDOC_TYPE_STRING };
-static const enum ud_node_type rules_link_ext[] = { UDOC_TYPE_STRING, UDOC_TYPE_STRING };
-static const enum ud_node_type rules_render_header[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_render[] = { UDOC_TYPE_STRING };
-static const enum ud_node_type rules_render_footer[] = { UDOC_TYPE_STRING };
-static const struct ud_markup_rule ud_markup_rules[] = {
-  { UDOC_TAG_REF,             rules_ref, 1, 1 },
-  { UDOC_TAG_TITLE,           rules_title, 1, 1 },
-  { UDOC_TAG_LINK,            rules_link, 1, 2 },
-  { UDOC_TAG_LINK_EXT,        rules_link_ext, 1, 2 },
-  { UDOC_TAG_ENCODING,        rules_encoding, 1, 1 },
-  { UDOC_TAG_STYLE,           rules_style, 1, 1 },
-  { UDOC_TAG_RENDER_HEADER,   rules_render_header, 1, 1 },
-  { UDOC_TAG_RENDER,          rules_render, 1, 1 },
-  { UDOC_TAG_RENDER_NOESCAPE, rules_render, 1, 1 },
-  { UDOC_TAG_RENDER_FOOTER,   rules_render_footer, 1, 1 },
-  { UDOC_TAG_FOOTNOTE,        rules_footnote, 1, 1 },
-};
-static const unsigned int ud_markup_rules_size = UD_ARRAY_SIZEOF(ud_markup_rules);
-
-/* tables of tags that are either forbidden or demanded as parents by tags */
-static const enum ud_tag par_f_table[] = { UDOC_TAG_TABLE, UDOC_TAG_TABLE_ROW };
-static const enum ud_tag par_f_table_row[] = { UDOC_TAG_TABLE_ROW };
-static const enum ud_tag par_d_table_row[] = { UDOC_TAG_TABLE };
-static const struct {
-  enum ud_tag tag;
-  const enum ud_tag *par_forbid;
-  const unsigned int par_forbid_size;
-  const enum ud_tag *par_demand;
-  const unsigned int par_demand_size;
-} ud_parent_rules[] = {
-  { UDOC_TAG_TABLE,
-    par_f_table, UD_ARRAY_SIZEOF(par_f_table), 0, 0 },
-  { UDOC_TAG_TABLE_ROW,
-    par_f_table_row, UD_ARRAY_SIZEOF(par_f_table_row),
-    par_d_table_row, UD_ARRAY_SIZEOF(par_d_table_row), },
-};
-static const unsigned int ud_parent_rules_size = UD_ARRAY_SIZEOF(ud_parent_rules);
-
 struct validate_ctx {
   enum {
     V_TOO_FEW_ARGS,
@@ -74,10 +23,12 @@ struct validate_ctx {
     V_BAD_TYPE,
     V_SECTION_AT_START,
     V_ILLEGAL_PARENT,
-    V_NO_DEMANDED_PARENTS
+    V_NO_DEMANDED_PARENTS,
+    V_TOO_FEW_OF_TYPE
   } error;
   unsigned long arg;
   enum ud_tag tag;
+  enum ud_node_type type;
 };
 
 static void
@@ -116,6 +67,11 @@ valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
     case V_NO_DEMANDED_PARENTS:
       sstring_cats(&sb2, "invalid parent");
       break;
+    case V_TOO_FEW_OF_TYPE:
+      cnum[fmt_ulong(cnum, vc->arg)] = 0;
+      sstring_cats5(&sb2, "tag requires at least ", cnum,
+        " argument of type \"", ud_node_type_name(vc->type), "\"");
+      break;
     default:
       break;
   }
@@ -151,78 +107,264 @@ validate_init(struct udoc *ud, struct ud_tree_ctx *ctx)
   return UD_TREE_OK;
 }
 
+/*
+ * check number of args against spec.
+ */
+
 static int
-check_list(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+check_num_args(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
-  const struct ud_markup_rule *rule = 0;
-  const struct ud_node *n = ctx->utc_state->utc_node;
+  enum { ANY = -1 };
+  static const struct {
+    long min;
+    long max;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { .min = 0, .max = 0 },
+    [UDOC_TAG_DATE]            = { .min = 0, .max = 0 },
+    [UDOC_TAG_ENCODING]        = { .min = 1, .max = 1 },
+    [UDOC_TAG_FOOTNOTE]        = { .min = 1, .max = 1 },
+    [UDOC_TAG_ITEM]            = { .min = ANY, .max = ANY },
+    [UDOC_TAG_LINK]            = { .min = 1, .max = 2 },
+    [UDOC_TAG_LINK_EXT]        = { .min = 1, .max = 2 },
+    [UDOC_TAG_LIST]            = { .min = 1, .max = ANY },
+    [UDOC_TAG_PARA]            = { .min = ANY, .max = ANY },
+    [UDOC_TAG_PARA_VERBATIM]   = { .min = ANY, .max = ANY },
+    [UDOC_TAG_REF]             = { .min = 1, .max = 1 },
+    [UDOC_TAG_RENDER]          = { .min = 1, .max = 1 },
+    [UDOC_TAG_RENDER_FOOTER]   = { .min = 1, .max = 1 },
+    [UDOC_TAG_RENDER_HEADER]   = { .min = 1, .max = 1 },
+    [UDOC_TAG_RENDER_NOESCAPE] = { .min = 1, .max = 1 },
+    [UDOC_TAG_SECTION]         = { .min = ANY, .max = ANY },
+    [UDOC_TAG_STYLE]           = { .min = 1, .max = 1 },
+    [UDOC_TAG_TABLE]           = { .min = 1, .max = ANY },
+    [UDOC_TAG_TABLE_ROW]       = { .min = 1, .max = ANY },
+    [UDOC_TAG_TITLE]           = { .min = 1, .max = 1 },
+  };
+  const long len = ud_list_len(ctx->utc_state->utc_node) - 1;
   struct validate_ctx *vc = ctx->utc_state->utc_user_data;
-  unsigned long len;
-  unsigned int ind;
- 
-  for (ind = 0; ind < ud_markup_rules_size; ++ind) {
-    if (tag == ud_markup_rules[ind].umr_tag) {
-      rule = &ud_markup_rules[ind];
-      break;
-    }
+
+  if (rules[tag].min == ANY) return 1;
+  if (len < rules[tag].min && rules[tag].min != ANY) {
+    vc->error = V_TOO_FEW_ARGS;
+    return 0;
   }
-  if (!rule) return 1;
-
-  len = ud_list_len(n);
-  if (rule->umr_req_args)
-    if (len < rule->umr_req_args + 1) { vc->error = V_TOO_FEW_ARGS; return 0; }
-  if (rule->umr_max_args)
-    if (len > rule->umr_max_args + 1) { vc->error = V_TOO_MANY_ARGS; return 0; }
-
-  ind = 0;
-  for (;;) {
-    if (!n->un_next) break;
-    if (rule->umr_arg_types)
-      if (n->un_next->un_type != rule->umr_arg_types[ind]) {
-        vc->error = V_BAD_TYPE;
-        vc->arg = ind;
-        return 0;
-      }
-    n = n->un_next;
-    ++ind;
+  if (len > rules[tag].max && rules[tag].max != ANY) {
+    vc->error = V_TOO_MANY_ARGS;
+    return 0;
   }
   return 1;
 }
 
-static int
-check_parents(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
-{
-  unsigned int r;
-  unsigned int f;
-  unsigned int got_par;
-  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+/*
+ * check that types occur in a given sequence.
+ */
 
-  for (r = 0; r < ud_parent_rules_size; ++r) {
-    if (ud_parent_rules[r].tag == tag) {
-      if (ud_parent_rules[r].par_demand_size) {
-        got_par = 0;
-        for (f = 0; f < ud_parent_rules[r].par_demand_size; ++f) {
-          if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
-                                 ud_parent_rules[r].par_demand[f])) {
-            got_par = 1;
-            break;
-          }
-        }
-        if (!got_par) {
-          vc->error = V_NO_DEMANDED_PARENTS;
-          return 0;
-        }
+static int
+check_type_sequenced(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+{
+  static const enum ud_node_type seq_encoding[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_footnote[] = { UDOC_TYPE_LIST };
+  static const enum ud_node_type seq_link[] = { UDOC_TYPE_STRING, UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_link_ext[] = { UDOC_TYPE_STRING, UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_ref[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_render[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_style[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type seq_title[] = { UDOC_TYPE_STRING };
+  static const struct {
+    unsigned int size;
+    const enum ud_node_type *seq;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { 0, 0 },
+    [UDOC_TAG_DATE]            = { 0, 0 },
+    [UDOC_TAG_ENCODING]        = { UD_ARRAY_SIZEOF(seq_encoding), seq_encoding },
+    [UDOC_TAG_FOOTNOTE]        = { UD_ARRAY_SIZEOF(seq_footnote), seq_footnote },
+    [UDOC_TAG_ITEM]            = { 0, 0 },
+    [UDOC_TAG_LINK]            = { UD_ARRAY_SIZEOF(seq_link), seq_link },
+    [UDOC_TAG_LINK_EXT]        = { UD_ARRAY_SIZEOF(seq_link_ext), seq_link_ext },
+    [UDOC_TAG_LIST]            = { 0, 0 },
+    [UDOC_TAG_PARA]            = { 0, 0 },
+    [UDOC_TAG_PARA_VERBATIM]   = { 0, 0 },
+    [UDOC_TAG_REF]             = { UD_ARRAY_SIZEOF(seq_ref), seq_ref },
+    [UDOC_TAG_RENDER]          = { UD_ARRAY_SIZEOF(seq_render), seq_render },
+    [UDOC_TAG_RENDER_FOOTER]   = { UD_ARRAY_SIZEOF(seq_render), seq_render },
+    [UDOC_TAG_RENDER_HEADER]   = { UD_ARRAY_SIZEOF(seq_render), seq_render },
+    [UDOC_TAG_RENDER_NOESCAPE] = { UD_ARRAY_SIZEOF(seq_render), seq_render },
+    [UDOC_TAG_SECTION]         = { 0, 0 },
+    [UDOC_TAG_STYLE]           = { UD_ARRAY_SIZEOF(seq_style), seq_style },
+    [UDOC_TAG_TABLE]           = { 0, 0 },
+    [UDOC_TAG_TABLE_ROW]       = { 0, 0 },
+    [UDOC_TAG_TITLE]           = { UD_ARRAY_SIZEOF(seq_title), seq_title },
+  };
+  const long len = ud_list_len(ctx->utc_state->utc_node) - 1;
+  const struct ud_node *n = ctx->utc_state->utc_node->un_next;
+  const enum ud_node_type *seq = rules[tag].seq;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+  long list_pos;
+
+  if (seq) {
+    for (list_pos = 0; list_pos < len; ++list_pos) {
+      if (seq[list_pos] != n->un_type) {
+        vc->error = V_BAD_TYPE;
+        vc->arg = list_pos;
+        return 0;
       }
-      for (f = 0; f < ud_parent_rules[r].par_forbid_size; ++f) {
-        if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack,
-                               ud_parent_rules[r].par_forbid[f])) {
-          vc->error = V_ILLEGAL_PARENT;
-          vc->tag = ud_parent_rules[r].par_forbid[f];
-          return 0;
+      n = n->un_next;
+    }
+  }
+  return 1;
+}
+
+/*
+ * check that parameter types are in a given set.
+ */
+
+static int
+check_type_set(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+{
+  static const enum ud_node_type set_encoding[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_footnote[] = { UDOC_TYPE_LIST };
+  static const enum ud_node_type set_link[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_link_ext[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_list[] = { UDOC_TYPE_LIST, UDOC_TYPE_SYMBOL };
+  static const enum ud_node_type set_ref[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_render[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_style[] = { UDOC_TYPE_STRING };
+  static const enum ud_node_type set_table[] = { UDOC_TYPE_LIST, UDOC_TYPE_SYMBOL };
+  static const enum ud_node_type set_table_row[] = { UDOC_TYPE_LIST, UDOC_TYPE_SYMBOL };
+  static const enum ud_node_type set_title[] = { UDOC_TYPE_STRING };
+  static const struct {
+    unsigned int size;
+    const enum ud_node_type *set;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { 0, 0 },
+    [UDOC_TAG_DATE]            = { 0, 0 },
+    [UDOC_TAG_ENCODING]        = { UD_ARRAY_SIZEOF(set_encoding), set_encoding },
+    [UDOC_TAG_FOOTNOTE]        = { UD_ARRAY_SIZEOF(set_footnote), set_footnote },
+    [UDOC_TAG_ITEM]            = { 0, 0 },
+    [UDOC_TAG_LINK]            = { UD_ARRAY_SIZEOF(set_link), set_link },
+    [UDOC_TAG_LINK_EXT]        = { UD_ARRAY_SIZEOF(set_link_ext), set_link_ext },
+    [UDOC_TAG_LIST]            = { UD_ARRAY_SIZEOF(set_list), set_list },
+    [UDOC_TAG_PARA]            = { 0, 0 },
+    [UDOC_TAG_PARA_VERBATIM]   = { 0, 0 },
+    [UDOC_TAG_REF]             = { UD_ARRAY_SIZEOF(set_ref), set_ref },
+    [UDOC_TAG_RENDER]          = { UD_ARRAY_SIZEOF(set_render), set_render },
+    [UDOC_TAG_RENDER_FOOTER]   = { UD_ARRAY_SIZEOF(set_render), set_render },
+    [UDOC_TAG_RENDER_HEADER]   = { UD_ARRAY_SIZEOF(set_render), set_render },
+    [UDOC_TAG_RENDER_NOESCAPE] = { UD_ARRAY_SIZEOF(set_render), set_render },
+    [UDOC_TAG_SECTION]         = { 0, 0 },
+    [UDOC_TAG_STYLE]           = { UD_ARRAY_SIZEOF(set_style), set_style },
+    [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(set_table), set_table },
+    [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_table_row), set_table_row },
+    [UDOC_TAG_TITLE]           = { UD_ARRAY_SIZEOF(set_title), set_title },
+  };
+  const long len = ud_list_len(ctx->utc_state->utc_node) - 1;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+  const enum ud_node_type *set = rules[tag].set;
+  const struct ud_node *n = ctx->utc_state->utc_node->un_next;
+  unsigned long rule_pos;
+  long list_pos;
+
+  if (set) {
+    for (list_pos = 0; list_pos < len; ++list_pos) {
+      int in_set = 0;
+      for (rule_pos = 0; rule_pos < rules[tag].size; ++rule_pos)
+        if (set[rule_pos] == n->un_type) {
+          in_set = 1;
+          break;
         }
+      if (!in_set) {
+        vc->error = V_BAD_TYPE;
+        vc->arg = list_pos;
+        return 0;
+      }
+      n = n->un_next;
+    }
+  }
+  return 1;
+}
+
+/*
+ * check that type T occurs at least N times.
+ */
+
+static int
+check_type_occurences(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+{
+  struct type_occur {
+    enum ud_node_type type;
+    unsigned int num;
+  };
+  static const struct type_occur occ_list[] = { { UDOC_TYPE_LIST, 1 } };
+  static const struct type_occur occ_table[] = { { UDOC_TYPE_LIST, 1 } };
+  static const struct type_occur occ_table_row[] = { { UDOC_TYPE_LIST, 1 } };
+  static const struct {
+    unsigned int size;
+    const struct type_occur *occ;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { 0, 0 },
+    [UDOC_TAG_DATE]            = { 0, 0 },
+    [UDOC_TAG_ENCODING]        = { 0, 0 },
+    [UDOC_TAG_FOOTNOTE]        = { 0, 0 },
+    [UDOC_TAG_ITEM]            = { 0, 0 },
+    [UDOC_TAG_LINK]            = { 0, 0 },
+    [UDOC_TAG_LINK_EXT]        = { 0, 0 },
+    [UDOC_TAG_LIST]            = { UD_ARRAY_SIZEOF(occ_list), occ_list },
+    [UDOC_TAG_PARA]            = { 0, 0 },
+    [UDOC_TAG_PARA_VERBATIM]   = { 0, 0 },
+    [UDOC_TAG_REF]             = { 0, 0 },
+    [UDOC_TAG_RENDER]          = { 0, 0 },
+    [UDOC_TAG_RENDER_FOOTER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_HEADER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
+    [UDOC_TAG_SECTION]         = { 0, 0 },
+    [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(occ_table), occ_table },
+    [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(occ_table_row), occ_table_row },
+    [UDOC_TAG_TITLE]           = { 0, 0 },
+  };
+  const long len = ud_list_len(ctx->utc_state->utc_node) - 1;
+  const struct type_occur *set = rules[tag].occ;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+  unsigned long rule_pos;
+  long list_pos;
+
+  if (set) {
+    for (rule_pos = 0; rule_pos < rules[tag].size; ++rule_pos) {
+      const struct ud_node *n = ctx->utc_state->utc_node->un_next;
+      unsigned long occur = 0;
+
+      for (list_pos = 0; list_pos < len; ++list_pos) {
+        if (set[rule_pos].type == n->un_type) ++occur;
+        n = n->un_next;
+      }
+      if (occur != set[rule_pos].num) {
+        vc->error = V_TOO_FEW_OF_TYPE;
+        vc->arg = set[rule_pos].num;
+        vc->type = set[rule_pos].type;
+        return 0;
       }
     }
   }
+  return 1;
+}
+
+/*
+ * check any required parent tags.
+ */
+
+static int
+check_parents_required(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+{
+  return 1;
+}
+
+/*
+ * check any forbidden parent tags.
+ */
+
+static int
+check_parents_forbidden(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
+{
   return 1;
 }
 
@@ -235,8 +377,14 @@ validate_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
 
   if (ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
   if (!ud_tag_by_name(n->un_data.un_sym, &tag)) return UD_TREE_OK;
-  if (!check_list(ud, ctx, tag)) return UD_TREE_FAIL;
-  if (!check_parents(ud, ctx, tag)) return UD_TREE_FAIL;
+
+  if (!check_num_args(ud, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_type_sequenced(ud, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_type_set(ud, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_type_occurences(ud, ctx, tag)) return UD_TREE_FAIL;
+
+  if (!check_parents_required(ud, ctx, tag)) return UD_TREE_FAIL;
+  if (!check_parents_forbidden(ud, ctx, tag)) return UD_TREE_FAIL;
 
   switch (tag) {
     case UDOC_TAG_ENCODING:

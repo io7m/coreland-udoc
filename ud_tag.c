@@ -4,7 +4,8 @@
 #define UDOC_IMPLEMENTATION
 #include "ud_tag.h"
 
-int ud_tag_by_name(const char *name, enum ud_tag *tag)
+int
+ud_tag_by_name(const char *name, enum ud_tag *tag)
 {
   unsigned int ind;
   for (ind = 0; ind < ud_num_tags; ++ind) {
@@ -16,7 +17,8 @@ int ud_tag_by_name(const char *name, enum ud_tag *tag)
   return 0;
 }
 
-const char *ud_tag_name(enum ud_tag tag)
+const char *
+ud_tag_name(enum ud_tag tag)
 {
   unsigned int ind;
   for (ind = 0; ind < ud_num_tags; ++ind) {

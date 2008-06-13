@@ -3,6 +3,7 @@
 
 #define UDOC_IMPLEMENTATION
 #include "ud_tag.h"
+#include "ud_tree.h"
 
 /*
  * main tags list
@@ -33,3 +34,15 @@ const struct ud_tag_name ud_tags_by_name[] = {
 };
 const unsigned int ud_num_tags = sizeof(ud_tags_by_name)
                                / sizeof(ud_tags_by_name[0]);
+/*
+ * type names
+ */
+
+const struct ud_node_type_name ud_node_types_by_name[] = {
+  { "symbol",  UDOC_TYPE_SYMBOL },
+  { "string",  UDOC_TYPE_STRING },
+  { "list",    UDOC_TYPE_LIST },
+  { "include", UDOC_TYPE_INCLUDE },
+};
+const unsigned int ud_num_node_types = sizeof(ud_node_types_by_name)
+                                     / sizeof(ud_node_types_by_name[0]);

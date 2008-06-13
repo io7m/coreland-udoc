@@ -1,0 +1,15 @@
+[0] pass: main: 26: argc == 2
+[1] pass: main: 27: ud_init(&doc) == 1
+[2] pass: main: 28: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing t-row_2.t depth 0
+debug: ud_tree_build: symbol: t-row
+debug: ud_tree_build: string: str
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 29: ud_parse(&doc) == 1
+debug: ud_walk: processing t-row_2.t depth 0
+debug: ud_walk: symbol: t-row
+debug: ud_walk: fail depth 0
+[4] pass: main: 30: ud_validate(&doc) == 0
+error: t-row_2.t: valid_error: 0: t-row: invalid type for argument 1
+[5] pass: main: 34: ud_free(&doc) == 1

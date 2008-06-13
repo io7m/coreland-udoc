@@ -23,6 +23,9 @@ enum ud_tag {
   UDOC_TAG_RENDER_FOOTER,
   UDOC_TAG_RENDER,
   UDOC_TAG_RENDER_NOESCAPE,
+
+  /* always last */
+  UDOC_TAG_LAST,
 };
 
 struct ud_tag_name {

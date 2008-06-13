@@ -1,0 +1,15 @@
+[0] pass: main: 26: argc == 2
+[1] pass: main: 27: ud_init(&doc) == 1
+[2] pass: main: 28: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing date.t depth 0
+debug: ud_tree_build: symbol: date
+debug: ud_tree_build: symbol: x
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 29: ud_parse(&doc) == 1
+debug: ud_walk: processing date.t depth 0
+debug: ud_walk: symbol: date
+debug: ud_walk: fail depth 0
+[4] pass: main: 30: ud_validate(&doc) == 0
+error: date.t: valid_error: 0: date: too many args
+[5] pass: main: 34: ud_free(&doc) == 1

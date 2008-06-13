@@ -1,0 +1,39 @@
+[0] pass: main: 26: argc == 2
+[1] pass: main: 27: ud_init(&doc) == 1
+[2] pass: main: 28: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing list_2.t depth 0
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing list_2.t depth 1
+debug: ud_tree_build: symbol: list
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing list_2.t depth 2
+debug: ud_tree_build: symbol: date
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: symbol: anysym
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing list_2.t depth 2
+debug: ud_tree_build: symbol: date
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: string: errant
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing list_2.t depth 2
+debug: ud_tree_build: symbol: date
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 1
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 29: ud_parse(&doc) == 1
+debug: ud_walk: processing list_2.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing list_2.t depth 1
+debug: ud_walk: symbol: list
+debug: ud_walk: fail depth 1
+debug: ud_walk: fail depth 0
+[4] pass: main: 30: ud_validate(&doc) == 0
+error: list_2.t: valid_error: 1: list: invalid type for argument 4
+error: list_2.t: valid_error: 1: list: invalid type for argument 4
+[5] pass: main: 34: ud_free(&doc) == 1
