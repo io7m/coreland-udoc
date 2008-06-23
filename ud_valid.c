@@ -355,6 +355,51 @@ check_type_occurences(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 static int
 check_parents_required(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
+  static const enum ud_tag set_t_row[] = { UDOC_TAG_TABLE };
+  static const struct {
+    unsigned int size;
+    const enum ud_tag *set;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { 0, 0 },
+    [UDOC_TAG_DATE]            = { 0, 0 },
+    [UDOC_TAG_ENCODING]        = { 0, 0 },
+    [UDOC_TAG_FOOTNOTE]        = { 0, 0 },
+    [UDOC_TAG_ITEM]            = { 0, 0 },
+    [UDOC_TAG_LINK]            = { 0, 0 },
+    [UDOC_TAG_LINK_EXT]        = { 0, 0 },
+    [UDOC_TAG_LIST]            = { 0, 0 },
+    [UDOC_TAG_PARA]            = { 0, 0 },
+    [UDOC_TAG_PARA_VERBATIM]   = { 0, 0 },
+    [UDOC_TAG_REF]             = { 0, 0 },
+    [UDOC_TAG_RENDER]          = { 0, 0 },
+    [UDOC_TAG_RENDER_FOOTER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_HEADER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
+    [UDOC_TAG_SECTION]         = { 0, 0 },
+    [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_TABLE]           = { 0, 0 },
+    [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_t_row), set_t_row },
+    [UDOC_TAG_TITLE]           = { 0, 0 },
+  };
+  const unsigned int set_size = rules[tag].size;
+  const enum ud_tag *set = rules[tag].set;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+  unsigned int rpos;
+  int got_par = 0;
+
+  /* check tag is descendent of required tag */
+  if (set) {
+    for (rpos = 0; rpos < set_size; ++rpos) {
+      if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack, set[rpos])) {
+        got_par = 1;
+        break;
+      }
+    }
+    if (!got_par) {
+      vc->error = V_NO_DEMANDED_PARENTS;
+      return 0;
+    }
+  }
   return 1;
 }
 
@@ -365,6 +410,48 @@ check_parents_required(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag
 static int
 check_parents_forbidden(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
 {
+  static const enum ud_tag set_table[] = { UDOC_TAG_TABLE, UDOC_TAG_TABLE_ROW };
+  static const enum ud_tag set_t_row[] = { UDOC_TAG_TABLE_ROW };
+  static const struct {
+    unsigned int size;
+    const enum ud_tag *set;
+  } rules[] = {
+    [UDOC_TAG_CONTENTS]        = { 0, 0 },
+    [UDOC_TAG_DATE]            = { 0, 0 },
+    [UDOC_TAG_ENCODING]        = { 0, 0 },
+    [UDOC_TAG_FOOTNOTE]        = { 0, 0 },
+    [UDOC_TAG_ITEM]            = { 0, 0 },
+    [UDOC_TAG_LINK]            = { 0, 0 },
+    [UDOC_TAG_LINK_EXT]        = { 0, 0 },
+    [UDOC_TAG_LIST]            = { 0, 0 },
+    [UDOC_TAG_PARA]            = { 0, 0 },
+    [UDOC_TAG_PARA_VERBATIM]   = { 0, 0 },
+    [UDOC_TAG_REF]             = { 0, 0 },
+    [UDOC_TAG_RENDER]          = { 0, 0 },
+    [UDOC_TAG_RENDER_FOOTER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_HEADER]   = { 0, 0 },
+    [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
+    [UDOC_TAG_SECTION]         = { 0, 0 },
+    [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(set_table), set_table },
+    [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_t_row), set_t_row },
+    [UDOC_TAG_TITLE]           = { 0, 0 },
+  };
+  const unsigned int set_size = rules[tag].size;
+  const enum ud_tag *set = rules[tag].set;
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+  unsigned int rpos;
+
+  /* check tag is not descendent of forbidden tag */
+  if (set) {
+    for (rpos = 0; rpos < set_size; ++rpos) {
+      if (ud_tag_stack_above(&ctx->utc_state->utc_tag_stack, set[rpos])) {
+        vc->error = V_ILLEGAL_PARENT;
+        vc->tag = set[rpos];
+        return 0;
+      }
+    }
+  }
   return 1;
 }
 

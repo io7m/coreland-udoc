@@ -14,3 +14,4 @@
 20080612 code: item tags no longer create newlines in xhtml.
 20080612 code: restrictions on symbol format (alphanumeric, -, _, no starting
                numeric).
+20080623 code: finished validator. all tests pass.
