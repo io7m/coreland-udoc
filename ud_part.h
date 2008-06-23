@@ -3,7 +3,10 @@
 
 #include <corelib/dstring.h>
 
-#define UD_PART_SPLIT 0x0001
+enum ud_part_flags {
+  UD_PART_SPLIT   = 0x0001,
+  UD_PART_SUBSECT = 0x0002
+};
 
 struct udoc;
 struct ud_part {

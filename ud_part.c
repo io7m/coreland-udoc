@@ -136,7 +136,7 @@ part_subsection(struct udoc *ud, struct part_ctx *pctx,
   cnum[fmt_ulong(cnum, size)] = 0;
   log_2xf(LOG_DEBUG, "part stack size ", cnum);
 
-  if (!part_add(ud, pctx, 0, list, node)) return UD_TREE_FAIL;
+  if (!part_add(ud, pctx, UD_PART_SUBSECT, list, node)) return UD_TREE_FAIL;
   return UD_TREE_OK;
 }
 
