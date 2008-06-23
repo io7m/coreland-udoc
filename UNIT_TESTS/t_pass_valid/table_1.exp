@@ -1,0 +1,90 @@
+[0] pass: main: 12: argc == 2
+[1] pass: main: 13: ud_init(&doc) == 1
+[2] pass: main: 14: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing table_1.t depth 0
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 1
+debug: ud_tree_build: symbol: table
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 2
+debug: ud_tree_build: symbol: t-row
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 3
+debug: ud_tree_build: symbol: item
+debug: ud_tree_build: string: r1_c1
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 3
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 3
+debug: ud_tree_build: symbol: item
+debug: ud_tree_build: string: r1_c2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 3
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 2
+debug: ud_tree_build: symbol: t-row
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 3
+debug: ud_tree_build: symbol: item
+debug: ud_tree_build: string: r2_c1
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 3
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing table_1.t depth 3
+debug: ud_tree_build: symbol: item
+debug: ud_tree_build: string: r2_c2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 3
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 2
+debug: ud_tree_build: paren close
+debug: ud_tree_build: success depth 1
+debug: ud_tree_build: eof
+debug: ud_tree_build: success depth 0
+[3] pass: main: 15: ud_parse(&doc) == 1
+debug: ud_walk: processing table_1.t depth 0
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 1
+debug: ud_walk: symbol: table
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 2
+debug: ud_walk: symbol: t-row
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 3
+debug: ud_walk: symbol: item
+debug: ud_walk: string: "r1_c1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 3
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 3
+debug: ud_walk: symbol: item
+debug: ud_walk: string: "r1_c2"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 3
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 2
+debug: ud_walk: symbol: t-row
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 3
+debug: ud_walk: symbol: item
+debug: ud_walk: string: "r2_c1"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 3
+debug: ud_walk: list
+debug: ud_walk: processing table_1.t depth 3
+debug: ud_walk: symbol: item
+debug: ud_walk: string: "r2_c2"
+debug: ud_walk: list: end
+debug: ud_walk: success depth 3
+debug: ud_walk: list: end
+debug: ud_walk: success depth 2
+debug: ud_walk: list: end
+debug: ud_walk: success depth 1
+debug: ud_walk: list: end
+debug: ud_walk: success depth 0
+[4] pass: main: 16: ud_validate(&doc) == 1
+[5] pass: main: 17: ud_free(&doc) == 1

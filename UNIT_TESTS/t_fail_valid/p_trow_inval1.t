@@ -1,0 +1,2 @@
+(table
+  (t-row red))

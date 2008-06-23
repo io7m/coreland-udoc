@@ -337,7 +337,7 @@ check_type_occurences(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
         if (set[rule_pos].type == n->un_type) ++occur;
         n = n->un_next;
       }
-      if (occur != set[rule_pos].num) {
+      if (occur < set[rule_pos].num) {
         vc->error = V_TOO_FEW_OF_TYPE;
         vc->arg = set[rule_pos].num;
         vc->type = set[rule_pos].type;
