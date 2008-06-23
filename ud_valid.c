@@ -94,10 +94,10 @@ validate_init(struct udoc *ud, struct ud_tree_ctx *ctx)
   struct validate_ctx *vc = ctx->utc_state->utc_user_data;
   enum ud_tag tag;
 
-  /* to simplify chunking, a symbol at the root cannot be 'section' */
+  /* to simplify part handling, root tag cannot be section or subsection */
   if (ud->ud_tree.ut_root.unl_head->un_type == UDOC_TYPE_SYMBOL) {
     if (ud_tag_by_name(ud->ud_tree.ut_root.unl_head->un_data.un_sym, &tag)) {
-      if (tag == UDOC_TAG_SECTION) {
+      if (tag == UDOC_TAG_SECTION || tag == UDOC_TAG_SUBSECTION) {
         vc->error = V_SECTION_AT_START;
         valid_error(ud, ud->ud_tree.ut_root.unl_head, vc);
         return UD_TREE_FAIL;
@@ -136,6 +136,7 @@ check_num_args(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
     [UDOC_TAG_RENDER_NOESCAPE] = { .min = 1, .max = 1 },
     [UDOC_TAG_SECTION]         = { .min = ANY, .max = ANY },
     [UDOC_TAG_STYLE]           = { .min = 1, .max = 1 },
+    [UDOC_TAG_SUBSECTION]      = { .min = ANY, .max = ANY },
     [UDOC_TAG_TABLE]           = { .min = 1, .max = ANY },
     [UDOC_TAG_TABLE_ROW]       = { .min = 1, .max = ANY },
     [UDOC_TAG_TITLE]           = { .min = 1, .max = 1 },
@@ -191,6 +192,7 @@ check_type_sequenced(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
     [UDOC_TAG_RENDER_NOESCAPE] = { UD_ARRAY_SIZEOF(seq_render), seq_render },
     [UDOC_TAG_SECTION]         = { 0, 0 },
     [UDOC_TAG_STYLE]           = { UD_ARRAY_SIZEOF(seq_style), seq_style },
+    [UDOC_TAG_SUBSECTION]      = { 0, 0 },
     [UDOC_TAG_TABLE]           = { 0, 0 },
     [UDOC_TAG_TABLE_ROW]       = { 0, 0 },
     [UDOC_TAG_TITLE]           = { UD_ARRAY_SIZEOF(seq_title), seq_title },
@@ -253,6 +255,7 @@ check_type_set(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
     [UDOC_TAG_RENDER_NOESCAPE] = { UD_ARRAY_SIZEOF(set_render), set_render },
     [UDOC_TAG_SECTION]         = { 0, 0 },
     [UDOC_TAG_STYLE]           = { UD_ARRAY_SIZEOF(set_style), set_style },
+    [UDOC_TAG_SUBSECTION]      = { 0, 0 },
     [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(set_table), set_table },
     [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_table_row), set_table_row },
     [UDOC_TAG_TITLE]           = { UD_ARRAY_SIZEOF(set_title), set_title },
@@ -318,6 +321,7 @@ check_type_occurences(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag)
     [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
     [UDOC_TAG_SECTION]         = { 0, 0 },
     [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_SUBSECTION]      = { 0, 0 },
     [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(occ_table), occ_table },
     [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(occ_table_row), occ_table_row },
     [UDOC_TAG_TITLE]           = { 0, 0 },
@@ -377,6 +381,7 @@ check_parents_required(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag tag
     [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
     [UDOC_TAG_SECTION]         = { 0, 0 },
     [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_SUBSECTION]      = { 0, 0 },
     [UDOC_TAG_TABLE]           = { 0, 0 },
     [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_t_row), set_t_row },
     [UDOC_TAG_TITLE]           = { 0, 0 },
@@ -433,6 +438,7 @@ check_parents_forbidden(struct udoc *ud, struct ud_tree_ctx *ctx, enum ud_tag ta
     [UDOC_TAG_RENDER_NOESCAPE] = { 0, 0 },
     [UDOC_TAG_SECTION]         = { 0, 0 },
     [UDOC_TAG_STYLE]           = { 0, 0 },
+    [UDOC_TAG_SUBSECTION]      = { 0, 0 },
     [UDOC_TAG_TABLE]           = { UD_ARRAY_SIZEOF(set_table), set_table },
     [UDOC_TAG_TABLE_ROW]       = { UD_ARRAY_SIZEOF(set_t_row), set_t_row },
     [UDOC_TAG_TITLE]           = { 0, 0 },

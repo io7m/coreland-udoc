@@ -319,6 +319,7 @@ struct dispatch {
 
 static const struct dispatch tag_starts[] = {
   { UDOC_TAG_SECTION,         rt_tag_section },
+  { UDOC_TAG_SUBSECTION,      rt_tag_section },
   { UDOC_TAG_REF,             rt_tag_ref },
   { UDOC_TAG_LINK,            rt_tag_link },
   { UDOC_TAG_LINK_EXT,        rt_tag_link_ext },

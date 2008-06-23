@@ -502,6 +502,7 @@ static const struct dispatch tag_starts[] = {
   { UDOC_TAG_PARA,            rn_tag_para },
   { UDOC_TAG_PARA_VERBATIM,   rn_tag_para_verbatim },
   { UDOC_TAG_SECTION,         rn_tag_section },
+  { UDOC_TAG_SUBSECTION,      rn_tag_section },
   { UDOC_TAG_REF,             rn_tag_ref },
   { UDOC_TAG_LINK,            rn_tag_link },
   { UDOC_TAG_LINK_EXT,        rn_tag_link_ext },

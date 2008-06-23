@@ -106,6 +106,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
     cur_node = tctx->utc_state->utc_node;
     if (!ud_tag_by_name(cur_node->un_data.un_sym, &tag)) return UD_TREE_OK;
     switch (tag) {
+      case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
         ud_assert_s(ud_part_getfromnode(ud, cur_node, &part, &ind),
           "could not get part for node");
@@ -175,6 +176,7 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
 
   if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
+      case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
         section = 1;
         ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind_ptr));

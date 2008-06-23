@@ -15,6 +15,7 @@ const struct ud_tag_name ud_tags_by_name[] = {
   { "para-verbatim",   UDOC_TAG_PARA_VERBATIM },
   { "item",            UDOC_TAG_ITEM },
   { "section",         UDOC_TAG_SECTION },
+  { "subsection",      UDOC_TAG_SUBSECTION },
   { "ref",             UDOC_TAG_REF },
   { "link",            UDOC_TAG_LINK },
   { "link-ext",        UDOC_TAG_LINK_EXT },

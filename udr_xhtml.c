@@ -465,6 +465,7 @@ static const struct dispatch tag_starts[] = {
   { UDOC_TAG_PARA,            x_tag_para },
   { UDOC_TAG_PARA_VERBATIM,   x_tag_para_verbatim },
   { UDOC_TAG_SECTION,         x_tag_section },
+  { UDOC_TAG_SUBSECTION,      x_tag_section },
   { UDOC_TAG_ITEM,            x_tag_item },
   { UDOC_TAG_REF,             x_tag_ref },
   { UDOC_TAG_LINK,            x_tag_link },
@@ -485,6 +486,7 @@ static const struct dispatch tag_ends[] = {
   { UDOC_TAG_PARA,          x_tag_end_para },
   { UDOC_TAG_PARA_VERBATIM, x_tag_end_para_verbatim },
   { UDOC_TAG_SECTION,       x_tag_end_section },
+  { UDOC_TAG_SUBSECTION,    x_tag_end_section },
   { UDOC_TAG_ITEM,          x_tag_end_item },
 };
 static const unsigned int tag_ends_size = sizeof(tag_ends)

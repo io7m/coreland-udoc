@@ -89,7 +89,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
  
   /* push part onto stack */
   ud_try_sys_jump(ud, ud_part_ind_stack_push(&pctx->ind_stack,
-                     &p_new.up_index_cur), FAIL, "stack_push");
+    &p_new.up_index_cur), FAIL, "stack_push");
 
   /* chatter */
   cnum[fmt_ulong(cnum, p_new.up_index_cur)] = 0;
@@ -112,7 +112,7 @@ part_section(struct udoc *ud, struct part_ctx *pctx,
 {
   char cnum[FMT_ULONG];
   unsigned long flags = 0;
-  unsigned long size = ud_part_ind_stack_size(&pctx->ind_stack);
+  const unsigned long size = ud_part_ind_stack_size(&pctx->ind_stack);
 
   cnum[fmt_ulong(cnum, size)] = 0;
   log_2xf(LOG_DEBUG, "part stack size ", cnum);
@@ -123,6 +123,20 @@ part_section(struct udoc *ud, struct part_ctx *pctx,
     log_1xf(LOG_DEBUG, "split threshold exceeded - not splitting");
 
   if (!part_add(ud, pctx, flags, list, node)) return UD_TREE_FAIL;
+  return UD_TREE_OK;
+}
+
+static int
+part_subsection(struct udoc *ud, struct part_ctx *pctx,
+  const struct ud_node_list *list, const struct ud_node *node)
+{
+  char cnum[FMT_ULONG];
+  const unsigned long size = ud_part_ind_stack_size(&pctx->ind_stack);
+
+  cnum[fmt_ulong(cnum, size)] = 0;
+  log_2xf(LOG_DEBUG, "part stack size ", cnum);
+
+  if (!part_add(ud, pctx, 0, list, node)) return UD_TREE_FAIL;
   return UD_TREE_OK;
 }
 
@@ -228,6 +242,8 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
   if (!ud_tag_by_name(ctx->utc_state->utc_node->un_data.un_sym, &tag)) return UD_TREE_OK;
   
   switch (tag) {
+    case UDOC_TAG_SUBSECTION:
+      return part_subsection(ud, pctx, ctx->utc_state->utc_list, ctx->utc_state->utc_node);
     case UDOC_TAG_SECTION:
       return part_section(ud, pctx, ctx->utc_state->utc_list, ctx->utc_state->utc_node);
     case UDOC_TAG_TITLE:
@@ -303,6 +319,7 @@ cb_part_list_end(struct udoc *ud, struct ud_tree_ctx *ctx)
   first_sym = ctx->utc_state->utc_list->unl_head;
   if (!ud_tag_by_name(first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
+    case UDOC_TAG_SUBSECTION:
     case UDOC_TAG_SECTION:
       ud_assert(ud_part_ind_stack_pop(&pctx->ind_stack, &ind));
       cnum[fmt_ulong(cnum, ud_part_ind_stack_size(&pctx->ind_stack))] = 0;

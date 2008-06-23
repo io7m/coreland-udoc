@@ -17,3 +17,4 @@
 20080623 code: finished validator. all tests pass.
 20080623 code: added link integrity checking to ud_partition(). only one test
                is necessary, apparently.
+20080623 code: added subsection tag.
