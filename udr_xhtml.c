@@ -226,8 +226,7 @@ x_tag_link(struct udoc *ud, struct udr_ctx *r)
   refl = n->un_next->un_data.un_str;
   text = (n->un_next->un_next) ? n->un_next->un_next->un_data.un_str : refl;
 
-  ud_tryS(ud, ud_oht_get(&ud->ud_ref_names, refl, str_len(refl), (void *) &ref, &dummy),
-          UD_TREE_FAIL, "ud_oht_get", "could not get reference for link");
+  ud_oht_get(&ud->ud_ref_names, refl, str_len(refl), (void *) &ref, &dummy);
 
   /* only link to file if splitting */
   buffer_puts(out, "<a href=\"");

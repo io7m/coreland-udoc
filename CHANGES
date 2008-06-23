@@ -15,3 +15,5 @@
 20080612 code: restrictions on symbol format (alphanumeric, -, _, no starting
                numeric).
 20080623 code: finished validator. all tests pass.
+20080623 code: added link integrity checking to ud_partition(). only one test
+               is necessary, apparently.

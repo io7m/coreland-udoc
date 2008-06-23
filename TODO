@@ -6,8 +6,6 @@ to add a 't-cell' tag.
 Tags need formal definitions. For example, how should descendents
 of para-verbatim tags behave?
 
-Improve error messages (link to missing ref, for example).
-
 A subsection tag seems desirable. Behaves exactly like a 'section'
 except that it never appears in tables of contents and never causes
 a split.
