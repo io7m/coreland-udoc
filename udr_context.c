@@ -166,7 +166,7 @@ rt_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
     if (node == ref->ur_node) {
       buffer_puts(buf, "\\from[url_");
       buffer_put(buf, cnum, fmt_ulong(cnum, ind));
-      buffer_puts(buf, "]");
+      buffer_puts(buf, "] ");
       return 1;
     }
   }

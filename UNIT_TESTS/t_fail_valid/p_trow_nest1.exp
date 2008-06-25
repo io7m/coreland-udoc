@@ -35,6 +35,4 @@ debug: ud_walk: fail depth 1
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
 error: p_trow_nest1.t: valid_error: 3: t-row: cannot be child of t-row
-error: p_trow_nest1.t: valid_error: 3: t-row: cannot be child of t-row
-error: p_trow_nest1.t: valid_error: 3: t-row: cannot be child of t-row
 [5] pass: main: 34: ud_free(&doc) == 1

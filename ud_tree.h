@@ -67,6 +67,7 @@ struct ud_tree_ctx_funcs {
   void (*utcf_error)(struct udoc *, struct ud_tree_ctx *);
 };
 struct ud_tree_ctx_state {
+  unsigned int utc_failed;
   unsigned long utc_list_pos;
   unsigned long utc_list_depth;
   const struct ud_node *utc_node;

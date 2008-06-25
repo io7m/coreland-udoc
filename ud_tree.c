@@ -163,7 +163,10 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
   return ret;
 
 FAIL:
-  if (ctx->utc_funcs->utcf_error) ctx->utc_funcs->utcf_error(doc, ctx);
+  if (ctx->utc_funcs->utcf_error && !ctx->utc_state->utc_failed) {
+    ctx->utc_funcs->utcf_error(doc, ctx);
+    ctx->utc_state->utc_failed = 1;
+  }
   state->utc_list_pos = saved_pos;
   if (errno)
     log_2sysf(LOG_DEBUG, "fail depth ", ns);

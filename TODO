@@ -1,5 +1,7 @@
 UNIT_TESTS
 
+Remove "this renderer does not support split output" warning.
+
 Renderer flag to set whether or not subsections are listed in (contents).
 
 Error messages need major work. Line numbers are basically wrong and
