@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
   /* some renderers don't support split output */
   if (!r->ur_data.ur_part && main_opts.ud_split_thresh) {
-    log_1x(LOG_WARN, "this renderer does not support split output");
+    log_1x(LOG_NOTICE, "this renderer does not support split output");
     log_1x(LOG_NOTICE, "split threshold set to 0");
     main_opts.ud_split_thresh = 0;
   }

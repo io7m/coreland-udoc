@@ -162,8 +162,13 @@ static enum ud_tree_walk_stat
 r_string(struct udoc *ud, struct ud_tree_ctx *tctx)
 {
   struct udr_ctx *r = tctx->utc_state->utc_user_data;
-  return (r->uc_render->ur_funcs.urf_string)
-        ? r->uc_render->ur_funcs.urf_string(ud, r) : UD_TREE_OK;
+
+  /* only pass string to renderer if the first node was a symbol */
+  if (tctx->utc_state->utc_list->unl_head->un_type == UDOC_TYPE_SYMBOL) {
+    return (r->uc_render->ur_funcs.urf_string)
+      ? r->uc_render->ur_funcs.urf_string(ud, r) : UD_TREE_OK;
+  } else
+    return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat

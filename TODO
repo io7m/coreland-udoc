@@ -1,6 +1,8 @@
 UNIT_TESTS
 
-Remove "this renderer does not support split output" warning.
+XHTML bottom navbar is incorrect in outermost section. The problem is
+that the last 'part' for the document is selected when file_finish() is
+called.
 
 Renderer flag to set whether or not subsections are listed in (contents).
 
@@ -24,6 +26,9 @@ Fix ConTeXt text output (dfo.h).
 
 ConTeXt 'verbatim' output still fucking isn't (some hyphenation
 in places).
+
+Underscores in chapter/section titles cause rendering problems
+in ConTeXt. This appears to be a bug in ConTeXt.
 
 Need to escape characters in titles for ConTeXt.
 

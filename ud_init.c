@@ -32,7 +32,9 @@ ud_init(struct udoc *ud)
   ud->ud_main_doc = ud;
   ud->ud_cur_doc = ud;
 
-  ht_init(&ud->ud_documents);
+  if (!ht_init(&ud->ud_loopchecks)) goto FAIL;
+  if (!ht_init(&ud->ud_documents)) goto FAIL;
+
   taia_now(&ud->ud_time_start);
 
   return 1;

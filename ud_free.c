@@ -16,5 +16,7 @@ ud_free(struct udoc *ud)
   dstack_free(&ud->ud_doc_stack);
   token_free(&ud->ud_tok);
   dealloc_null(&ud->ud_name);
+  ht_free(&ud->ud_loopchecks);
+  ht_free(&ud->ud_documents);
   return 1;
 }

@@ -34,6 +34,7 @@ struct udoc {
   struct ud_ordered_ht ud_footnotes;
   struct ud_ordered_ht ud_styles;
   struct hashtable ud_documents;
+  struct hashtable ud_loopchecks;
   struct dstack ud_errors;
   struct dstack ud_doc_stack;
   struct udoc_opts ud_opts;
