@@ -15,7 +15,7 @@ ud_open(struct udoc *ud, const char *fn)
   char dir[DIR_NAME_MAX];
   struct hashtable *doc_hash = &ud->ud_main_doc->ud_documents;
 
-  ud->ud_name = fn;
+  ud_try_sys_jump(ud, str_dup(fn, (char **) &ud->ud_name), OPEN_FAIL, "str_dup");
   ud_try_sys_jump(ud, dir_name_r(ud->ud_name, dir, sizeof(dir)), OPEN_FAIL, "dir_name_r");
 
   ud->ud_dirfd_src = open_ro(dir);

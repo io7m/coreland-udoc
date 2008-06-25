@@ -4,9 +4,7 @@ Remove "this renderer does not support split output" warning.
 
 Renderer flag to set whether or not subsections are listed in (contents).
 
-Error messages need major work. Line numbers are basically wrong and
-messages are always prefixed with the name of the main document, as
-opposed to the document the error actually occured in.
+Line numbers appear to be wrong in error messages.
 
 Table cells can't be styled with CSS in HTML. It may be necessary
 to add a 't-cell' tag.

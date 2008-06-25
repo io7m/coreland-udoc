@@ -18,17 +18,16 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
   const struct ud_node *cur_node = cur_list->unl_head;
   struct ud_tree_ctx_state *state = ctx->utc_state;
   struct ud_tag_stack *tag_stack = &state->utc_tag_stack;
-  unsigned long saved_ssize = 0;
-  unsigned long saved_pos = 0;
+  const unsigned long saved_ssize = ud_tag_stack_size(tag_stack);
+  const unsigned long saved_dsize = dstack_size(&doc->ud_doc_stack);
+  const unsigned long saved_pos = state->utc_list_pos;
   enum ud_tree_walk_stat ret = UD_TREE_OK;
   enum ud_tag tag;
 
-  saved_ssize = ud_tag_stack_size(tag_stack);
-  saved_pos = state->utc_list_pos;
   state->utc_list_pos = 0;
 
   ns[fmt_ulong(ns, state->utc_list_depth)] = 0;
-  log_4xf(LOG_DEBUG, "processing ", doc->ud_name, " depth ", ns);
+  log_4xf(LOG_DEBUG, "processing ", doc->ud_cur_doc->ud_name, " depth ", ns);
 
   state->utc_list_depth++;
   for (;;) {
@@ -115,6 +114,17 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
             default: break;
           }
         }
+
+        /* push current doc onto stack and set current doc to included doc */
+        {
+          const char *docname = cur_node->un_next->un_data.un_str;
+          struct udoc *doc_ptr;
+
+          ud_assert(ud_get(doc, docname, &doc_ptr));
+          ud_try_sys_jump(doc, dstack_push(&doc->ud_doc_stack, &doc), FAIL, "alloc");
+          doc->ud_cur_doc = doc_ptr;
+        }
+
         ret = ud_walk(doc, ctx);
         ud_assert_s(ret <= UD_TREE_STOP_LIST, "include: unknown return value");
         switch (ret) {
@@ -125,6 +135,14 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
             log_1xf(LOG_DEBUG, "list: stop_list"); goto END;
           default: break;
         }
+
+        /* pop document from stack into doc->ud_cur_doc */
+        {
+          struct udoc *doc_ptr;
+          ud_assert(dstack_pop(&doc->ud_doc_stack, (void *) &doc_ptr));
+          doc->ud_cur_doc = doc_ptr;
+        }
+
         state->utc_list = cur_list;
         state->utc_node = cur_node;
         break;
@@ -156,6 +174,7 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
   if (saved_ssize < ud_tag_stack_size(tag_stack))
     ud_assert_s(ud_tag_stack_pop(tag_stack, &tag), "tag stack underflow");
   ud_assert(saved_ssize == ud_tag_stack_size(tag_stack));
+  ud_assert(saved_dsize == dstack_size(&doc->ud_doc_stack));
 
   if (ret == UD_TREE_STOP_LIST) ret = UD_TREE_OK;
   state->utc_list_pos = saved_pos;

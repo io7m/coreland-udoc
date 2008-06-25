@@ -147,7 +147,8 @@ part_title(struct udoc *ud, struct part_ctx *pctx,
   char cnum[FMT_ULONG];
   if (part->up_title) {
     cnum[fmt_ulong(cnum, node->un_next->un_line_num)] = 0;
-    log_3x(LOG_WARN, "title on line ", cnum, " overwrites previous title");
+    log_4x(LOG_WARN, ud->ud_cur_doc->ud_name, ": title on line ",
+      cnum, " overwrites previous title");
   }
   part->up_title = node->un_next->un_data.un_str;
   log_2xf(LOG_DEBUG, "part title ", part->up_title);
@@ -287,14 +288,16 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_RENDER_HEADER:
       if (ud->ud_render_header) {
         ln[fmt_ulong(ln, ctx->utc_state->utc_node->un_line_num)] = 0;
-        log_2x(LOG_WARN, ln, ": render-header overrides previous tag");
+        log_4x(LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
+          ": render-header overrides previous tag");
       }
       ud->ud_render_header = ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
       if (ud->ud_render_footer) {
         ln[fmt_ulong(ln, ctx->utc_state->utc_node->un_line_num)] = 0;
-        log_2x(LOG_WARN, ln, ": render-footer overrides previous tag");
+        log_4x(LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
+          ": render-footer overrides previous tag");
       }
       ud->ud_render_footer = ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
@@ -362,14 +365,10 @@ cb_part_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
 }
 
 static const struct ud_tree_ctx_funcs part_funcs = {
-  cb_part_init,
-  0,
-  0,
-  cb_part_symbol,
-  0,
-  cb_part_list_end,
-  cb_part_finish,
-  0,
+  .utcf_init = cb_part_init,
+  .utcf_symbol = cb_part_symbol,
+  .utcf_list_end = cb_part_list_end,
+  .utcf_finish = cb_part_finish,
 };
 
 int

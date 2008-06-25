@@ -18,6 +18,7 @@ struct udoc_opts {
 
 struct udoc {
   struct udoc *ud_main_doc; /* main document points to itself */
+  struct udoc *ud_cur_doc;  /* for error reporting, etc */
   struct ud_tree ud_tree;
   struct tokenizer ud_tok;
   const char *ud_name;
@@ -34,6 +35,7 @@ struct udoc {
   struct ud_ordered_ht ud_styles;
   struct hashtable ud_documents;
   struct dstack ud_errors;
+  struct dstack ud_doc_stack;
   struct udoc_opts ud_opts;
   int ud_dirfd_pwd;
   int ud_dirfd_src;

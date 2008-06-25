@@ -99,7 +99,13 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
   cur.un_data.un_list = udp->ud_tree.ut_root;
   ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
 
-  ++ud->ud_nodes;
+  /* insert node with name of included file */
+  cur.un_line_num = ud->ud_tok.line;
+  cur.un_type = UDOC_TYPE_STRING;
+  ud_try_sys_jump(ud, str_dup(file, &cur.un_data.un_str), FAIL, "str_dup");
+  ud_try_sys_jump(ud, ud_list_cat(list, &cur), FAIL, "ud_list_cat");
+
+  ud->ud_nodes += 2;
   return 1;
 FAIL:
   ud_free(&ud_new);

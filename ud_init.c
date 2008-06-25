@@ -21,6 +21,7 @@ ud_init(struct udoc *ud)
   if (!ud_oht_init(&ud->ud_ref_names, sizeof(struct ud_ref))) goto FAIL;
   if (!ud_oht_init(&ud->ud_footnotes, sizeof(struct ud_ref))) goto FAIL;
   if (!ud_oht_init(&ud->ud_styles, sizeof(struct ud_ref))) goto FAIL;
+  if (!dstack_init(&ud->ud_doc_stack, 16, sizeof(struct udoc *))) goto FAIL;
   if (!dstack_init(&ud->ud_errors, 16, sizeof(struct ud_err))) goto FAIL;
   if (!token_init(&ud->ud_tok)) goto FAIL;
 
@@ -29,6 +30,7 @@ ud_init(struct udoc *ud)
   ud->ud_dirfd_src = -1;
   ud->ud_dirfd_out = -1;
   ud->ud_main_doc = ud;
+  ud->ud_cur_doc = ud;
 
   ht_init(&ud->ud_documents);
   taia_now(&ud->ud_time_start);

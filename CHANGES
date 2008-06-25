@@ -19,3 +19,5 @@
                is necessary, apparently.
 20080623 code: added subsection tag.
 20080625 code: fixed error repetition with utc_failed flag in tree_ctx.
+20080625 code: update error handling. line numbers are still incorrect in some
+               cases.

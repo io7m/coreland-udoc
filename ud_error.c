@@ -41,7 +41,7 @@ ud_error_fill(struct udoc *ud, struct ud_err *ue, const char *func,
   ue->ue_func = func;
   ue->ue_errno_val = ev;
 
-  sstring_cpys(&sstr_dn, ud->ud_name);
+  sstring_cpys(&sstr_dn, ud->ud_cur_doc->ud_name);
   sstring_0(&sstr_dn);
 
   sstring_cpys(&sstr_op, op);

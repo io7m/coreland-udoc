@@ -2,9 +2,10 @@
 #include <corelib/bin.h>
 #include <corelib/fmt.h>
 #include <corelib/hashtable.h>
-#include <corelib/sstring.h>
 #include <corelib/open.h>
 #include <corelib/read.h>
+#include <corelib/sstring.h>
+#include <corelib/str.h>
 
 #include "log.h"
 #include "multi.h"
@@ -24,7 +25,8 @@ struct validate_ctx {
     V_SECTION_AT_START,
     V_ILLEGAL_PARENT,
     V_NO_DEMANDED_PARENTS,
-    V_TOO_FEW_OF_TYPE
+    V_TOO_FEW_OF_TYPE,
+    V_INVALID_ENCODING
   } error;
   unsigned long arg;
   enum ud_tag tag;
@@ -72,6 +74,10 @@ valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
       sstring_cats5(&sb2, "tag requires at least ", cnum,
         " argument of type \"", ud_node_type_name(vc->type), "\"");
       break;
+    case V_INVALID_ENCODING:
+      sstring_cpys(&sb1, ud->ud_encoding);
+      sstring_cats(&sb2, "invalid encoding");
+      break;
     default:
       break;
   }
@@ -105,6 +111,22 @@ validate_init(struct udoc *ud, struct ud_tree_ctx *ctx)
     }
   }
   return UD_TREE_OK;
+}
+
+/*
+ * check encoding
+ */
+
+static int
+check_encoding(const struct udoc *ud, struct ud_tree_ctx *ctx)
+{
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+
+  if (!str_same(ud->ud_encoding, "utf-8")) {
+    vc->error = V_INVALID_ENCODING;
+    return 0;
+  }
+  return 1;
 }
 
 /*
@@ -483,8 +505,8 @@ validate_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_ENCODING:
       if (ud->ud_encoding) {
         ln[fmt_ulong(ln, n->un_next->un_line_num)] = 0;
-        log_4x(LOG_WARN, ln, ": ignored extra encoding tag (\"",
-               n->un_next->un_data.un_str, "\")");
+        log_6x(LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
+          ": ignored extra encoding tag (\"", n->un_next->un_data.un_str, "\")");
       } else
         ud->ud_encoding = n->un_next->un_data.un_str;
       break;
@@ -494,15 +516,24 @@ validate_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
   return UD_TREE_OK;
 }
 
+static enum ud_tree_walk_stat
+validate_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
+{
+  struct validate_ctx *vc = ctx->utc_state->utc_user_data;
+
+  if (!ud->ud_encoding) ud->ud_encoding = "utf-8";
+  if (!check_encoding(ud, ctx)) {
+    valid_error(ud, ud->ud_tree.ut_root.unl_head, vc);
+    return UD_TREE_FAIL;
+  }
+  return UD_TREE_OK;
+}
+
 static const struct ud_tree_ctx_funcs validate_funcs = {
-  validate_init,
-  0,
-  0,
-  validate_symbol,
-  0,
-  0,
-  0,
-  validate_error,
+  .utcf_init = validate_init,
+  .utcf_symbol = validate_symbol,
+  .utcf_finish = validate_finish,
+  .utcf_error = validate_error,
 };
 
 int
@@ -513,7 +544,7 @@ ud_validate(struct udoc *ud)
   struct validate_ctx vc;
 
   /* empty file is forbidden */
-  ud_try(ud, ud->ud_nodes, 0, "file is empty");
+  ud_try(ud, ud->ud_nodes, UD_TREE_FAIL, "file is empty");
 
   bin_zero(&ctx, sizeof(ctx));
   bin_zero(&state, sizeof(state));
@@ -524,5 +555,5 @@ ud_validate(struct udoc *ud)
 
   ctx.utc_funcs = &validate_funcs;
   ctx.utc_state = &state;
-  return ud_tree_walk(ud, &ctx);
+  return ud_tree_walk(ud, &ctx) != UD_TREE_FAIL;
 }
