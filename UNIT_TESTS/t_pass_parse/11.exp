@@ -31,7 +31,7 @@ debug: ud_tree_build: success depth 1
 debug: ud_tree_build: paren open
 debug: ud_tree_build: processing 11.t depth 1
 debug: ud_tree_build: symbol: include
-info: ud_tree_include: include reused: example
+debug: ud_tree_include: include reused: example
 debug: ud_tree_build: paren close
 debug: ud_tree_build: success depth 1
 debug: ud_tree_build: eof
