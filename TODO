@@ -1,35 +1,74 @@
 UNIT_TESTS
 
+Strange spacing before URLs in plain output:
+
+  udoc is a package to process abstract documents written as  s-expressions 
+  (http://people.csail.mit.edu/rivest/Sexp.txt) and produce output in various 
+  formats. It is similar to  DocBook (http://www.docbook.org/) but only defines 
+  structural, not semantic, elements.
+
+Lack of spacing in ConTeXt output:
+
+  udoc is a package to process abstract documents written as s-expressionsand produce
+  output in various formats. It is similar to DocBookbut only defines structural, not
+  semantic, elements.
+
+------------------------------------------------------------------------
+
 XHTML bottom navbar is incorrect in outermost section. The problem is
 that the last 'part' for the document is selected when file_finish() is
 called.
 
+------------------------------------------------------------------------
+
 Renderer flag to set whether or not subsections are listed in (contents).
 
+------------------------------------------------------------------------
+
 Line numbers appear to be wrong in error messages.
+
+------------------------------------------------------------------------
 
 Table cells can't be styled with CSS in HTML. It may be necessary
 to add a 't-cell' tag.
 
+------------------------------------------------------------------------
+
 Tags need formal definitions. For example, how should descendents
 of para-verbatim tags behave?
 
+------------------------------------------------------------------------
+
 Use dfo.h. udr_xhtml doesn't appear to be using it, for example.
 
+------------------------------------------------------------------------
+
 The whole render API has too many structures. I don't like it.
+
+------------------------------------------------------------------------
 
 Push root nodes and nodes from (include) into a hash table,
 removing on the way out of the tree. If the same node is
 entered twice, the document has recursively included itself.
 
+------------------------------------------------------------------------
+
 Fix ConTeXt text output (dfo.h).
+
+------------------------------------------------------------------------
 
 ConTeXt 'verbatim' output still fucking isn't (some hyphenation
 in places).
 
+------------------------------------------------------------------------
+
 Underscores in chapter/section titles cause rendering problems
 in ConTeXt. This appears to be a bug in ConTeXt.
 
+------------------------------------------------------------------------
+
 Need to escape characters in titles for ConTeXt.
+
+------------------------------------------------------------------------
 
 ConTeXt tables.

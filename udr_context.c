@@ -166,7 +166,7 @@ rt_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
     if (node == ref->ur_node) {
       buffer_puts(buf, "\\from[url_");
       buffer_put(buf, cnum, fmt_ulong(cnum, ind));
-      buffer_puts(buf, "] ");
+      buffer_puts(buf, "]");
       return 1;
     }
   }
@@ -191,7 +191,7 @@ rt_tag_link(struct udoc *ud, struct udr_ctx *rc)
     buffer_puts(buf, ") ");
   }
 
-  buffer_puts3(buf, "\\at{[page }{]}[r_", ref, "] ");
+  buffer_puts3(buf, "\\at{[page }{]}[r_", ref, "]");
   return 1;
 }
 
