@@ -60,12 +60,12 @@ int main(int argc, char *argv[])
 {
   const char *file;
   const char *outdir;
+  const struct ud_renderer *r = renderers[0];
   unsigned long num;
   int ch;
   int no_render = 0;
-  const struct ud_renderer *r = renderers[0];
 
-  log_progname("udoc");
+  log_progname("udoc-render");
   while ((ch = get_opt(argc, argv, "hnL:Vr:s:")) != opteof)
     switch (ch) {
       case 's':

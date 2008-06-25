@@ -79,7 +79,7 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
     goto FAIL;
   }
   if (ud_get(ud, file, &udp)) {
-    log_2xf(LOG_INFO, "include reused: ", file);
+    log_2xf(LOG_DEBUG, "include reused: ", file);
   } else {
     if (!ud_init(&ud_new)) goto FAIL;
     ud_new.ud_main_doc = ud->ud_main_doc;
@@ -88,6 +88,8 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
     if (!ud_parse(udp)) goto FAIL;
     if (!ud_close(udp)) goto FAIL;
   }
+
+  /* XXX: ??? */
   if (!udp->ud_nodes) {
     log_2xf(LOG_DEBUG, file, " is empty, ignoring");
     return 1;
@@ -107,6 +109,7 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
 
   ud->ud_nodes += 2;
   return 1;
+
 FAIL:
   ud_free(&ud_new);
   return 0;

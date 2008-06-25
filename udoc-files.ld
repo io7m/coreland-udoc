@@ -1,4 +1,4 @@
-udoc.o
+udoc-files.o
 ud.a
 token.a
 log.a
