@@ -22,8 +22,8 @@
 <!--navbar-->
 <div class="ud_navbar ud_navbar_foot">
 <a href="0.html">top</a>
-<a href="0.html">prev</a>
 <a href="0.html">up</a>
+<a href="1.html">next</a>
 </div>
 
 </body>
