@@ -42,10 +42,10 @@ struct udr_ctx {
   struct udr_output_ctx *uc_out;
   struct ud_part_ind_stack uc_part_stack;
   void *uc_user_data;
-  unsigned int uc_init_once_done;
+  unsigned int uc_flag_init_once_done;
+  unsigned int uc_flag_finish_file;
+  unsigned int uc_flag_split;
   unsigned int uc_finish_once_refcount;
-  unsigned int uc_finish_file;
-  unsigned int uc_split_flag;
 };
 struct ud_renderer {
   const struct udr_funcs ur_funcs;

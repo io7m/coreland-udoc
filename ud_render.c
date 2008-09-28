@@ -7,8 +7,6 @@
 #include <corelib/str.h>
 #include <corelib/write.h>
 
-#include <stdio.h>
-
 #define UDOC_IMPLEMENTATION
 #include "udoc.h"
 #include "ud_assert.h"
@@ -55,14 +53,17 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   enum ud_tree_walk_stat ret;
 
   /* has init_once callback been called? call if not */
-  if (!render_ctx->uc_init_once_done) {
+  if (!render_ctx->uc_flag_init_once_done) {
     ret = (render_ctx->uc_render->ur_funcs.urf_init_once)
          ? render_ctx->uc_render->ur_funcs.urf_init_once(ud, render_ctx) : UD_TREE_OK;
     if (ret != UD_TREE_OK) return ret;
-    render_ctx->uc_init_once_done = 1;
+    render_ctx->uc_flag_init_once_done = 1;
   }
 
-  /* will reach 0 at the last call to r_finish() */
+  /* increment for every init, decrement for every finish.
+   * will reach 0 at the last call to r_finish()
+   */
+
   if (render_ctx->uc_render->ur_funcs.urf_finish_once)
     ++render_ctx->uc_finish_once_refcount;
 
@@ -135,10 +136,10 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
             rtmp.uc_part = new_part;
-            rtmp.uc_finish_file = 1;
+            rtmp.uc_flag_finish_file = 1;
 
             /* tell current renderer that split is being handled */
-            render_ctx->uc_split_flag = 1;
+            render_ctx->uc_flag_split = 1;
 
             if (!ud_render_node(ud, &rtmp, new_part->up_list)) return UD_TREE_FAIL;
             log_1xf(LOG_DEBUG, "finished part split");
@@ -196,9 +197,9 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
         break;
     }
 
-  if (section && render_ctx->uc_split_flag) {
+  if (section && render_ctx->uc_flag_split) {
     log_1xf(LOG_DEBUG, "section closed by previous render");
-    render_ctx->uc_split_flag = 0;
+    render_ctx->uc_flag_split = 0;
     return UD_TREE_OK;
   }
 
@@ -212,7 +213,8 @@ r_finish(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
-  if (render_ctx->uc_finish_file)
+  /* called once per file */
+  if (render_ctx->uc_flag_finish_file)
     if (render_ctx->uc_render->ur_funcs.urf_file_finish) {
       log_1xf(LOG_DEBUG, "file finish");
       return render_ctx->uc_render->ur_funcs.urf_file_finish(ud, render_ctx);
@@ -268,10 +270,9 @@ ud_render_node(struct udoc *ud, struct udr_ctx *cur_render_ctx,
 
   /* set flags and tree_ctx */
   new_render_ctx.uc_tree_ctx = &tree_ctx;
-  new_render_ctx.uc_split_flag = 0;
+  new_render_ctx.uc_flag_split = 0;
 
-  /*
-   * setup new tree context based on given root list.
+  /* setup new tree context based on given root list.
    * renderer backend is passed as user data to tree_ctx.
    */
 
@@ -332,7 +333,7 @@ ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
   render_ctx.uc_part = root_part;
   render_ctx.uc_opts = opts;
   render_ctx.uc_out = &out;
-  render_ctx.uc_finish_file = 1;
+  render_ctx.uc_flag_finish_file = 1;
 
   /* start rendering */
   if (!ud_render_node(ud, &render_ctx, root_part->up_list)) return 0;
