@@ -116,6 +116,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
           if (part->up_flags & UD_PART_SPLIT) {
             log_1xf(LOG_DEBUG, "starting part split");
 
+            /* switch to output dir, open output file, restore dir */
             ud_try_sys(ud, fchdir(ud->ud_dirfd_out) != -1, UD_TREE_FAIL, "fchdir");
             if (!r_output_open(ud, r->uc_render, &out, part)) return UD_TREE_FAIL;
             ud_try_sys(ud, fchdir(ud->ud_dirfd_src) != -1, UD_TREE_FAIL, "fchdir");

@@ -102,7 +102,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
 
   FAIL:
   if (flag_part) flag_part = 1; /* TODO: remove part, fix links... */
-  if (flag_strdup) dealloc_null(&pp_new->up_num_string);
+  if (flag_strdup) dealloc_null((void *) &pp_new->up_num_string);
   return UD_TREE_FAIL;
 }
 

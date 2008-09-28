@@ -143,7 +143,7 @@ ud_tree_symbol(struct udoc *ud, char *symbol, struct ud_node_list *list)
 
   return 1;
 FAIL:
-  if (cur.un_data.un_sym) dealloc_null(&cur.un_data.un_sym);
+  if (cur.un_data.un_sym) dealloc_null((void *) &cur.un_data.un_sym);
   return 0;
 }
 
@@ -168,7 +168,7 @@ ud_tree_string(struct udoc *ud, const char *str, struct ud_node_list *list)
 
   return 1;
 FAIL:
-  if (cur.un_data.un_sym) dealloc_null(&cur.un_data.un_sym);
+  if (cur.un_data.un_sym) dealloc_null((void *) &cur.un_data.un_sym);
   return 0;
 }
 
