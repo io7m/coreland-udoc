@@ -16,14 +16,15 @@
 #include "multi.h"
 
 static int
-r_output_open(struct udoc *ud, const struct ud_renderer *r,
+r_output_open(struct udoc *ud, const struct ud_renderer *renderer,
   struct udr_output_ctx *out, const struct ud_part *uc_part)
 {
   char cnum[FMT_ULONG];
 
+  /* format filename based on part index and suffix */
   cnum[fmt_ulong(cnum, uc_part->up_index_cur)] = 0;
   sstring_init(&out->uoc_file, out->uoc_fbuf, sizeof(out->uoc_fbuf));
-  sstring_cats3(&out->uoc_file, cnum, ".", r->ur_data.ur_suffix);
+  sstring_cats3(&out->uoc_file, cnum, ".", renderer->ur_data.ur_suffix);
   sstring_0(&out->uoc_file);
 
   buffer_init(&out->uoc_buf, (buffer_op) write, -1, out->uoc_cbuf, sizeof(out->uoc_cbuf));
@@ -48,95 +49,98 @@ r_output_close(struct udoc *ud, struct udr_output_ctx *out)
 }
 
 static enum ud_tree_walk_stat
-r_init(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_init(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
-  if (!r->uc_init_once_done) {
-    ret = (r->uc_render->ur_funcs.urf_init_once)
-         ? r->uc_render->ur_funcs.urf_init_once(ud, r) : UD_TREE_OK;
+  /* has init_once callback been called? call if not */
+  if (!render_ctx->uc_init_once_done) {
+    ret = (render_ctx->uc_render->ur_funcs.urf_init_once)
+         ? render_ctx->uc_render->ur_funcs.urf_init_once(ud, render_ctx) : UD_TREE_OK;
     if (ret != UD_TREE_OK) return ret;
-    r->uc_init_once_done = 1;
+    render_ctx->uc_init_once_done = 1;
   }
 
   /* will reach 0 at the last call to r_finish() */
-  if (r->uc_render->ur_funcs.urf_finish_once)
-    ++r->uc_finish_once_refcount;
+  if (render_ctx->uc_render->ur_funcs.urf_finish_once)
+    ++render_ctx->uc_finish_once_refcount;
 
-  ret = (r->uc_render->ur_funcs.urf_init)
-       ? r->uc_render->ur_funcs.urf_init(ud, r) : UD_TREE_OK;
+  /* call init() callback */
+  ret = (render_ctx->uc_render->ur_funcs.urf_init)
+       ? render_ctx->uc_render->ur_funcs.urf_init(ud, render_ctx) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
 
-  if (r->uc_part->up_list == tctx->utc_state->utc_list) {
+  /* starting new file? */
+  if (render_ctx->uc_part->up_list == tree_ctx->utc_state->utc_list) {
     log_1xf(LOG_DEBUG, "file init");
-    return (r->uc_render->ur_funcs.urf_file_init) ?
-            r->uc_render->ur_funcs.urf_file_init(ud, r) : UD_TREE_OK;
+    return (render_ctx->uc_render->ur_funcs.urf_file_init) ?
+            render_ctx->uc_render->ur_funcs.urf_file_init(ud, render_ctx) : UD_TREE_OK;
   }
 
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_list(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_list(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
-  return (r->uc_render->ur_funcs.urf_list)
-        ? r->uc_render->ur_funcs.urf_list(ud, r) : UD_TREE_OK;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
+  return (render_ctx->uc_render->ur_funcs.urf_list)
+        ? render_ctx->uc_render->ur_funcs.urf_list(ud, render_ctx) : UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_include(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_include(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   struct udr_output_ctx out;
   struct udr_ctx rtmp;
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
-  struct ud_part *part;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
+  struct ud_part *new_part;
   const struct ud_node *cur_node;
   unsigned long ind = 0;
   enum ud_tag tag;
 
-  if (tctx->utc_state->utc_list_pos == 0) {
-    cur_node = tctx->utc_state->utc_node;
+  if (tree_ctx->utc_state->utc_list_pos == 0) {
+    cur_node = tree_ctx->utc_state->utc_node;
     if (!ud_tag_by_name(cur_node->un_data.un_sym, &tag)) return UD_TREE_OK;
     switch (tag) {
       case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
-        ud_assert_s(ud_part_getfromnode(ud, cur_node, &part, &ind),
+        ud_assert_s(ud_part_getfromnode(ud, cur_node, &new_part, &ind),
           "could not get part for node");
 
         /* split? */
-        if (part != r->uc_part) {
-          if (part->up_flags & UD_PART_SPLIT) {
+        if (new_part != render_ctx->uc_part) {
+          if (new_part->up_flags & UD_PART_SPLIT) {
             log_1xf(LOG_DEBUG, "starting part split");
 
             /* switch to output dir, open output file, restore dir */
             ud_try_sys(ud, fchdir(ud->ud_dirfd_out) != -1, UD_TREE_FAIL, "fchdir");
-            if (!r_output_open(ud, r->uc_render, &out, part)) return UD_TREE_FAIL;
+            if (!r_output_open(ud, render_ctx->uc_render, &out, new_part)) return UD_TREE_FAIL;
             ud_try_sys(ud, fchdir(ud->ud_dirfd_src) != -1, UD_TREE_FAIL, "fchdir");
 
-            /* save uc_part on stack (will be popped in r_finish) */
-            ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
-              &part->up_index_cur), UD_TREE_FAIL, "stack_push");
+            /* save fetched part on stack (will be popped in r_finish) */
+            ud_try_sys(ud, ud_part_ind_stack_push(&render_ctx->uc_part_stack,
+              &new_part->up_index_cur), UD_TREE_FAIL, "stack_push");
 
             log_1xf(LOG_DEBUG, "pushed part");
 
-            rtmp = *r;
+            rtmp = *render_ctx;
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
-            rtmp.uc_part = part;
+            rtmp.uc_part = new_part;
             rtmp.uc_finish_file = 1;
 
             /* tell current renderer that split is being handled */
-            r->uc_split_flag = 1;
+            render_ctx->uc_split_flag = 1;
 
-            if (!ud_render_node(ud, &rtmp, part->up_list)) return UD_TREE_FAIL;
+            if (!ud_render_node(ud, &rtmp, new_part->up_list)) return UD_TREE_FAIL;
             log_1xf(LOG_DEBUG, "finished part split");
             if (!r_output_close(ud, &out)) return UD_TREE_FAIL;
             return UD_TREE_STOP_LIST;
@@ -144,87 +148,87 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tctx)
         }
 
         /* save uc_part on stack */
-        ud_try_sys(ud, ud_part_ind_stack_push(&r->uc_part_stack,
-          &r->uc_part->up_index_cur), UD_TREE_FAIL, "stack_push");
+        ud_try_sys(ud, ud_part_ind_stack_push(&render_ctx->uc_part_stack,
+          &render_ctx->uc_part->up_index_cur), UD_TREE_FAIL, "stack_push");
 
         log_1xf(LOG_DEBUG, "pushed part");
 
-        r->uc_part = part;
+        render_ctx->uc_part = new_part;
         break;
       default:
         break;
     }
   }
-  return (r->uc_render->ur_funcs.urf_symbol)
-        ? r->uc_render->ur_funcs.urf_symbol(ud, r) : UD_TREE_OK;
+  return (render_ctx->uc_render->ur_funcs.urf_symbol)
+        ? render_ctx->uc_render->ur_funcs.urf_symbol(ud, render_ctx) : UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_string(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_string(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
 
   /* only pass string to renderer if the first node was a symbol */
-  if (tctx->utc_state->utc_list->unl_head->un_type == UDOC_TYPE_SYMBOL) {
-    return (r->uc_render->ur_funcs.urf_string)
-      ? r->uc_render->ur_funcs.urf_string(ud, r) : UD_TREE_OK;
+  if (tree_ctx->utc_state->utc_list->unl_head->un_type == UDOC_TYPE_SYMBOL) {
+    return (render_ctx->uc_render->ur_funcs.urf_string)
+      ? render_ctx->uc_render->ur_funcs.urf_string(ud, render_ctx) : UD_TREE_OK;
   } else
     return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_list_end(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
   unsigned long *ind_ptr;
   enum ud_tag tag;
   int section = 0;
 
-  if (ud_tag_by_name(tctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
+  if (ud_tag_by_name(tree_ctx->utc_state->utc_list->unl_head->un_data.un_sym, &tag))
     switch (tag) {
       case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
         section = 1;
-        ud_assert(ud_part_ind_stack_pop(&r->uc_part_stack, &ind_ptr));
-        ud_assert(ud_oht_getind(&ud->ud_parts, *ind_ptr, (void *) &r->uc_part));
+        ud_assert(ud_part_ind_stack_pop(&render_ctx->uc_part_stack, &ind_ptr));
+        ud_assert(ud_oht_getind(&ud->ud_parts, *ind_ptr, (void *) &render_ctx->uc_part));
         log_1xf(LOG_DEBUG, "popped part");
      default:
         break;
     }
 
-  if (section && r->uc_split_flag) {
+  if (section && render_ctx->uc_split_flag) {
     log_1xf(LOG_DEBUG, "section closed by previous render");
-    r->uc_split_flag = 0;
+    render_ctx->uc_split_flag = 0;
     return UD_TREE_OK;
   }
 
-  return (r->uc_render->ur_funcs.urf_list_end)
-        ? r->uc_render->ur_funcs.urf_list_end(ud, r) : UD_TREE_OK;
+  return (render_ctx->uc_render->ur_funcs.urf_list_end)
+        ? render_ctx->uc_render->ur_funcs.urf_list_end(ud, render_ctx) : UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-r_finish(struct udoc *ud, struct ud_tree_ctx *tctx)
+r_finish(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct udr_ctx *r = tctx->utc_state->utc_user_data;
+  struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
   enum ud_tree_walk_stat ret;
 
-  if (r->uc_finish_file)
-    if (r->uc_render->ur_funcs.urf_file_finish) {
+  if (render_ctx->uc_finish_file)
+    if (render_ctx->uc_render->ur_funcs.urf_file_finish) {
       log_1xf(LOG_DEBUG, "file finish");
-      return r->uc_render->ur_funcs.urf_file_finish(ud, r);
+      return render_ctx->uc_render->ur_funcs.urf_file_finish(ud, render_ctx);
     }
 
   /* decrement refcount for finish_once(), if zero, call it */
-  if (r->uc_render->ur_funcs.urf_finish_once) {
-    --r->uc_finish_once_refcount;
-    if (!r->uc_finish_once_refcount) {
-      ret = r->uc_render->ur_funcs.urf_finish_once(ud, r);
+  if (render_ctx->uc_render->ur_funcs.urf_finish_once) {
+    --render_ctx->uc_finish_once_refcount;
+    if (!render_ctx->uc_finish_once_refcount) {
+      ret = render_ctx->uc_render->ur_funcs.urf_finish_once(ud, render_ctx);
       if (ret != UD_TREE_OK) return ret;
     }
   }
 
-  return (r->uc_render->ur_funcs.urf_finish)
-        ? r->uc_render->ur_funcs.urf_finish(ud, r) : UD_TREE_OK;
+  return (render_ctx->uc_render->ur_funcs.urf_finish)
+        ? render_ctx->uc_render->ur_funcs.urf_finish(ud, render_ctx) : UD_TREE_OK;
 }
 
 static const struct ud_tree_ctx_funcs render_funcs = {
@@ -241,43 +245,49 @@ static const struct ud_tree_ctx_funcs render_funcs = {
 /* public */
 
 int
-ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
+ud_render_node(struct udoc *ud, struct udr_ctx *cur_render_ctx,
   const struct ud_node_list *root)
 {
-  struct ud_tree_ctx tctx;
-  struct ud_tree_ctx_state tctx_state;
-  struct udr_ctx rctx;
+  struct ud_tree_ctx tree_ctx;
+  struct ud_tree_ctx_state tree_ctx_state;
+  struct udr_ctx new_render_ctx;
   enum ud_tree_walk_stat ret;
 
   log_1xf(LOG_DEBUG, "rendering");
-  ud_assert_s(ctx->uc_tree_ctx == 0, "passed tree_ctx is not null");
+
+  /* sanity - ensure clean rendering context */
+  ud_assert_s(cur_render_ctx->uc_tree_ctx == 0, "passed tree_ctx is not null");
 
   /* new clean tree_ctx */
-  bin_zero(&tctx, sizeof(tctx));
-  bin_zero(&tctx_state, sizeof(tctx_state));
+  bin_zero(&tree_ctx, sizeof(tree_ctx));
+  bin_zero(&tree_ctx_state, sizeof(tree_ctx_state));
 
-  rctx = *ctx;
-  if (!ud_part_ind_stack_init(&rctx.uc_part_stack, ud_oht_size(&ud->ud_parts)))
-    return 0;
+  new_render_ctx = *cur_render_ctx;
+  if (!ud_part_ind_stack_init(&new_render_ctx.uc_part_stack,
+    ud_oht_size(&ud->ud_parts))) return 0;
 
   /* set flags and tree_ctx */
-  rctx.uc_tree_ctx = &tctx;
-  rctx.uc_split_flag = 0;
+  new_render_ctx.uc_tree_ctx = &tree_ctx;
+  new_render_ctx.uc_split_flag = 0;
 
-  /* backend render is passed as user data to tree_ctx */
-  tctx_state.utc_list = root;
-  tctx_state.utc_user_data = &rctx;
-  tctx.utc_funcs = &render_funcs;
-  tctx.utc_state = &tctx_state;
+  /*
+   * setup new tree context based on given root list.
+   * renderer backend is passed as user data to tree_ctx.
+   */
+
+  tree_ctx_state.utc_list = root;
+  tree_ctx_state.utc_user_data = &new_render_ctx;
+  tree_ctx.utc_funcs = &render_funcs;
+  tree_ctx.utc_state = &tree_ctx_state;
 
   /* walk */
-  ret = ud_tree_walk(ud, &tctx);
+  ret = ud_tree_walk(ud, &tree_ctx);
 
   /* the uc_part stack will only be empty if everything was successful */
   if (ret != UD_TREE_FAIL)
-    ud_assert(ud_part_ind_stack_size(&rctx.uc_part_stack) == 0);
+    ud_assert(ud_part_ind_stack_size(&new_render_ctx.uc_part_stack) == 0);
 
-  ud_part_ind_stack_free(&rctx.uc_part_stack);
+  ud_part_ind_stack_free(&new_render_ctx.uc_part_stack);
 
   log_1xf(LOG_DEBUG, "rendering done");
   return ret != UD_TREE_FAIL;
@@ -285,38 +295,50 @@ ud_render_node(struct udoc *ud, struct udr_ctx *ctx,
 
 int
 ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
-  const struct ud_renderer *r, const char *outdir)
+  const struct ud_renderer *renderer, const char *outdir)
 {
-  const struct ud_part *p;
+  const struct ud_part *root_part;
   struct udr_output_ctx out;
-  struct udr_ctx rctx;
+  struct udr_ctx render_ctx;
 
   log_1xf(LOG_DEBUG, "rendering");
 
+  /* switch to starting dir */
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_pwd) != -1, FAIL, "fchdir");
 
+  /* open output dir if necessary */
   if (ud->ud_dirfd_out == -1) {
     ud->ud_dirfd_out = open_ro(outdir);
     ud_try_sys_jump(ud, ud->ud_dirfd_out != -1, FAIL, outdir);
   }
 
+  /* switch to output dir */
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_out) != -1, FAIL, "fchdir");
-  ud_try_jumpS(ud, ud_oht_getind(&ud->ud_parts, 0, (void *) &p), FAIL,
+
+  /* fetch document root part */
+  ud_try_jumpS(ud, ud_oht_getind(&ud->ud_parts, 0, (void *) &root_part), FAIL,
     "ud_oht_getind", "could not get root part");
-  if (!r_output_open(ud, r, &out, p)) goto FAIL;
+
+  /* open output document */
+  if (!r_output_open(ud, renderer, &out, root_part)) goto FAIL;
+
+  /* switch to source dir */
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_src) != -1, FAIL, "fchdir");
 
-  bin_zero(&rctx, sizeof(rctx));
-  rctx.uc_tree_ctx = 0;
-  rctx.uc_render = r;
-  rctx.uc_part = p;
-  rctx.uc_opts = opts;
-  rctx.uc_out = &out;
-  rctx.uc_finish_file = 1;
+  /* setup rendering context */
+  bin_zero(&render_ctx, sizeof(render_ctx));
+  render_ctx.uc_tree_ctx = 0;
+  render_ctx.uc_render = renderer;
+  render_ctx.uc_part = root_part;
+  render_ctx.uc_opts = opts;
+  render_ctx.uc_out = &out;
+  render_ctx.uc_finish_file = 1;
 
-  if (!ud_render_node(ud, &rctx, p->up_list)) return 0;
+  /* start rendering */
+  if (!ud_render_node(ud, &render_ctx, root_part->up_list)) return 0;
   if (!r_output_close(ud, &out)) return 0;
 
+  /* switch back to starting dir */
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_pwd) != -1, FAIL, "fchdir");
   return 1;
 
@@ -351,6 +373,7 @@ udr_print_file(struct udoc *ud, struct udr_ctx *rc, const char *file,
     sstring_cats2(&sstr, ".", rc->uc_render->ur_data.ur_suffix);
   sstring_0(&sstr);
 
+  /* open input file and copy contents */
   in.fd = open_ro(sstr.s);
   if (in.fd != -1) {
     for (;;) {
