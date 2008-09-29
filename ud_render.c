@@ -175,7 +175,7 @@ static enum ud_tree_walk_stat
 r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
-  unsigned long *ind_ptr;
+  unsigned long *index_ptr;
   enum ud_tag tag;
   int section = 0;
 
@@ -184,8 +184,8 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
         section = 1;
-        ud_assert(ud_part_index_stack_pop(&render_ctx->uc_part_stack, &ind_ptr));
-        ud_assert(ud_oht_get_index(&ud->ud_parts, *ind_ptr, (void *) &render_ctx->uc_part));
+        ud_assert(ud_part_index_stack_pop(&render_ctx->uc_part_stack, &index_ptr));
+        ud_assert(ud_oht_get_index(&ud->ud_parts, *index_ptr, (void *) &render_ctx->uc_part));
         log_1xf(LOG_DEBUG, "popped part");
      default:
         break;
