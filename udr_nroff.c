@@ -612,7 +612,7 @@ rn_file_init(struct udoc *ud, struct udr_ctx *rc)
   rc->uc_user_data = alloc_zero(sizeof(struct nroff_ctx));
   if (!rc->uc_user_data) return UD_TREE_FAIL;
 
-  if (!dfo_init(dfo, &rc->uc_out->uoc_buf, nr_trans, nr_trans_size))
+  if (!dfo_init(dfo, &rc->uc_out->uoc_buffer, nr_trans, nr_trans_size))
     return UD_TREE_FAIL;
 
   ud_tryS(ud, dfo_constrain(dfo, PAGE_WIDTH, 0), UD_TREE_FAIL, "dfo_constrain",

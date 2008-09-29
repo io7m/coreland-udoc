@@ -85,7 +85,7 @@ tex_escape_puts(struct buffer *out, const char *str, void *data)
 static int
 rt_literal_start(struct udr_ctx *u)
 {
-  struct buffer *buf = &u->uc_out->uoc_buf;
+  struct buffer *buf = &u->uc_out->uoc_buffer;
 
   buffer_puts(buf, "{\\tt\n");
   buffer_puts(buf, "\\obeyspaces\n");
@@ -98,7 +98,7 @@ rt_literal_start(struct udr_ctx *u)
 static int
 rt_literal_end(struct udr_ctx *u)
 {
-  buffer_puts(&u->uc_out->uoc_buf, "\\stoplines}\n");
+  buffer_puts(&u->uc_out->uoc_buffer, "\\stoplines}\n");
 
   ((struct tex_ctx *) u->uc_user_data)->verbatim = 0;
   return 1;
@@ -117,7 +117,7 @@ rt_tag_contents(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_footnote(struct udoc *ud, struct udr_ctx *rc)
 {
-  buffer_puts(&rc->uc_out->uoc_buf, "\\footnote[]{");
+  buffer_puts(&rc->uc_out->uoc_buffer, "\\footnote[]{");
   return UD_TREE_OK;
 }
 
@@ -126,7 +126,7 @@ rt_tag_section(struct udoc *ud, struct udr_ctx *rc)
 {
   const char *st;
   unsigned long type = rc->uc_part->up_depth;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   if (rc->uc_opts && rc->uc_opts->uo_split_hint) {
     if (type >= rc->uc_opts->uo_split_hint)
@@ -154,7 +154,7 @@ rt_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
   char cnum[FMT_ULONG];
   const struct ud_node *node = rc->uc_tree_ctx->utc_state->utc_node;
   struct ud_ref *ref;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
   unsigned long index;
   unsigned long max;
 
@@ -180,7 +180,7 @@ rt_tag_link(struct udoc *ud, struct udr_ctx *rc)
   const char *ref;
   const char *text;
   const struct ud_node *node = rc->uc_tree_ctx->utc_state->utc_node;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   ref = node->un_next->un_data.un_str;
   text = (node->un_next->un_next) ? node->un_next->un_next->un_data.un_str : 0;
@@ -199,7 +199,7 @@ static enum ud_tree_walk_stat
 rt_tag_ref(struct udoc *ud, struct udr_ctx *rc)
 {
   const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   buffer_puts3(buf, "\\pagereference[r_", n->un_next->un_data.un_str, "]\n");
   return 1;
@@ -227,7 +227,7 @@ rt_tag_date(struct udoc *ud, struct udr_ctx *rc)
 {
   char cbuf[CALTIME_FMT];
   struct caltime ct;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   caltime_local(&ct, &ud->ud_time_start.sec, 0, 0);
   buffer_put(buf, cbuf, caltime_fmt(cbuf, &ct));
@@ -251,7 +251,7 @@ rt_tag_list(struct udoc *ud, struct udr_ctx *rc)
 {
   struct udr_ctx rtmp = *rc;
   const struct ud_node *n = rc->uc_tree_ctx->utc_state->utc_node;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   buffer_puts(buf, "\\startitemize\n");
 
@@ -287,7 +287,7 @@ rt_tag_para_verbatim(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_end_para_verbatim(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
   buffer_puts(buf, "\n");
   rt_literal_end(rc);
   buffer_puts(buf, "\n");
@@ -297,14 +297,14 @@ rt_tag_end_para_verbatim(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_tag_end_para(struct udoc *ud, struct udr_ctx *rc)
 {
-  buffer_puts(&rc->uc_out->uoc_buf, "\n\n");
+  buffer_puts(&rc->uc_out->uoc_buffer, "\n\n");
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
 rt_tag_end_footnote(struct udoc *ud, struct udr_ctx *rc)
 {
-  buffer_puts(&rc->uc_out->uoc_buf, "} ");
+  buffer_puts(&rc->uc_out->uoc_buffer, "} ");
   return UD_TREE_OK;
 }
 
@@ -382,7 +382,7 @@ rt_file_init(struct udoc *ud, struct udr_ctx *rc)
   unsigned long max;
   struct ud_ref *ref;
   const struct ud_node *node;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   /* udoc preamble */
   buffer_puts(buf, "% udoc preamble\n");
@@ -449,7 +449,7 @@ static enum ud_tree_walk_stat
 rt_string(struct udoc *ud, struct udr_ctx *rc)
 {
   const struct ud_tree_ctx *tc = rc->uc_tree_ctx;
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
   enum ud_tag tag;
 
   if (!ud_tag_by_name(tc->utc_state->utc_list->unl_head->un_data.un_sym, &tag)) return UD_TREE_OK;
@@ -491,7 +491,7 @@ rt_list_end(struct udoc *ud, struct udr_ctx *rc)
 static enum ud_tree_walk_stat
 rt_file_finish(struct udoc *ud, struct udr_ctx *rc)
 {
-  struct buffer *buf = &rc->uc_out->uoc_buf;
+  struct buffer *buf = &rc->uc_out->uoc_buffer;
 
   /* optional footer */
   buffer_puts(buf, "% render-footer\n");

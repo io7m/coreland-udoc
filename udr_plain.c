@@ -400,7 +400,7 @@ rp_file_init(struct udoc *ud, struct udr_ctx *rc)
 {
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
 
-  if (!dfo_init(dfo, &rc->uc_out->uoc_buf, 0, 0)) return UD_TREE_FAIL;
+  if (!dfo_init(dfo, &rc->uc_out->uoc_buffer, 0, 0)) return UD_TREE_FAIL;
 
   ud_tryS(ud, dfo_constrain(dfo, PAGE_WIDTH, 0), UD_TREE_FAIL, "dfo_constrain",
               dfo_errorstr(dfo->error));

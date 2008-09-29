@@ -30,7 +30,7 @@ struct udr_opts {
 struct udr_output_ctx {
   char uoc_cbuf[BUFFER_OUTSIZE];
   char uoc_fbuf[256];
-  struct buffer uoc_buf;
+  struct buffer uoc_buffer;
   struct sstring uoc_file;
   struct dfo_put uoc_dfo;
 };

@@ -25,24 +25,24 @@ r_output_open(struct udoc *ud, const struct ud_renderer *renderer,
   sstring_cats3(&out->uoc_file, cnum, ".", renderer->ur_data.ur_suffix);
   sstring_0(&out->uoc_file);
 
-  buffer_init(&out->uoc_buf, (buffer_op) write, -1, out->uoc_cbuf, sizeof(out->uoc_cbuf));
+  buffer_init(&out->uoc_buffer, (buffer_op) write, -1, out->uoc_cbuf, sizeof(out->uoc_cbuf));
 
   log_2x(LOG_NOTICE, "create ", out->uoc_file.s);
 
-  out->uoc_buf.fd = open_trunc(out->uoc_file.s);
-  ud_try_sys_jump(ud, out->uoc_buf.fd != -1, FAIL, "open");
+  out->uoc_buffer.fd = open_trunc(out->uoc_file.s);
+  ud_try_sys_jump(ud, out->uoc_buffer.fd != -1, FAIL, "open");
   return 1;
 
   FAIL:
-  close(out->uoc_buf.fd);
+  close(out->uoc_buffer.fd);
   return 0;
 }
 
 static int
 r_output_close(struct udoc *ud, struct udr_output_ctx *out)
 {
-  ud_try_sys(ud, buffer_flush(&out->uoc_buf) != -1, 0, "write");
-  ud_try_sys(ud, close(out->uoc_buf.fd) != -1, 0, "close");
+  ud_try_sys(ud, buffer_flush(&out->uoc_buffer) != -1, 0, "write");
+  ud_try_sys(ud, close(out->uoc_buffer.fd) != -1, 0, "close");
   return 1;
 }
 
@@ -126,6 +126,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 
             log_1xf(LOG_DEBUG, "pushed part");
 
+            /* setup new rendering context */
             rtmp = *render_ctx;
             rtmp.uc_out = &out;
             rtmp.uc_tree_ctx = 0;
@@ -378,9 +379,9 @@ udr_print_file(struct udoc *ud, struct udr_ctx *rc, const char *file,
       if (r == -1) { log_2sys(LOG_ERROR, "read: ", sstr.s); goto END; }
       x = buffer_peek(&in);
       if (put)
-        put(&rc->uc_out->uoc_buf, x, r, data);
+        put(&rc->uc_out->uoc_buffer, x, r, data);
       else
-        buffer_put(&rc->uc_out->uoc_buf, x, r);
+        buffer_put(&rc->uc_out->uoc_buffer, x, r);
       buffer_seek(&in, r);
     }
   } else
