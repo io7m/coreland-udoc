@@ -91,12 +91,6 @@ r_list(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 }
 
 static enum ud_tree_walk_stat
-r_include(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
-{
-  return UD_TREE_OK;
-}
-
-static enum ud_tree_walk_stat
 r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   struct udr_output_ctx out;
@@ -237,7 +231,7 @@ r_finish(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 static const struct ud_tree_ctx_funcs render_funcs = {
   r_init,
   r_list,
-  r_include,
+  0,
   r_symbol,
   r_string,
   r_list_end,
