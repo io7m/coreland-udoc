@@ -10,5 +10,5 @@ debug: ud_walk: processing encoding_1.t depth 0
 debug: ud_walk: symbol: encoding
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: encoding_1.t: valid_error: 1: encoding: too few args
+error: encoding_1.t: validation_error: 1: encoding: too few args
 [5] pass: main: 34: ud_free(&doc) == 1

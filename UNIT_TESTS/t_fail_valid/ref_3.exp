@@ -16,5 +16,5 @@ debug: ud_walk: processing ref_3.t depth 0
 debug: ud_walk: symbol: ref
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: ref_3.t: valid_error: 0: ref: invalid type for argument 1
+error: ref_3.t: validation_error: 0: ref: invalid type for argument 1
 [5] pass: main: 34: ud_free(&doc) == 1

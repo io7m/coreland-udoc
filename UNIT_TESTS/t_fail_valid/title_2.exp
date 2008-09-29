@@ -11,5 +11,5 @@ debug: ud_walk: processing title_2.t depth 0
 debug: ud_walk: symbol: title
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: title_2.t: valid_error: 0: title: invalid type for argument 1
+error: title_2.t: validation_error: 0: title: invalid type for argument 1
 [5] pass: main: 34: ud_free(&doc) == 1

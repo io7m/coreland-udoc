@@ -12,5 +12,5 @@ debug: ud_walk: processing footnote_4.t depth 0
 debug: ud_walk: symbol: footnote
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: footnote_4.t: valid_error: 0: footnote: too many args
+error: footnote_4.t: validation_error: 0: footnote: too many args
 [5] pass: main: 34: ud_free(&doc) == 1

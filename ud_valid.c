@@ -34,7 +34,7 @@ struct validate_ctx {
 };
 
 static void
-valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
+validation_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
 {
   char buf1[256];
   char buf2[256];
@@ -91,7 +91,7 @@ valid_error(struct udoc *ud, const struct ud_node *n, struct validate_ctx *vc)
 static void
 validate_error(struct udoc *ud, struct ud_tree_ctx *ctx)
 {
-  valid_error(ud, ctx->utc_state->utc_node, ctx->utc_state->utc_user_data);
+  validation_error(ud, ctx->utc_state->utc_node, ctx->utc_state->utc_user_data);
 }
 
 static enum ud_tree_walk_stat
@@ -105,7 +105,7 @@ validate_init(struct udoc *ud, struct ud_tree_ctx *ctx)
     if (ud_tag_by_name(ud->ud_tree.ut_root.unl_head->un_data.un_sym, &tag)) {
       if (tag == UDOC_TAG_SECTION || tag == UDOC_TAG_SUBSECTION) {
         vc->error = V_SECTION_AT_START;
-        valid_error(ud, ud->ud_tree.ut_root.unl_head, vc);
+        validation_error(ud, ud->ud_tree.ut_root.unl_head, vc);
         return UD_TREE_FAIL;
       }
     }
@@ -523,7 +523,7 @@ validate_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
 
   if (!ud->ud_encoding) ud->ud_encoding = "utf-8";
   if (!check_encoding(ud, ctx)) {
-    valid_error(ud, ud->ud_tree.ut_root.unl_head, vc);
+    validation_error(ud, ud->ud_tree.ut_root.unl_head, vc);
     return UD_TREE_FAIL;
   }
   return UD_TREE_OK;

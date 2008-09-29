@@ -11,5 +11,5 @@ debug: ud_walk: processing render_noescape_2.t depth 0
 debug: ud_walk: symbol: render-noescape
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: render_noescape_2.t: valid_error: 0: render-noescape: invalid type for argument 1
+error: render_noescape_2.t: validation_error: 0: render-noescape: invalid type for argument 1
 [5] pass: main: 34: ud_free(&doc) == 1

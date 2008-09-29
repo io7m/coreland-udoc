@@ -11,5 +11,5 @@ debug: ud_walk: processing contents.t depth 0
 debug: ud_walk: symbol: contents
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: contents.t: valid_error: 0: contents: too many args
+error: contents.t: validation_error: 0: contents: too many args
 [5] pass: main: 34: ud_free(&doc) == 1

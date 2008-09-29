@@ -13,5 +13,5 @@ debug: ud_walk: string: "unknown"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: encoding_5.t: valid_error: unknown: invalid encoding
+error: encoding_5.t: validation_error: unknown: invalid encoding
 [5] pass: main: 34: ud_free(&doc) == 1

@@ -48,5 +48,5 @@ debug: ud_walk: fail depth 2
 debug: ud_walk: fail depth 1
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: p_table_nest2.t: valid_error: 3: table: cannot be child of table
+error: p_table_nest2.t: validation_error: 3: table: cannot be child of table
 [5] pass: main: 34: ud_free(&doc) == 1

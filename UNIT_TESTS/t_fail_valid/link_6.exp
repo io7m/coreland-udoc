@@ -13,5 +13,5 @@ debug: ud_walk: processing link_6.t depth 0
 debug: ud_walk: symbol: link
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: link_6.t: valid_error: 0: link: too many args
+error: link_6.t: validation_error: 0: link: too many args
 [5] pass: main: 34: ud_free(&doc) == 1

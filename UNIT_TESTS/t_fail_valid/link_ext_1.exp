@@ -10,5 +10,5 @@ debug: ud_walk: processing link_ext_1.t depth 0
 debug: ud_walk: symbol: link-ext
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: link_ext_1.t: valid_error: 1: link-ext: too few args
+error: link_ext_1.t: validation_error: 1: link-ext: too few args
 [5] pass: main: 34: ud_free(&doc) == 1

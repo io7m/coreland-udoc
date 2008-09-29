@@ -7,5 +7,5 @@ debug: ud_tree_build: eof
 debug: ud_tree_build: success depth 0
 [3] pass: main: 29: ud_parse(&doc) == 1
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: subsection.t: valid_error: 1: subsection: symbol at root cannot be "section"
+error: subsection.t: validation_error: 1: subsection: symbol at root cannot be "section"
 [5] pass: main: 34: ud_free(&doc) == 1

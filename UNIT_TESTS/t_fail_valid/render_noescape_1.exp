@@ -10,5 +10,5 @@ debug: ud_walk: processing render_noescape_1.t depth 0
 debug: ud_walk: symbol: render-noescape
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: render_noescape_1.t: valid_error: 1: render-noescape: too few args
+error: render_noescape_1.t: validation_error: 1: render-noescape: too few args
 [5] pass: main: 34: ud_free(&doc) == 1

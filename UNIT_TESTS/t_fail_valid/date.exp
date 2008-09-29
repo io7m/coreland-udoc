@@ -11,5 +11,5 @@ debug: ud_walk: processing date.t depth 0
 debug: ud_walk: symbol: date
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: date.t: valid_error: 0: date: too many args
+error: date.t: validation_error: 0: date: too many args
 [5] pass: main: 34: ud_free(&doc) == 1

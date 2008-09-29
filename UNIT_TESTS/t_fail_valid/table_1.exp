@@ -11,5 +11,5 @@ debug: ud_walk: processing table_1.t depth 0
 debug: ud_walk: symbol: table
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: table_1.t: valid_error: 0: table: tag requires at least 1 argument of type "list"
+error: table_1.t: validation_error: 0: table: tag requires at least 1 argument of type "list"
 [5] pass: main: 34: ud_free(&doc) == 1

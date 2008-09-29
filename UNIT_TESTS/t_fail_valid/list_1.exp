@@ -33,5 +33,5 @@ debug: ud_walk: symbol: list
 debug: ud_walk: fail depth 1
 debug: ud_walk: fail depth 0
 [4] pass: main: 30: ud_validate(&doc) == 0
-error: list_1.t: valid_error: 1: list: invalid type for argument 3
+error: list_1.t: validation_error: 1: list: invalid type for argument 3
 [5] pass: main: 34: ud_free(&doc) == 1
