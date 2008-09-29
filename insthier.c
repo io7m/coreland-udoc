@@ -103,4 +103,4 @@ struct install_item insthier[] = {
   {INST_COPY, "udoc-valid.ld", 0, ctxt_repos, 0, 0, 0644},
   {INST_COPY, "udoc-valid", 0, ctxt_bindir, 0, 0, 0755},
 };
-unsigned long insthier_len = sizeof(insthier) / sizeof(struct install_item);
+unsigned long insthier_len = sizeof (insthier) / sizeof (struct install_item);

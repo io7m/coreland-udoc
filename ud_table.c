@@ -5,7 +5,7 @@
 #include "ud_table.h"
 
 static void
-ud_row_measure(const struct ud_node_list *list, struct ud_table *udt)
+ud_row_measure (const struct ud_node_list *list, struct ud_table *udt)
 {
   const struct ud_node *n = list->unl_head;
   unsigned long cols = 0;
@@ -19,14 +19,14 @@ ud_row_measure(const struct ud_node_list *list, struct ud_table *udt)
 }
 
 void
-ud_table_measure(const struct ud_node_list *list, struct ud_table *udt)
+ud_table_measure (const struct ud_node_list *list, struct ud_table *udt)
 {
   const struct ud_node *n = list->unl_head;
 
   for (;;) {
     if (n->un_type == UDOC_TYPE_LIST) {
       ++udt->ut_rows;
-      ud_row_measure(&n->un_data.un_list, udt);
+      ud_row_measure (&n->un_data.un_list, udt);
     }
     if (n->un_next) n = n->un_next; else break;
   }

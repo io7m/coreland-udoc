@@ -57,13 +57,12 @@ struct ud_renderer {
   } ur_data;
 };
 
-int ud_render_doc(struct udoc *, const struct udr_opts *, const struct ud_renderer *, const char *);
-int ud_render_node(struct udoc *, struct udr_ctx *, const struct ud_node_list *);
+int ud_render_doc (struct udoc *, const struct udr_opts *, const struct ud_renderer *, const char *);
+int ud_render_node (struct udoc *, struct udr_ctx *, const struct ud_node_list *);
 
 #if defined(UDOC_IMPLEMENTATION)
-int udr_print_file(struct udoc *, struct udr_ctx *, const char *,
-                   int (*)(struct buffer *, const char *, unsigned long, void *),
-                   void *);
+int udr_print_file (struct udoc *, struct udr_ctx *, const char *,
+  int (*)(struct buffer *, const char *, unsigned long, void *), void *);
 #endif
 
 extern const struct ud_renderer ud_render_context;

@@ -17,13 +17,13 @@ struct ud_err {
   int ue_used_extra;
 };
 
-void ud_error_display(struct udoc *, const struct ud_err *);
-void ud_error_fill(struct udoc *, struct ud_err *, const char *, const char *, const char *, int);
-void ud_error_push(struct udoc *, const struct ud_err *);
-void ud_try_fail(struct udoc *, const char *, const char *, const char *, int);
+void ud_error_display (struct udoc *, const struct ud_err *);
+void ud_error_fill (struct udoc *, struct ud_err *, const char *, const char *, const char *, int);
+void ud_error_push (struct udoc *, const struct ud_err *);
+void ud_try_fail (struct udoc *, const char *, const char *, const char *, int);
 
-int ud_error_pop(struct dstack *, struct ud_err **);
-unsigned long ud_error_size(const struct dstack *);
+int ud_error_pop (struct dstack *, struct ud_err **);
+unsigned long ud_error_size (const struct dstack *);
 
 #define ud_try_ret(ud, eval, retval, op, extra, errval) \
 if (!(eval)) { ud_try_fail((ud), __func__, (op), (extra), (errval)); return (retval); }

@@ -7,7 +7,7 @@ struct ud_ref {
   const struct ud_part *ur_part;
 };
 
-int ud_ref_add(struct ud_ordered_ht *, const struct ud_ref *);
-int ud_ref_add_byname(struct ud_ordered_ht *, const char *, const struct ud_ref *);
+int ud_ref_add (struct ud_ordered_ht *, const struct ud_ref *);
+int ud_ref_add_byname (struct ud_ordered_ht *, const char *, const struct ud_ref *);
 
 #endif

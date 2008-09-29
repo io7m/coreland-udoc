@@ -61,13 +61,13 @@ r_init (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   }
 
   /* increment for every init, decrement for every finish.
-   * will reach 0 at the last call to r_finish()
+   * will reach 0 at the last call to r_finish ()
    */
 
   if (render_ctx->uc_render->ur_funcs.urf_finish_once)
     ++render_ctx->uc_finish_once_refcount;
 
-  /* call init() callback */
+  /* call init () callback */
   ret = (render_ctx->uc_render->ur_funcs.urf_init)
        ? render_ctx->uc_render->ur_funcs.urf_init (ud, render_ctx) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
@@ -217,7 +217,7 @@ r_finish (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       return render_ctx->uc_render->ur_funcs.urf_file_finish (ud, render_ctx);
     }
 
-  /* decrement refcount for finish_once(), if zero, call it */
+  /* decrement refcount for finish_once (), if zero, call it */
   if (render_ctx->uc_render->ur_funcs.urf_finish_once) {
     --render_ctx->uc_finish_once_refcount;
     if (!render_ctx->uc_finish_once_refcount) {

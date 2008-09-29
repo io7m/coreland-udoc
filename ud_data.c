@@ -33,8 +33,8 @@ const struct ud_tag_name ud_tags_by_name[] = {
   { "render",          UDOC_TAG_RENDER },
   { "render-noescape", UDOC_TAG_RENDER_NOESCAPE },
 };
-const unsigned int ud_num_tags = sizeof(ud_tags_by_name)
-                               / sizeof(ud_tags_by_name[0]);
+const unsigned int ud_num_tags = sizeof (ud_tags_by_name)
+                               / sizeof (ud_tags_by_name[0]);
 /*
  * type names
  */
@@ -45,5 +45,5 @@ const struct ud_node_type_name ud_node_types_by_name[] = {
   { "list",    UDOC_TYPE_LIST },
   { "include", UDOC_TYPE_INCLUDE },
 };
-const unsigned int ud_num_node_types = sizeof(ud_node_types_by_name)
-                                     / sizeof(ud_node_types_by_name[0]);
+const unsigned int ud_num_node_types = sizeof (ud_node_types_by_name)
+                                     / sizeof (ud_node_types_by_name[0]);

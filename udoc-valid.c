@@ -20,71 +20,71 @@ struct udoc main_doc;
 struct udoc_opts main_opts;
 
 void
-help(void)
+help (void)
 {
-  log_die3x(0, 0, usage_s, "\n", help_s);
+  log_die3x (0, 0, usage_s, "\n", help_s);
 }
 
 void
-usage(void)
+usage (void)
 {
-  log_die1x(0, 111, usage_s);
+  log_die1x (0, 111, usage_s);
 }
 
 void
-die(const char *func)
+die (const char *func)
 {
   unsigned long index;
   unsigned long max;
   struct ud_err *ue;
 
-  max = ud_error_size(&main_doc.ud_errors);
+  max = ud_error_size (&main_doc.ud_errors);
   for (index = 0; index < max; ++index) {
-    if (ud_error_pop(&main_doc.ud_errors, &ue))
-      ud_error_display(&main_doc, ue);
+    if (ud_error_pop (&main_doc.ud_errors, &ue))
+      ud_error_display (&main_doc, ue);
   }
-  log_die2x(LOG_FATAL, 112, func, " failed");
+  log_die2x (LOG_FATAL, 112, func, " failed");
 }
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   const char *file;
   unsigned long num;
   int ch;
 
-  log_progname("udoc-valid");
-  while ((ch = get_opt(argc, argv, "hL:V")) != opteof)
+  log_progname ("udoc-valid");
+  while ((ch = get_opt (argc, argv, "hL:V")) != opteof)
     switch (ch) {
-      case 'h': help();
+      case 'h': help ();
       case 'L':
-        if (!scan_ulong(optarg, &num))
-          log_die1x(LOG_FATAL, 111, "log level must be numeric");
-        log_level(num);
+        if (!scan_ulong (optarg, &num))
+          log_die1x (LOG_FATAL, 111, "log level must be numeric");
+        log_level (num);
         break;
       case 'V':
-        buffer_puts2(buffer1, ctxt_version, "\n");
-        if (buffer_flush(buffer1) == -1)
-          log_die1sys(LOG_FATAL, 112, "write");
+        buffer_puts2 (buffer1, ctxt_version, "\n");
+        if (buffer_flush (buffer1) == -1)
+          log_die1sys (LOG_FATAL, 112, "write");
         return 0;
-      default: usage();
+      default: usage ();
     }
   argc -= optind;
   argv += optind;
 
-  if (argc < 1) usage();
+  if (argc < 1) usage ();
 
   file = argv[0];
 
-  if (!ud_init(&main_doc)) die("ud_init");
+  if (!ud_init (&main_doc)) die ("ud_init");
   main_doc.ud_opts = main_opts;
-  if (!ud_open(&main_doc, file)) die("opening");
-  log_1xf(LOG_DEBUG, "parsing");
-  if (!ud_parse(&main_doc)) die("parsing");
-  log_1xf(LOG_DEBUG, "validating");
-  if (!ud_validate(&main_doc)) die("validation");
-  log_1xf(LOG_DEBUG, "partitioning");
-  if (!ud_partition(&main_doc)) die("partitioning");
-  if (!ud_close(&main_doc)) die("closing");
+  if (!ud_open (&main_doc, file)) die ("opening");
+  log_1xf (LOG_DEBUG, "parsing");
+  if (!ud_parse (&main_doc)) die ("parsing");
+  log_1xf (LOG_DEBUG, "validating");
+  if (!ud_validate (&main_doc)) die ("validation");
+  log_1xf (LOG_DEBUG, "partitioning");
+  if (!ud_partition (&main_doc)) die ("partitioning");
+  if (!ud_close (&main_doc)) die ("closing");
   return 0;
 }

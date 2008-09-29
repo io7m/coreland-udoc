@@ -14,28 +14,28 @@
 #include "udoc.h"
 
 int
-ud_ref_add(struct ud_ordered_ht *tab, const struct ud_ref *ref)
+ud_ref_add (struct ud_ordered_ht *tab, const struct ud_ref *ref)
 {
-  switch (ud_oht_add(tab, &ref->ur_node, sizeof(&ref->ur_node), ref)) {
+  switch (ud_oht_add (tab, &ref->ur_node, sizeof (&ref->ur_node), ref)) {
     case 0:
-      log_2xf(LOG_ERROR, "duplicate ref: ", ref->ur_node->un_next->un_data.un_str);
+      log_2xf (LOG_ERROR, "duplicate ref: ", ref->ur_node->un_next->un_data.un_str);
       return 0;
     case -1:
-      log_1sysf(LOG_ERROR, "ud_oht_add"); return 0;
+      log_1sysf (LOG_ERROR, "ud_oht_add"); return 0;
     default: return 1;
   }
 }
 
 int
-ud_ref_add_byname(struct ud_ordered_ht *tab, const char *key,
+ud_ref_add_byname (struct ud_ordered_ht *tab, const char *key,
                    const struct ud_ref *ref)
 {
-  switch (ud_oht_add(tab, key, str_len(key), ref)) {
+  switch (ud_oht_add (tab, key, str_len (key), ref)) {
     case 0:
-      log_2xf(LOG_ERROR, "duplicate ref: ", ref->ur_node->un_next->un_data.un_str);
+      log_2xf (LOG_ERROR, "duplicate ref: ", ref->ur_node->un_next->un_data.un_str);
       return 0;
     case -1:
-      log_1sysf(LOG_ERROR, "ud_oht_add");
+      log_1sysf (LOG_ERROR, "ud_oht_add");
       return 0;
     default: return 1;
   }

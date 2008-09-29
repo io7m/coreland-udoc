@@ -8,78 +8,78 @@ static int rd_init_done;
 static int rd_fini_done;
 
 static enum ud_tree_walk_stat
-rd_init_once(struct udoc *ud, struct udr_ctx *rc)
+rd_init_once (struct udoc *ud, struct udr_ctx *rc)
 {
-  ud_assert(rd_init_done == 0);
+  ud_assert (rd_init_done == 0);
   rd_init_done = 1;
 
-  log_1xf(LOG_DEBUG, 0);  
+  log_1xf (LOG_DEBUG, 0);  
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_init(struct udoc *ud, struct udr_ctx *rc)
+rd_init (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_file_init(struct udoc *ud, struct udr_ctx *rc)
+rd_file_init (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_symbol(struct udoc *ud, struct udr_ctx *rc)
+rd_symbol (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_string(struct udoc *ud, struct udr_ctx *rc)
+rd_string (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_list(struct udoc *ud, struct udr_ctx *rc)
+rd_list (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_list_end(struct udoc *ud, struct udr_ctx *rc)
+rd_list_end (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_finish(struct udoc *ud, struct udr_ctx *rc)
+rd_finish (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_file_finish(struct udoc *ud, struct udr_ctx *rc)
+rd_file_finish (struct udoc *ud, struct udr_ctx *rc)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_finish_once(struct udoc *ud, struct udr_ctx *rc)
+rd_finish_once (struct udoc *ud, struct udr_ctx *rc)
 {
-  ud_assert(rd_fini_done == 0);
+  ud_assert (rd_fini_done == 0);
   rd_fini_done = 1;
 
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 

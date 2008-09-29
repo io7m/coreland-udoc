@@ -8,28 +8,28 @@
 #define LOG_INFO   5
 #define LOG_DEBUG  6
 
-void log_8x_core(unsigned int, const char *,
+void log_8x_core (unsigned int, const char *,
                  const char *, const char *, const char *, const char *,
                  const char *, const char *, const char *, const char *);
-void log_8sys_core(unsigned int, const char *,
+void log_8sys_core (unsigned int, const char *,
                    const char *, const char *, const char *, const char *,
                    const char *, const char *, const char *, const char *);
-void log_die8x_core(unsigned int, int, const char *,
+void log_die8x_core (unsigned int, int, const char *,
                     const char *, const char *, const char *, const char *,
                     const char *, const char *, const char *, const char *);
-void log_die8sys_core(unsigned int, int, const char *,
+void log_die8sys_core (unsigned int, int, const char *,
                       const char *, const char *, const char *, const char *,
                       const char *, const char *, const char *, const char *);
 
-void log_fd(int);
-void log_progname(const char *);
-void log_level(unsigned int);
-void log_more(void);
-void log_less(void);
-void log_callback(void (*)(const char *, unsigned long));
-void log_lock_callback(void (*)(void *), void *);
-void log_unlock_callback(void (*)(void *), void *);
-int log_exit_register(void (*)(void));
+void log_fd (int);
+void log_progname (const char *);
+void log_level (unsigned int);
+void log_more (void);
+void log_less (void);
+void log_callback (void (*) (const char *, unsigned long));
+void log_lock_callback (void (*) (void *), void *);
+void log_unlock_callback (void (*) (void *), void *);
+int log_exit_register (void (*) (void));
 
 #define log_8sys(lev,x1,x2,x3,x4,x5,x6,x7,x8) \
 log_8sys_core((lev),0,(x1),(x2),(x3),(x4),(x5),(x6),(x7),(x8))

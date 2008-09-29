@@ -7,18 +7,18 @@
 #include "ud_tree.h"
 
 int
-ud_node_new(struct ud_node **udp)
+ud_node_new (struct ud_node **udp)
 {
-  struct ud_node *un = alloc_zero(sizeof(*un));
+  struct ud_node *un = alloc_zero (sizeof (*un));
   if (!un) return 0;
-  return !!(*udp = un);
+  return !! (*udp = un);
 }
 
 int
-ud_list_cat(struct ud_node_list *list, const struct ud_node *un)
+ud_list_cat (struct ud_node_list *list, const struct ud_node *un)
 {
   struct ud_node *np;
-  if (!ud_node_new(&np)) return 0;
+  if (!ud_node_new (&np)) return 0;
 
   *np = *un;
 
@@ -44,7 +44,7 @@ END:
 }
 
 unsigned long
-ud_list_len(const struct ud_node *un)
+ud_list_len (const struct ud_node *un)
 {
   unsigned long len = 0;
   for (;;) {

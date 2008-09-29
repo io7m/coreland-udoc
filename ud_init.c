@@ -12,41 +12,41 @@
 #include "udoc.h"
 
 int
-ud_init(struct udoc *ud)
+ud_init (struct udoc *ud)
 {
-  bin_zero(ud, sizeof(*ud));
-  if (!ud_oht_init(&ud->ud_parts, sizeof(struct ud_part))) goto FAIL;
-  if (!ud_oht_init(&ud->ud_link_exts, sizeof(struct ud_ref))) goto FAIL;
-  if (!ud_oht_init(&ud->ud_refs, sizeof(struct ud_ref))) goto FAIL;
-  if (!ud_oht_init(&ud->ud_ref_names, sizeof(struct ud_ref))) goto FAIL;
-  if (!ud_oht_init(&ud->ud_footnotes, sizeof(struct ud_ref))) goto FAIL;
-  if (!ud_oht_init(&ud->ud_styles, sizeof(struct ud_ref))) goto FAIL;
-  if (!dstack_init(&ud->ud_doc_stack, 16, sizeof(struct udoc *))) goto FAIL;
-  if (!dstack_init(&ud->ud_errors, 16, sizeof(struct ud_err))) goto FAIL;
-  if (!token_init(&ud->ud_tok)) goto FAIL;
+  bin_zero (ud, sizeof (*ud));
+  if (!ud_oht_init (&ud->ud_parts, sizeof (struct ud_part))) goto FAIL;
+  if (!ud_oht_init (&ud->ud_link_exts, sizeof (struct ud_ref))) goto FAIL;
+  if (!ud_oht_init (&ud->ud_refs, sizeof (struct ud_ref))) goto FAIL;
+  if (!ud_oht_init (&ud->ud_ref_names, sizeof (struct ud_ref))) goto FAIL;
+  if (!ud_oht_init (&ud->ud_footnotes, sizeof (struct ud_ref))) goto FAIL;
+  if (!ud_oht_init (&ud->ud_styles, sizeof (struct ud_ref))) goto FAIL;
+  if (!dstack_init (&ud->ud_doc_stack, 16, sizeof (struct udoc *))) goto FAIL;
+  if (!dstack_init (&ud->ud_errors, 16, sizeof (struct ud_err))) goto FAIL;
+  if (!token_init (&ud->ud_tok)) goto FAIL;
 
-  ud->ud_dirfd_pwd = open_ro(".");
+  ud->ud_dirfd_pwd = open_ro (".");
   if (ud->ud_dirfd_pwd == -1) goto FAIL;
   ud->ud_dirfd_src = -1;
   ud->ud_dirfd_out = -1;
   ud->ud_main_doc = ud;
   ud->ud_cur_doc = ud;
 
-  if (!ht_init(&ud->ud_loopchecks)) goto FAIL;
-  if (!ht_init(&ud->ud_documents)) goto FAIL;
+  if (!ht_init (&ud->ud_loopchecks)) goto FAIL;
+  if (!ht_init (&ud->ud_documents)) goto FAIL;
 
-  taia_now(&ud->ud_time_start);
+  taia_now (&ud->ud_time_start);
 
   return 1;
   FAIL:
-  ud_free(ud);
+  ud_free (ud);
   return 0;
 }
 
 int
-ud_new(struct udoc **udp)
+ud_new (struct udoc **udp)
 {
   struct udoc *ud;
-  ud = alloc_zero(sizeof(*ud));
-  return !!(*udp = ud);
+  ud = alloc_zero (sizeof (*ud));
+  return !! (*udp = ud);
 }

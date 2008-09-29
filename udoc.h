@@ -44,14 +44,14 @@ struct udoc {
   struct taia ud_time_start;
 };
 
-int ud_new(struct udoc **);
-int ud_init(struct udoc *);
-int ud_open(struct udoc *, const char *);
-int ud_parse(struct udoc *);
-int ud_validate(struct udoc *);
-int ud_partition(struct udoc *);
-int ud_get(const struct udoc *, const char *, struct udoc **);
-int ud_close(struct udoc *);
-int ud_free(struct udoc *);
+int ud_new (struct udoc **);
+int ud_init (struct udoc *);
+int ud_open (struct udoc *, const char *);
+int ud_parse (struct udoc *);
+int ud_validate (struct udoc *);
+int ud_partition (struct udoc *);
+int ud_get (const struct udoc *, const char *, struct udoc **);
+int ud_close (struct udoc *);
+int ud_free (struct udoc *);
 
 #endif

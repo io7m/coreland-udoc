@@ -3,8 +3,8 @@
 #include "ctxt.h"
 
 static unsigned int flag;
-static int str_diff(register const char *, register const char *);
-static long str_rchr(register const char *, register int);
+static int str_diff (register const char *, register const char *);
+static long str_rchr (register const char *, register int);
 
 #define FLAG_INCDIR  0x0001
 #define FLAG_DLIBDIR 0x0002
@@ -22,52 +22,52 @@ static long str_rchr(register const char *, register int);
 
 const char progname[] = "ud-conf";
 
-void flag_incdir(void)
+void flag_incdir (void)
 {
   unsigned long pos;
   if (flag & FLAG_COMPILE) {
-    pos = str_rchr(ctxt_incdir, '/');
+    pos = str_rchr (ctxt_incdir, '/');
     if (pos)
-      ctxt_incdir[str_rchr(ctxt_incdir, '/')] = 0;
-    printf("-I%s ", ctxt_incdir);
+      ctxt_incdir[str_rchr (ctxt_incdir, '/')] = 0;
+    printf ("-I%s ", ctxt_incdir);
   } else {
-    printf("%s ", ctxt_incdir);
+    printf ("%s ", ctxt_incdir);
   }
 }
-void flag_cflags(void)
+void flag_cflags (void)
 {
 
 }
-void flag_dlibdir(void)
+void flag_dlibdir (void)
 {
-  if (flag & FLAG_COMPILE) printf("-L");
-  printf("%s ", ctxt_dlibdir);
+  if (flag & FLAG_COMPILE) printf ("-L");
+  printf ("%s ", ctxt_dlibdir);
 }
-void flag_slibdir(void)
+void flag_slibdir (void)
 {
-  if (flag & FLAG_COMPILE) printf("-L");
-  printf("%s ", ctxt_slibdir);
+  if (flag & FLAG_COMPILE) printf ("-L");
+  printf ("%s ", ctxt_slibdir);
 }
-void flag_ldflags(void)
+void flag_ldflags (void)
 {
 
 }
 
 /* PROJECT SPECIFIC END */
 
-void flag_incdir(void);
-void flag_dlibdir(void);
-void flag_slibdir(void);
-void flag_cflags(void);
-void flag_ldflags(void);
+void flag_incdir (void);
+void flag_dlibdir (void);
+void flag_slibdir (void);
+void flag_cflags (void);
+void flag_ldflags (void);
 
-static void flag_version(void);
-static void flag_help(void);
-static void flag_newline(void);
+static void flag_version (void);
+static void flag_help (void);
+static void flag_newline (void);
 
 static const struct {
   const char *flag;
-  void (*func)(void);
+  void (*func) (void);
   unsigned int val;
   const char *desc;
 } flags[] = {
@@ -82,17 +82,17 @@ static const struct {
   { "newline", flag_newline, FLAG_NEWLINE, "print trailing newline" },
 };
 
-static void usage(void) { printf("%s: [help] ops ...\n", progname); }
-static void help(void)
+static void usage (void) { printf ("%s: [help] ops ...\n", progname); }
+static void help (void)
 {
   unsigned int index;
-  usage();
-  printf("possible operators:\n");
-  for (index = 0; index < sizeof(flags) / sizeof(flags[0]); ++index)
-    printf("%s - %s\n", flags[index].flag, flags[index].desc);
-  exit(0);
+  usage ();
+  printf ("possible operators:\n");
+  for (index = 0; index < sizeof (flags) / sizeof (flags[0]); ++index)
+    printf ("%s - %s\n", flags[index].flag, flags[index].desc);
+  exit (0);
 }
-static void parse_flags(int argc, char *argv[])
+static void parse_flags (int argc, char *argv[])
 {
   int index;
   unsigned int jnd;
@@ -100,41 +100,41 @@ static void parse_flags(int argc, char *argv[])
   --argc;
   ++argv;
 
-  if (!argc) { usage(); exit(111); }
+  if (!argc) { usage (); exit (111); }
 
   flag = 0;
   for (index = 0; index < argc; ++index) {
-    for (jnd = 0; jnd < sizeof(flags) / sizeof(flags[0]); ++jnd) {
-      if (str_diff(argv[index], flags[jnd].flag) == 0) {
+    for (jnd = 0; jnd < sizeof (flags) / sizeof (flags[0]); ++jnd) {
+      if (str_diff (argv[index], flags[jnd].flag) == 0) {
         flag |= flags[jnd].val;
         break;
       }
     }
   }
 }
-static void call_flags(void)
+static void call_flags (void)
 {
   unsigned int index;
-  for (index = 0; index < sizeof(flags) / sizeof(flags[0]); ++index) {
+  for (index = 0; index < sizeof (flags) / sizeof (flags[0]); ++index) {
     if (flag & flags[index].val)
       if (flags[index].func)
-        flags[index].func();
+        flags[index].func ();
   }
 }
-static void flag_version(void) { printf("%s ", ctxt_version); }
-static void flag_newline(void) { printf("\n"); }
-static void flag_help(void) { help(); }
-int main(int argc, char *argv[])
+static void flag_version (void) { printf ("%s ", ctxt_version); }
+static void flag_newline (void) { printf ("\n"); }
+static void flag_help (void) { help (); }
+int main (int argc, char *argv[])
 {
-  parse_flags(argc, argv);
-  call_flags();
+  parse_flags (argc, argv);
+  call_flags ();
 
-  if (fflush(0) != 0) return 112;
+  if (fflush (0) != 0) return 112;
   return 0;
 }
 
 /* portability functions */
-static int str_diff(register const char *s, register const char *t)
+static int str_diff (register const char *s, register const char *t)
 {
   register char u;
   for (;;) {
@@ -143,10 +143,10 @@ static int str_diff(register const char *s, register const char *t)
     u = *s; if (u != *t) break; if (!u) break; ++s; ++t;
     u = *s; if (u != *t) break; if (!u) break; ++s; ++t;
   }
-  return ((int)(unsigned int)(unsigned char) u) - 
-         ((int)(unsigned int)(unsigned char) *t);
+  return ((int) (unsigned int) (unsigned char) u) - 
+         ((int) (unsigned int) (unsigned char) *t);
 }
-static long str_rchr(register const char *s, register int c)
+static long str_rchr (register const char *s, register int c)
 {
   register const char *t;
   register const char *u;

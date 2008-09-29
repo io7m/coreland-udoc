@@ -39,17 +39,17 @@ struct ud_tag_stack {
 };
 
 #if defined(UDOC_IMPLEMENTATION)
-int ud_tag_by_name(const char *, enum ud_tag *);
-const char *ud_tag_name(enum ud_tag);
-int ud_tag_stack_init(struct ud_tag_stack *);
-void ud_tag_stack_free(struct ud_tag_stack *);
-int ud_tag_stack_copy(struct ud_tag_stack *, const struct ud_tag_stack *);
-int ud_tag_stack_push(struct ud_tag_stack *, enum ud_tag);
-int ud_tag_stack_pop(struct ud_tag_stack *, enum ud_tag *);
-int ud_tag_stack_peek(const struct ud_tag_stack *, enum ud_tag *);
-int ud_tag_stack_above(const struct ud_tag_stack *, enum ud_tag);
-const enum ud_tag *ud_tag_stack_index(const struct ud_tag_stack *, unsigned long);
-unsigned long ud_tag_stack_size(const struct ud_tag_stack *);
+int ud_tag_by_name (const char *, enum ud_tag *);
+const char *ud_tag_name (enum ud_tag);
+int ud_tag_stack_init (struct ud_tag_stack *);
+void ud_tag_stack_free (struct ud_tag_stack *);
+int ud_tag_stack_copy (struct ud_tag_stack *, const struct ud_tag_stack *);
+int ud_tag_stack_push (struct ud_tag_stack *, enum ud_tag);
+int ud_tag_stack_pop (struct ud_tag_stack *, enum ud_tag *);
+int ud_tag_stack_peek (const struct ud_tag_stack *, enum ud_tag *);
+int ud_tag_stack_above (const struct ud_tag_stack *, enum ud_tag);
+const enum ud_tag *ud_tag_stack_index (const struct ud_tag_stack *, unsigned long);
+unsigned long ud_tag_stack_size (const struct ud_tag_stack *);
 extern const struct ud_tag_name ud_tags_by_name[];
 extern const unsigned int ud_num_tags;
 #endif

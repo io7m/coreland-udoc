@@ -1,8 +1,8 @@
 #ifndef UD_ASSERT_H
 #define UD_ASSERT_H
 
-void ud_assert_core(const char *, unsigned long, const char *);
-void ud_assert_core_s(const char *, unsigned long, const char *, const char *);
+void ud_assert_core (const char *, unsigned long, const char *);
+void ud_assert_core_s (const char *, unsigned long, const char *, const char *);
 
 #ifdef UD_ASSERT_DISABLE
 #define ud_assert(e) (e)

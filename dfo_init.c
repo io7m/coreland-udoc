@@ -4,21 +4,21 @@
 #include "dfo.h"
 
 int
-dfo_init(struct dfo_put *dp, struct buffer *buf,
+dfo_init (struct dfo_put *dp, struct buffer *buf,
   const struct dfo_trans *tr, unsigned int nt)
 {
   struct dfo_buffer db;
   unsigned int index;
 
-  bin_zero(dp, sizeof(*dp));
+  bin_zero (dp, sizeof (*dp));
 
-  if (!dstring_init(&dp->buf_tmp, DFO_BLOCK_SIZE)) goto FAIL;
-  if (!dstring_init(&dp->buf_input, DFO_BLOCK_SIZE)) goto FAIL;
-  if (!array_init(&dp->col_bufs, 8, sizeof(struct dfo_buffer))) goto FAIL;
+  if (!dstring_init (&dp->buf_tmp, DFO_BLOCK_SIZE)) goto FAIL;
+  if (!dstring_init (&dp->buf_input, DFO_BLOCK_SIZE)) goto FAIL;
+  if (!array_init (&dp->col_bufs, 8, sizeof (struct dfo_buffer))) goto FAIL;
   for (index = 0; index < 8; ++index) {
-    bin_zero(&db, sizeof(db));
-    if (!dstring_init(&db.buf, DFO_BLOCK_SIZE)) goto FAIL;
-    if (!array_cat(&dp->col_bufs, &db)) goto FAIL;
+    bin_zero (&db, sizeof (db));
+    if (!dstring_init (&db.buf, DFO_BLOCK_SIZE)) goto FAIL;
+    if (!array_cat (&dp->col_bufs, &db)) goto FAIL;
   }
 
   dp->out = buf;
@@ -37,6 +37,6 @@ dfo_init(struct dfo_put *dp, struct buffer *buf,
   return 1;
 
   FAIL:
-  dfo_free(dp);
+  dfo_free (dp);
   return 0;
 }

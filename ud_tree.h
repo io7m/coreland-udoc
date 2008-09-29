@@ -81,10 +81,10 @@ struct ud_tree_ctx {
 };
 
 #if defined(UDOC_IMPLEMENTATION)
-int ud_tree_walk(struct udoc *, struct ud_tree_ctx *);
-int ud_list_cat(struct ud_node_list *, const struct ud_node *);
-unsigned long ud_list_len(const struct ud_node *);
-const char *ud_node_type_name(enum ud_node_type);
+int ud_tree_walk (struct udoc *, struct ud_tree_ctx *);
+int ud_list_cat (struct ud_node_list *, const struct ud_node *);
+unsigned long ud_list_len (const struct ud_node *);
+const char *ud_node_type_name (enum ud_node_type);
 extern const struct ud_node_type_name ud_node_types_by_name[];
 extern const unsigned int ud_num_node_types;
 #endif

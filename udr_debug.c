@@ -82,28 +82,28 @@ rd_debug (struct udoc *ud, struct udr_ctx *render_ctx)
 }
 
 static enum ud_tree_walk_stat
-rd_init_once(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_init_once (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  ud_assert(rd_init_done == 0);
+  ud_assert (rd_init_done == 0);
   rd_init_done = 1;
 
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_init(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_init (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_file_init(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_file_init (struct udoc *ud, struct udr_ctx *render_ctx)
 {
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
 
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
 
   buffer_puts (out, "-- file_init\n");
   rd_debug (ud, render_ctx);
@@ -112,46 +112,46 @@ rd_file_init(struct udoc *ud, struct udr_ctx *render_ctx)
 }
 
 static enum ud_tree_walk_stat
-rd_symbol(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_symbol (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_string(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_string (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_list(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_list (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_list_end(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_list_end (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_finish(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_finish (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-rd_file_finish(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_file_finish (struct udoc *ud, struct udr_ctx *render_ctx)
 {
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
 
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
 
   buffer_puts (out, "-- file_finish\n");
   rd_debug (ud, render_ctx);
@@ -161,12 +161,12 @@ rd_file_finish(struct udoc *ud, struct udr_ctx *render_ctx)
 }
 
 static enum ud_tree_walk_stat
-rd_finish_once(struct udoc *ud, struct udr_ctx *render_ctx)
+rd_finish_once (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  ud_assert(rd_fini_done == 0);
+  ud_assert (rd_fini_done == 0);
   rd_fini_done = 1;
 
-  log_1xf(LOG_DEBUG, 0);
+  log_1xf (LOG_DEBUG, 0);
   return UD_TREE_OK;
 }
 

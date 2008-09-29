@@ -61,55 +61,55 @@ struct dfo_put {
   char ch_prev;
 };
 
-int dfo_init(struct dfo_put *, struct buffer *, const struct dfo_trans *, unsigned int);
-void dfo_free(struct dfo_put *);
+int dfo_init (struct dfo_put *, struct buffer *, const struct dfo_trans *, unsigned int);
+void dfo_free (struct dfo_put *);
 
-int dfo_put(struct dfo_put *, const char *, unsigned long);
-int dfo_puts(struct dfo_put *, const char *);
-int dfo_puts8(struct dfo_put *, const char *, const char *, const char *, const char *,
+int dfo_put (struct dfo_put *, const char *, unsigned long);
+int dfo_puts (struct dfo_put *, const char *);
+int dfo_puts8 (struct dfo_put *, const char *, const char *, const char *, const char *,
                                 const char *, const char *, const char *, const char *);
-int dfo_break(struct dfo_put *);
-int dfo_break_line(struct dfo_put *);
-int dfo_flush(struct dfo_put *);
+int dfo_break (struct dfo_put *);
+int dfo_break_line (struct dfo_put *);
+int dfo_flush (struct dfo_put *);
 
-int dfo_constrain(struct dfo_put *, unsigned int, unsigned int);
+int dfo_constrain (struct dfo_put *, unsigned int, unsigned int);
 
-void dfo_wrap_mode(struct dfo_put *, unsigned int);
-void dfo_tran_enable(struct dfo_put *, unsigned int);
-void dfo_tran_disable(struct dfo_put *, unsigned int);
+void dfo_wrap_mode (struct dfo_put *, unsigned int);
+void dfo_tran_enable (struct dfo_put *, unsigned int);
+void dfo_tran_disable (struct dfo_put *, unsigned int);
 
-int dfo_columns(struct dfo_put *, unsigned int, unsigned int);
-int dfo_columns_start(struct dfo_put *);
-int dfo_columns_end(struct dfo_put *);
+int dfo_columns (struct dfo_put *, unsigned int, unsigned int);
+int dfo_columns_start (struct dfo_put *);
+int dfo_columns_end (struct dfo_put *);
 
-const char *dfo_errorstr(enum dfo_error);
+const char *dfo_errorstr (enum dfo_error);
 
-const struct dfo_buffer *dfo_current_buf(const struct dfo_put *);
+const struct dfo_buffer *dfo_current_buf (const struct dfo_put *);
 
 
-#if defined(DFO_IMPLEMENTATION)
-int dfo_size_check(struct dfo_put *, unsigned int, unsigned int, unsigned int, unsigned int);
-unsigned int dfo_size_linemax(const struct dfo_put *);
-unsigned int dfo_size_linepos(const struct dfo_put *, unsigned int, const struct dfo_buffer *);
-unsigned int dfo_size_linemax_check(unsigned int, unsigned int, unsigned int, unsigned int);
-int dfo_tran_flatten(struct dfo_put *, struct dstring *);
-int dfo_tran_respace(struct dfo_put *, struct dfo_buffer *, struct dstring *);
-int dfo_tran_conv(struct dfo_put *, struct dfo_buffer *, struct dstring *);
-int dfo_wrap(struct dfo_put *, struct dfo_buffer *, struct dstring *);
+#if defined (DFO_IMPLEMENTATION)
+int dfo_size_check (struct dfo_put *, unsigned int, unsigned int, unsigned int, unsigned int);
+unsigned int dfo_size_linemax (const struct dfo_put *);
+unsigned int dfo_size_linepos (const struct dfo_put *, unsigned int, const struct dfo_buffer *);
+unsigned int dfo_size_linemax_check (unsigned int, unsigned int, unsigned int, unsigned int);
+int dfo_tran_flatten (struct dfo_put *, struct dstring *);
+int dfo_tran_respace (struct dfo_put *, struct dfo_buffer *, struct dstring *);
+int dfo_tran_conv (struct dfo_put *, struct dfo_buffer *, struct dstring *);
+int dfo_wrap (struct dfo_put *, struct dfo_buffer *, struct dstring *);
 extern const char *dfo_whitespace;
 #endif
 
 #define dfo_puts7(b,s1,s2,s3,s4,s5,s6,s7) \
-dfo_puts8((b),(s1),(s2),(s3),(s4),(s5),(s6),(s7),0)
+dfo_puts8 ((b),(s1),(s2),(s3),(s4),(s5),(s6),(s7),0)
 #define dfo_puts6(b,s1,s2,s3,s4,s5,s6) \
-dfo_puts8((b),(s1),(s2),(s3),(s4),(s5),(s6),0,0)
+dfo_puts8 ((b),(s1),(s2),(s3),(s4),(s5),(s6),0,0)
 #define dfo_puts5(b,s1,s2,s3,s4,s5) \
-dfo_puts8((b),(s1),(s2),(s3),(s4),(s5),0,0,0)
+dfo_puts8 ((b),(s1),(s2),(s3),(s4),(s5),0,0,0)
 #define dfo_puts4(b,s1,s2,s3,s4) \
-dfo_puts8((b),(s1),(s2),(s3),(s4),0,0,0,0)
+dfo_puts8 ((b),(s1),(s2),(s3),(s4),0,0,0,0)
 #define dfo_puts3(b,s1,s2,s3) \
-dfo_puts8((b),(s1),(s2),(s3),0,0,0,0,0)
+dfo_puts8 ((b),(s1),(s2),(s3),0,0,0,0,0)
 #define dfo_puts2(b,s1,s2) \
-dfo_puts8((b),(s1),(s2),0,0,0,0,0,0)
+dfo_puts8 ((b),(s1),(s2),0,0,0,0,0,0)
 
 #endif

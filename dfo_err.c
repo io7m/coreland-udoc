@@ -4,7 +4,7 @@
 #include "dfo.h"
 
 const char *
-dfo_errorstr(enum dfo_error e)
+dfo_errorstr (enum dfo_error e)
 {
   switch (e) {
     case DFO_PAGE_TOO_SMALL:
@@ -14,6 +14,6 @@ dfo_errorstr(enum dfo_error e)
     case DFO_TOO_SMALL_FOR_HYPH:
       return "column or page space is too small for hyphenation";
     default:
-      return error_str(e);
+      return error_str (e);
   }
 }

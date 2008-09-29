@@ -6,6 +6,6 @@ struct ud_table {
   unsigned long ut_cols;
 };
 
-void ud_table_measure(const struct ud_node_list *, struct ud_table *);
+void ud_table_measure (const struct ud_node_list *, struct ud_table *);
 
 #endif
