@@ -72,7 +72,7 @@ r_init(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
        ? render_ctx->uc_render->ur_funcs.urf_init(ud, render_ctx) : UD_TREE_OK;
   if (ret != UD_TREE_OK) return ret;
 
-  /* starting new file? */
+  /* at start of file? */
   if (render_ctx->uc_part->up_list == tree_ctx->utc_state->utc_list) {
     log_1xf(LOG_DEBUG, "file init");
     return (render_ctx->uc_render->ur_funcs.urf_file_init) ?
@@ -197,6 +197,7 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
         break;
     }
 
+  /* section was closed by previous rendering run, don't close twice */
   if (section && render_ctx->uc_flag_split) {
     log_1xf(LOG_DEBUG, "section closed by previous render");
     render_ctx->uc_flag_split = 0;
