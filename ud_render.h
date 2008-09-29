@@ -40,7 +40,7 @@ struct udr_ctx {
   const struct ud_part *uc_part;
   const struct udr_opts *uc_opts;
   struct udr_output_ctx *uc_out;
-  struct ud_part_ind_stack uc_part_stack;
+  struct ud_part_index_stack uc_part_stack;
   void *uc_user_data;
   unsigned int uc_flag_init_once_done;
   unsigned int uc_flag_finish_file;

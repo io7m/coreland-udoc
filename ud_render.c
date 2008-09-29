@@ -127,7 +127,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
             ud_try_sys(ud, fchdir(ud->ud_dirfd_src) != -1, UD_TREE_FAIL, "fchdir");
 
             /* save fetched part on stack (will be popped in r_finish) */
-            ud_try_sys(ud, ud_part_ind_stack_push(&render_ctx->uc_part_stack,
+            ud_try_sys(ud, ud_part_index_stack_push(&render_ctx->uc_part_stack,
               &new_part->up_index_cur), UD_TREE_FAIL, "stack_push");
 
             log_1xf(LOG_DEBUG, "pushed part");
@@ -149,7 +149,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
         }
 
         /* save uc_part on stack */
-        ud_try_sys(ud, ud_part_ind_stack_push(&render_ctx->uc_part_stack,
+        ud_try_sys(ud, ud_part_index_stack_push(&render_ctx->uc_part_stack,
           &render_ctx->uc_part->up_index_cur), UD_TREE_FAIL, "stack_push");
 
         log_1xf(LOG_DEBUG, "pushed part");
@@ -190,7 +190,7 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
         section = 1;
-        ud_assert(ud_part_ind_stack_pop(&render_ctx->uc_part_stack, &ind_ptr));
+        ud_assert(ud_part_index_stack_pop(&render_ctx->uc_part_stack, &ind_ptr));
         ud_assert(ud_oht_get_index(&ud->ud_parts, *ind_ptr, (void *) &render_ctx->uc_part));
         log_1xf(LOG_DEBUG, "popped part");
      default:
@@ -266,7 +266,7 @@ ud_render_node(struct udoc *ud, struct udr_ctx *cur_render_ctx,
   bin_zero(&tree_ctx_state, sizeof(tree_ctx_state));
 
   new_render_ctx = *cur_render_ctx;
-  if (!ud_part_ind_stack_init(&new_render_ctx.uc_part_stack,
+  if (!ud_part_index_stack_init(&new_render_ctx.uc_part_stack,
     ud_oht_size(&ud->ud_parts))) return 0;
 
   /* set flags and tree_ctx */
@@ -287,9 +287,9 @@ ud_render_node(struct udoc *ud, struct udr_ctx *cur_render_ctx,
 
   /* the uc_part stack will only be empty if everything was successful */
   if (ret != UD_TREE_FAIL)
-    ud_assert(ud_part_ind_stack_size(&new_render_ctx.uc_part_stack) == 0);
+    ud_assert(ud_part_index_stack_size(&new_render_ctx.uc_part_stack) == 0);
 
-  ud_part_ind_stack_free(&new_render_ctx.uc_part_stack);
+  ud_part_index_stack_free(&new_render_ctx.uc_part_stack);
 
   log_1xf(LOG_DEBUG, "rendering done");
   return ret != UD_TREE_FAIL;

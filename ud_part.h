@@ -42,8 +42,8 @@ void ud_parts_dump(struct udoc *);
 #include "gen_stack.h"
 
 /* ud_part index stack */
-typedef unsigned long ud_part_ind;
+typedef unsigned long ud_part_index;
 
-GEN_stack_declare(ud_part_ind);
+GEN_stack_declare(ud_part_index);
 
 #endif

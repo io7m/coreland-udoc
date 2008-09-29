@@ -20,7 +20,7 @@
 
 struct part_ctx {
   struct dstring dstr;
-  struct ud_part_ind_stack ind_stack; /* stack of integer indices to ud_parts */
+  struct ud_part_index_stack index_stack; /* stack of integer indices to ud_parts */
   struct hashtable links; /* table of links for reference checking */
 };
 
@@ -28,7 +28,7 @@ static void
 part_ctx_free(struct udoc *ud, struct part_ctx *p)
 {
   dstring_free(&p->dstr);
-  ud_part_ind_stack_free(&p->ind_stack);
+  ud_part_index_stack_free(&p->index_stack);
   ht_free(&p->links);
 }
 
@@ -37,7 +37,7 @@ part_ctx_init(struct udoc *ud, struct part_ctx *p)
 {
   bin_zero(p, sizeof(*p));
   ud_try_sys_jump(ud, dstring_init(&p->dstr, 256), FAIL, "dstring_init"); 
-  ud_try_sys_jump(ud, ud_part_ind_stack_init(&p->ind_stack, 32), FAIL, "stack_init"); 
+  ud_try_sys_jump(ud, ud_part_index_stack_init(&p->index_stack, 32), FAIL, "stack_init"); 
   ud_try_sys_jump(ud, ht_init(&p->links), FAIL, "hashtable_init"); 
   return 1;
 
@@ -67,7 +67,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
     p_new.up_index_prev = p_cur->up_index_cur;
     p_cur->up_index_next = p_new.up_index_cur;
   }
-  p_new.up_depth = ud_part_ind_stack_size(&pctx->ind_stack);
+  p_new.up_depth = ud_part_index_stack_size(&pctx->index_stack);
   p_new.up_node = node;
   p_new.up_list = list;
   p_new.up_flags = flags;
@@ -88,7 +88,7 @@ part_add(struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
   flag_strdup = 1;
  
   /* push part onto stack */
-  ud_try_sys_jump(ud, ud_part_ind_stack_push(&pctx->ind_stack,
+  ud_try_sys_jump(ud, ud_part_index_stack_push(&pctx->index_stack,
     &p_new.up_index_cur), FAIL, "stack_push");
 
   /* chatter */
@@ -112,7 +112,7 @@ part_section(struct udoc *ud, struct part_ctx *pctx,
 {
   char cnum[FMT_ULONG];
   unsigned long flags = 0;
-  const unsigned long size = ud_part_ind_stack_size(&pctx->ind_stack);
+  const unsigned long size = ud_part_index_stack_size(&pctx->index_stack);
 
   cnum[fmt_ulong(cnum, size)] = 0;
   log_2xf(LOG_DEBUG, "part stack size ", cnum);
@@ -131,7 +131,7 @@ part_subsection(struct udoc *ud, struct part_ctx *pctx,
   const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
-  const unsigned long size = ud_part_ind_stack_size(&pctx->ind_stack);
+  const unsigned long size = ud_part_index_stack_size(&pctx->index_stack);
 
   cnum[fmt_ulong(cnum, size)] = 0;
   log_2xf(LOG_DEBUG, "part stack size ", cnum);
@@ -251,7 +251,7 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
     case UDOC_TAG_STYLE:
-      ud_assert(ud_part_ind_stack_peek(&pctx->ind_stack, &index));
+      ud_assert(ud_part_index_stack_peek(&pctx->index_stack, &index));
       ud_assert(ud_oht_get_index(&ud->ud_parts, *index, (void *) &part));
       break;
     case UDOC_TAG_LINK:
@@ -324,8 +324,8 @@ cb_part_list_end(struct udoc *ud, struct ud_tree_ctx *ctx)
   switch (tag) {
     case UDOC_TAG_SUBSECTION:
     case UDOC_TAG_SECTION:
-      ud_assert(ud_part_ind_stack_pop(&pctx->ind_stack, &index));
-      cnum[fmt_ulong(cnum, ud_part_ind_stack_size(&pctx->ind_stack))] = 0;
+      ud_assert(ud_part_index_stack_pop(&pctx->index_stack, &index));
+      cnum[fmt_ulong(cnum, ud_part_index_stack_size(&pctx->index_stack))] = 0;
       log_2xf(LOG_DEBUG, "part stack size ", cnum);
       break;
     default: break;
@@ -359,7 +359,7 @@ cb_part_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
 
   ret = UD_TREE_OK;
   END:
-  ud_assert(ud_part_ind_stack_size(&pctx->ind_stack) == 1);
+  ud_assert(ud_part_index_stack_size(&pctx->index_stack) == 1);
   part_ctx_free(ud, pctx);
   return ret;
 }
@@ -623,5 +623,5 @@ ud_part_num_fmt(struct udoc *ud, const struct ud_part *part,
 }
 
 /* ud_part index stack */
-GEN_stack_define(ud_part_ind);
+GEN_stack_define(ud_part_index);
 
