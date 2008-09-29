@@ -44,18 +44,18 @@ void TYPE ## _stack_free(struct TYPE ## _stack *a) \
 
 /* stack_size() */
 #define GEN_stack_size_declare(TYPE) \
-unsigned long TYPE ## _stack_size(struct TYPE ## _stack *)
+unsigned long TYPE ## _stack_size(const struct TYPE ## _stack *)
 #define GEN_stack_size_define(TYPE) \
-unsigned long TYPE ## _stack_size(struct TYPE ## _stack *a) \
+unsigned long TYPE ## _stack_size(const struct TYPE ## _stack *a) \
 {                                                           \
   return dstack_size(&a->base);                             \
 }
 
 /* stack_bytes() */
 #define GEN_stack_bytes_declare(TYPE) \
-unsigned long TYPE ## _stack_bytes(struct TYPE ## _stack *)
+unsigned long TYPE ## _stack_bytes(const struct TYPE ## _stack *)
 #define GEN_stack_bytes_define(TYPE) \
-unsigned long TYPE ## _stack_bytes(struct TYPE ## _stack *a) \
+unsigned long TYPE ## _stack_bytes(const struct TYPE ## _stack *a) \
 {                                                            \
   return dstack_bytes(&a->base);                             \
 }
