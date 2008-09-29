@@ -121,6 +121,7 @@ ud_walk(struct udoc *doc, struct ud_tree_ctx *ctx)
           struct udoc *doc_ptr;
 
           ud_assert(ud_get(doc, docname, &doc_ptr));
+          ud_assert(doc_ptr->ud_name);
           ud_try_sys_jump(doc, dstack_push(&doc->ud_doc_stack, &doc), FAIL, "alloc");
           doc->ud_cur_doc = doc_ptr;
         }

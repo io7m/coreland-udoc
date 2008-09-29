@@ -10,6 +10,7 @@
 
 #define UDOC_IMPLEMENTATION
 #include "udoc.h"
+#include "ud_assert.h"
 #include "ud_error.h"
 
 void
@@ -40,6 +41,8 @@ ud_error_fill(struct udoc *ud, struct ud_err *ue, const char *func,
 
   ue->ue_func = func;
   ue->ue_errno_val = ev;
+
+  ud_assert (ud->ud_cur_doc->ud_name != 0);
 
   sstring_cpys(&sstr_dn, ud->ud_cur_doc->ud_name);
   sstring_0(&sstr_dn);

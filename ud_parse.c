@@ -12,6 +12,7 @@
 #include "log.h"
 
 #define UDOC_IMPLEMENTATION
+#include "ud_assert.h"
 #include "ud_tag.h"
 #include "udoc.h"
 
@@ -78,6 +79,8 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
     syntax(ud, "the include symbol can only appear at the start of a list");
     goto FAIL;
   }
+
+  /* file has already been included before? */
   if (ud_get(ud, file, &udp)) {
     log_2xf(LOG_DEBUG, "include reused: ", file);
   } else {
@@ -88,6 +91,8 @@ ud_tree_include(struct udoc *ud, char *file, struct ud_node_list *list)
     if (!ud_parse(udp)) goto FAIL;
     if (!ud_close(udp)) goto FAIL;
   }
+
+  ud_assert (udp->ud_name != 0);
 
   /* XXX: ??? */
   if (!udp->ud_nodes) {
