@@ -31,8 +31,8 @@ ud_oht_get(const struct ud_ordered_ht *tab, const void *key,
   if (ht_getb(&tab->uht_ht, key, klen, (void *) &index, &sz)) {
     ref = array_index(&tab->uht_array, *index);
     if (ref) {
-      *rind = *index;
-      *rp = ref;
+      if (rind) *rind = *index;
+      if (rp) *rp = ref;
       return 1;
     }
   }
