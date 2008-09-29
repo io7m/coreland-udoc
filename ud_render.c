@@ -104,7 +104,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
   struct ud_part *new_part;
   const struct ud_node *cur_node;
-  unsigned long ind = 0;
+  unsigned long index = 0;
   enum ud_tag tag;
 
   if (tree_ctx->utc_state->utc_list_pos == 0) {
@@ -113,7 +113,7 @@ r_symbol(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
     switch (tag) {
       case UDOC_TAG_SUBSECTION:
       case UDOC_TAG_SECTION:
-        ud_assert_s(ud_part_getfromnode(ud, cur_node, &new_part, &ind),
+        ud_assert_s(ud_part_getfromnode(ud, cur_node, &new_part, &index),
           "could not get part for node");
 
         /* split? */
@@ -191,7 +191,7 @@ r_list_end(struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       case UDOC_TAG_SECTION:
         section = 1;
         ud_assert(ud_part_ind_stack_pop(&render_ctx->uc_part_stack, &ind_ptr));
-        ud_assert(ud_oht_getind(&ud->ud_parts, *ind_ptr, (void *) &render_ctx->uc_part));
+        ud_assert(ud_oht_get_index(&ud->ud_parts, *ind_ptr, (void *) &render_ctx->uc_part));
         log_1xf(LOG_DEBUG, "popped part");
      default:
         break;
@@ -318,8 +318,8 @@ ud_render_doc(struct udoc *ud, const struct udr_opts *opts,
   ud_try_sys_jump(ud, fchdir(ud->ud_dirfd_out) != -1, FAIL, "fchdir");
 
   /* fetch document root part */
-  ud_try_jumpS(ud, ud_oht_getind(&ud->ud_parts, 0, (void *) &root_part), FAIL,
-    "ud_oht_getind", "could not get root part");
+  ud_try_jumpS(ud, ud_oht_get_index(&ud->ud_parts, 0, (void *) &root_part), FAIL,
+    "ud_oht_get_index", "could not get root part");
 
   /* open output document */
   if (!r_output_open(ud, renderer, &out, root_part)) goto FAIL;

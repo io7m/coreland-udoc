@@ -179,7 +179,7 @@ x_tag_section(struct udoc *ud, struct udr_ctx *r)
   enum ud_tree_walk_stat ret;
   struct buffer *out = &r->uc_out->uoc_buf;
   struct ud_part *part;
-  unsigned long ind;
+  unsigned long index;
 
   log_1xf(LOG_DEBUG, "section open");
 
@@ -188,7 +188,7 @@ x_tag_section(struct udoc *ud, struct udr_ctx *r)
 
   ret = x_tag_generic(ud, r, "div", "ud_section", TAG_NEWLINE);
   if (ret == UD_TREE_OK)
-    if (ud_part_getfromnode(ud, r->uc_tree_ctx->utc_state->utc_node, &part, &ind)) {
+    if (ud_part_getfromnode(ud, r->uc_tree_ctx->utc_state->utc_node, &part, &index)) {
       buffer_puts5(out, "<h3>", part->up_num_string, " ", part->up_title, "</h3>\n");
       buffer_puts3(out, "<a name=\"sect_", part->up_num_string, "\"></a>\n");
     }
@@ -341,7 +341,7 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
   struct ud_part *part_cur = (struct ud_part *) r->uc_part;
   struct ud_part *part_first = 0; /* first part in current file */
   unsigned long max;
-  unsigned long ind;
+  unsigned long index;
   unsigned long n;
 
   ud_part_getfirst_wdepth_noskip(ud, part_cur, &part_first);
@@ -349,9 +349,9 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
 
   buffer_puts(out, "\n<div class=\"ud_toc\">\n");
 
-  ind = part_cur->up_index_cur;
+  index = part_cur->up_index_cur;
   for (;;) {
-    ud_assert(ud_oht_getind(&ud->ud_parts, ind, (void *) &part_cur));
+    ud_assert(ud_oht_get_index(&ud->ud_parts, index, (void *) &part_cur));
     if (part_cur->up_depth <= part_first->up_depth)
       if (part_cur != part_first) break;
     for (n = 0; n < part_cur->up_depth - part_first->up_depth; ++n)
@@ -366,7 +366,7 @@ x_tag_contents(struct udoc *ud, struct udr_ctx *r)
     buffer_puts2(out, "#sect_", part_cur->up_num_string);
     buffer_puts5(out, "\">", part_cur->up_num_string, ". ", part_cur->up_title, "</a><br/>\n");
     if (!part_cur->up_index_next) break;
-    ind = part_cur->up_index_next;
+    index = part_cur->up_index_next;
   }
   buffer_puts(out, "</div>\n\n");
 
@@ -378,16 +378,16 @@ x_tag_footnote(struct udoc *ud, struct udr_ctx *r)
 {
   char cnum[FMT_ULONG];
   unsigned long max;
-  unsigned long ind;
+  unsigned long index;
   struct ud_ref *ref;
   struct buffer *out = &r->uc_out->uoc_buf;
   const struct ud_node_list *list = r->uc_tree_ctx->utc_state->utc_list;
 
   max = ud_oht_size(&ud->ud_footnotes);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_footnotes, index, (void *) &ref));
     if (list == ref->ur_list) {
-      cnum[fmt_ulong(cnum, ind)] = 0;
+      cnum[fmt_ulong(cnum, index)] = 0;
       buffer_puts7(out, "[<a href=\"#fn_", cnum, "\" name=\"fnr_", cnum, "\">", cnum, "</a>]");
       break;
     }
@@ -496,9 +496,9 @@ static enum ud_tree_walk_stat
 dispatch(const struct dispatch *tab, unsigned int tab_size,
   struct udoc *ud, struct udr_ctx *ctx, enum ud_tag tag)
 {
-  unsigned int ind;
-  for (ind = 0; ind < tab_size; ++ind)
-    if (tag == tab[ind].tag) return tab[ind].func(ud, ctx);
+  unsigned int index;
+  for (index = 0; index < tab_size; ++index)
+    if (tag == tab[index].tag) return tab[index].func(ud, ctx);
   return UD_TREE_OK;
 }
 
@@ -535,7 +535,7 @@ x_navbar(struct udoc *ud, struct buffer *out, const struct ud_part *part_cur,
   buffer_puts(out, "\">\n");
   buffer_puts(out, "<a href=\"0.html\">top</a>\n");
 
-  ud_oht_getind(&ud->ud_parts, part_cur->up_index_parent, (void *) &part_parent);
+  ud_oht_get_index(&ud->ud_parts, part_cur->up_index_parent, (void *) &part_parent);
   ud_part_getnext_file(ud, part_cur, &part_next);
   ud_part_getprev_file(ud, part_cur, &part_prev);
 
@@ -561,7 +561,7 @@ static int
 x_footnotes(struct udoc *ud, struct udr_ctx *rc)
 {
   char cnum[FMT_ULONG];
-  unsigned long ind;
+  unsigned long index;
   unsigned long max;
   unsigned long nfp = 0;
   struct ud_ref *note;
@@ -570,8 +570,8 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
 
   /* count footnotes for this file */
   max = ud_oht_size(&ud->ud_footnotes);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &note));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_footnotes, index, (void *) &note));
     if (note->ur_part->up_file == rc->uc_part->up_file) ++nfp;
   }
 
@@ -579,11 +579,11 @@ x_footnotes(struct udoc *ud, struct udr_ctx *rc)
   if (nfp) {
     buffer_puts(out, "\n<div class=\"ud_footnotes\">\n");
     buffer_puts(out, "<table class=\"ud_footnote_tab\">\n");
-    for (ind = 0; ind < max; ++ind) {
-      ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &note));
+    for (index = 0; index < max; ++index) {
+      ud_assert(ud_oht_get_index(&ud->ud_footnotes, index, (void *) &note));
       if (note->ur_part->up_file == rc->uc_part->up_file) {
         buffer_puts(out, "<tr>\n");
-        cnum[fmt_ulong(cnum, ind)] = 0;
+        cnum[fmt_ulong(cnum, index)] = 0;
         buffer_puts(out, "<td>");
         buffer_puts7(out, "[<a name=\"fn_", cnum, "\" href=\"#fnr_", cnum, "\">", cnum, "</a>]");
         buffer_puts(out, "</td>\n");
@@ -627,7 +627,7 @@ static enum ud_tree_walk_stat
 xhtm_file_init(struct udoc *ud, struct udr_ctx *rc)
 {
   unsigned long max;
-  unsigned long ind;
+  unsigned long index;
   struct ud_ref *ref;
   const struct ud_part *part = rc->uc_part;
   const struct ud_part *ppart = part;
@@ -642,8 +642,8 @@ xhtm_file_init(struct udoc *ud, struct udr_ctx *rc)
 
   /* print style data */
   max = ud_oht_size(&ud->ud_styles);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_styles, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_styles, index, (void *) &ref));
     buffer_puts(out, "<link rel=\"stylesheet\" type=\"text/css\" href=\"");
     buffer_puts(out, ref->ur_node->un_next->un_data.un_str);
     buffer_puts(out, ".css\"/>\n");
@@ -654,7 +654,7 @@ xhtm_file_init(struct udoc *ud, struct udr_ctx *rc)
     title = ppart->up_title;
     if (!title) {
       if (ppart->up_index_parent == ppart->up_index_cur) break;
-      ud_oht_getind(&ud->ud_parts, ppart->up_index_parent, (void *) &ppart);
+      ud_oht_get_index(&ud->ud_parts, ppart->up_index_parent, (void *) &ppart);
     } else {
       buffer_puts(out, "<title>");
       x_escape_puts(out, title, 0);

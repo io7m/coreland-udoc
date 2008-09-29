@@ -48,9 +48,9 @@ ud_tag_stack_pop(struct ud_tag_stack *s, enum ud_tag *tag)
 }
 
 const enum ud_tag *
-ud_tag_stack_index(const struct ud_tag_stack *s, unsigned long ind)
+ud_tag_stack_index(const struct ud_tag_stack *s, unsigned long index)
 {
-  return array_index(&s->uts_sta, ind);
+  return array_index(&s->uts_sta, index);
 }
 
 unsigned long
@@ -62,13 +62,13 @@ ud_tag_stack_size(const struct ud_tag_stack *s)
 int
 ud_tag_stack_above(const struct ud_tag_stack *s, enum ud_tag tag)
 {
-  unsigned long ind;
+  unsigned long index;
   unsigned long max = array_size(&s->uts_sta);
   const enum ud_tag *rtag = 0;
 
   if (max)
-    for (ind = 0; ind < max - 1; ++ind) {
-      rtag = ud_tag_stack_index(s, ind);
+    for (index = 0; index < max - 1; ++index) {
+      rtag = ud_tag_stack_index(s, index);
       if (*rtag == tag) return 1;
     }
   return 0;

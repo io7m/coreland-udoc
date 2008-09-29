@@ -47,12 +47,12 @@ usage(void)
 void
 die(const char *func)
 {
-  unsigned long ind;
+  unsigned long index;
   unsigned long max;
   struct ud_err *ue;
 
   max = ud_error_size(&main_doc.ud_errors);
-  for (ind = 0; ind < max; ++ind) {
+  for (index = 0; index < max; ++index) {
     if (ud_error_pop(&main_doc.ud_errors, &ue))
       ud_error_display(&main_doc, ue);
   }
@@ -65,10 +65,10 @@ files(const struct udoc *doc, const struct ud_renderer *r)
   char cnum[FMT_ULONG];
   struct ud_part *cur_part;
   const unsigned long max = ud_oht_size(&doc->ud_parts);
-  unsigned long ind;
+  unsigned long index;
   
-  for (ind = 0; ind < max; ++ind) {
-    ud_oht_getind(&doc->ud_parts, ind, (void *) &cur_part);
+  for (index = 0; index < max; ++index) {
+    ud_oht_get_index(&doc->ud_parts, index, (void *) &cur_part);
     if (cur_part->up_flags & UD_PART_SPLIT) {
       cnum[fmt_ulong(cnum, cur_part->up_file)] = 0;
       buffer_puts4(buffer1, cnum, ".", r->ur_data.ur_suffix, "\n");

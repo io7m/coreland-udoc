@@ -5,9 +5,9 @@ void
 dfo_free(struct dfo_put *dp)
 {
   struct dstring *ds;
-  unsigned int ind;
-  for (ind = 0; ind < array_SIZE(&dp->col_bufs); ++ind) {
-    ds = array_index(&dp->col_bufs, ind);
+  unsigned int index;
+  for (index = 0; index < array_SIZE(&dp->col_bufs); ++index) {
+    ds = array_index(&dp->col_bufs, index);
     dstring_free(ds);
   }
   dstring_free(&dp->buf_tmp);

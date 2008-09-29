@@ -155,17 +155,17 @@ rt_tag_link_ext(struct udoc *ud, struct udr_ctx *rc)
   const struct ud_node *node = rc->uc_tree_ctx->utc_state->utc_node;
   struct ud_ref *ref;
   struct buffer *buf = &rc->uc_out->uoc_buf;
-  unsigned long ind;
+  unsigned long index;
   unsigned long max;
 
   /* urls are numbered, so a linear search is necessary to work out the url id */
   /* XXX: this is not ideal... */
   max = ud_oht_size(&ud->ud_link_exts);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_link_exts, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_link_exts, index, (void *) &ref));
     if (node == ref->ur_node) {
       buffer_puts(buf, "\\from[url_");
-      buffer_put(buf, cnum, fmt_ulong(cnum, ind));
+      buffer_put(buf, cnum, fmt_ulong(cnum, index));
       buffer_puts(buf, "]");
       return 1;
     }
@@ -348,10 +348,10 @@ static enum ud_tree_walk_stat
 dispatch(const struct dispatch *tab, unsigned int tab_size,
          struct udoc *ud, struct udr_ctx *ctx, enum ud_tag tag)
 {
-  unsigned int ind;
-  for (ind = 0; ind < tab_size; ++ind)
-    if (tag == tab[ind].tag)
-      return tab[ind].func(ud, ctx);
+  unsigned int index;
+  for (index = 0; index < tab_size; ++index)
+    if (tag == tab[index].tag)
+      return tab[index].func(ud, ctx);
   return UD_TREE_OK;
 }
 
@@ -378,7 +378,7 @@ static enum ud_tree_walk_stat
 rt_file_init(struct udoc *ud, struct udr_ctx *rc)
 {
   char cnum[FMT_ULONG];
-  unsigned long ind;
+  unsigned long index;
   unsigned long max;
   struct ud_ref *ref;
   const struct ud_node *node;
@@ -392,11 +392,11 @@ rt_file_init(struct udoc *ud, struct udr_ctx *rc)
   /* output \useURL list */
   buffer_puts(buf, "% urls\n");
   max = ud_oht_size(&ud->ud_link_exts);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_link_exts, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_link_exts, index, (void *) &ref));
     node = ref->ur_node->un_next;
     buffer_puts(buf, "\\useURL[url_");
-    buffer_put(buf, cnum, fmt_ulong(cnum, ind));
+    buffer_put(buf, cnum, fmt_ulong(cnum, index));
     buffer_puts3(buf, "][", node->un_data.un_str, "][][");
     if (node->un_next)
       buffer_puts2(buf, node->un_next->un_data.un_str, "]\n");
@@ -408,8 +408,8 @@ rt_file_init(struct udoc *ud, struct udr_ctx *rc)
   /* output styles */
   buffer_puts(buf, "% styles\n");
   max = ud_oht_size(&ud->ud_styles);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_styles, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_styles, index, (void *) &ref));
     if (!udr_print_file(ud, rc, ref->ur_node->un_next->un_data.un_str, 0, 0))
       return UD_TREE_FAIL;
   }

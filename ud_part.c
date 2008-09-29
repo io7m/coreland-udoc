@@ -235,7 +235,7 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
   struct part_ctx *pctx = ctx->utc_state->utc_user_data;
   struct ud_part *part = 0;
   struct ud_ordered_ht *tab = 0;
-  unsigned long *ind;
+  unsigned long *index;
   enum ud_tag tag;
   struct ud_ref ref;
 
@@ -251,8 +251,8 @@ cb_part_symbol(struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
     case UDOC_TAG_STYLE:
-      ud_assert(ud_part_ind_stack_peek(&pctx->ind_stack, &ind));
-      ud_assert(ud_oht_getind(&ud->ud_parts, *ind, (void *) &part));
+      ud_assert(ud_part_ind_stack_peek(&pctx->ind_stack, &index));
+      ud_assert(ud_oht_get_index(&ud->ud_parts, *index, (void *) &part));
       break;
     case UDOC_TAG_LINK:
       {
@@ -317,14 +317,14 @@ cb_part_list_end(struct udoc *ud, struct ud_tree_ctx *ctx)
   struct part_ctx *pctx = ctx->utc_state->utc_user_data;
   struct ud_node *first_sym;
   enum ud_tag tag;
-  unsigned long *ind;
+  unsigned long *index;
 
   first_sym = ctx->utc_state->utc_list->unl_head;
   if (!ud_tag_by_name(first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_SUBSECTION:
     case UDOC_TAG_SECTION:
-      ud_assert(ud_part_ind_stack_pop(&pctx->ind_stack, &ind));
+      ud_assert(ud_part_ind_stack_pop(&pctx->ind_stack, &index));
       cnum[fmt_ulong(cnum, ud_part_ind_stack_size(&pctx->ind_stack))] = 0;
       log_2xf(LOG_DEBUG, "part stack size ", cnum);
       break;
@@ -338,7 +338,7 @@ cb_part_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
 {
   char cnum1[FMT_ULONG];
   char cnum2[FMT_ULONG];
-  unsigned long ind;
+  unsigned long index;
   unsigned long max = ud_oht_size(&ud->ud_parts);
   unsigned long files = 0;
   struct ud_part *part;
@@ -349,9 +349,9 @@ cb_part_finish(struct udoc *ud, struct ud_tree_ctx *ctx)
   if (!check_links(ud, ctx, pctx)) goto END;
 
   /* count files */
-  for (ind = 0; ind < max; ++ind)
-    if (ud_oht_getind(&ud->ud_parts, ind, (void *) &part))
-      if (part->up_flags & UD_PART_SPLIT && ind) ++files;
+  for (index = 0; index < max; ++index)
+    if (ud_oht_get_index(&ud->ud_parts, index, (void *) &part))
+      if (part->up_flags & UD_PART_SPLIT && index) ++files;
 
   cnum1[fmt_ulong(cnum1, ud_oht_size(&ud->ud_parts))] = 0;
   cnum2[fmt_ulong(cnum2, files + 1)] = 0;
@@ -402,15 +402,15 @@ ud_partition(struct udoc *ud)
 
 int
 ud_part_getfromnode(struct udoc *ud, const struct ud_node *n,
-  struct ud_part **ch, unsigned long *ind)
+  struct ud_part **ch, unsigned long *index)
 {
-  return ud_oht_get(&ud->ud_parts, (void *) &n, sizeof(&n), (void *) ch, ind);
+  return ud_oht_get(&ud->ud_parts, (void *) &n, sizeof(&n), (void *) ch, index);
 }
 
 int
 ud_part_getroot(struct udoc *ud, struct ud_part **ch)
 {
-  return ud_oht_getind(&ud->ud_parts, 0, (void *) ch);
+  return ud_oht_get_index(&ud->ud_parts, 0, (void *) ch);
 }
 
 int
@@ -419,7 +419,7 @@ ud_part_getcur(struct udoc *ud, struct ud_part **rcur)
   struct ud_part *cur;
   unsigned long max = ud_oht_size(&ud->ud_parts);
   if (!max) return 0;
-  if (!ud_oht_getind(&ud->ud_parts, max - 1, (void *) &cur)) return 0;
+  if (!ud_oht_get_index(&ud->ud_parts, max - 1, (void *) &cur)) return 0;
   *rcur = cur;
   return 1;
 }
@@ -430,11 +430,11 @@ ud_part_getprev(struct udoc *ud, const struct ud_part *cur,
 {
   struct ud_part *cprev;
   unsigned long max = cur->up_index_cur;
-  unsigned long ind;
+  unsigned long index;
 
   if (!max) return 0;
-  for (ind = max - 1; ind; --ind) {
-    if (ud_oht_getind(&ud->ud_parts, ind, (void *) &cprev)) {
+  for (index = max - 1; index; --index) {
+    if (ud_oht_get_index(&ud->ud_parts, index, (void *) &cprev)) {
       *prev = cprev;
       return 1;
     }
@@ -454,7 +454,7 @@ ud_part_getfirst_wparent(struct udoc *ud, const struct ud_part *cur,
   struct ud_part *part_first = (struct ud_part *) cur;
 
   for (;;) {
-    if (!ud_oht_getind(&ud->ud_parts, part_tmp->up_index_prev, (void *) &part_tmp)) break;
+    if (!ud_oht_get_index(&ud->ud_parts, part_tmp->up_index_prev, (void *) &part_tmp)) break;
     if (part_tmp->up_index_parent == cur->up_index_parent) part_first = part_tmp;
     if (!part_tmp->up_index_cur) break;
   }
@@ -523,10 +523,10 @@ ud_part_getnext_file(struct udoc *ud, const struct ud_part *cur,
 {
   struct ud_part *cnext;
   unsigned long max = ud_oht_size(&ud->ud_parts);
-  unsigned long ind;
+  unsigned long index;
 
-  for (ind = cur->up_index_cur; ind < max; ++ind) {
-    if (ud_oht_getind(&ud->ud_parts, ind, (void *) &cnext)) {
+  for (index = cur->up_index_cur; index < max; ++index) {
+    if (ud_oht_get_index(&ud->ud_parts, index, (void *) &cnext)) {
       if (cnext->up_file != cur->up_file) {
         *next = cnext;
         return 1;
@@ -546,11 +546,11 @@ ud_part_getprev_file(struct udoc *ud, const struct ud_part *cur,
 {
   struct ud_part *cprev;
   unsigned long max = cur->up_index_cur;
-  unsigned long ind;
+  unsigned long index;
 
   if (!max) return 0;
-  for (ind = max - 1; ind + 1; --ind) {
-    if (ud_oht_getind(&ud->ud_parts, ind, (void *) &cprev)) {
+  for (index = max - 1; index + 1; --index) {
+    if (ud_oht_get_index(&ud->ud_parts, index, (void *) &cprev)) {
       if (cprev->up_file != cur->up_file) {
         *prev = cprev;
         return 1;
@@ -569,7 +569,7 @@ ud_part_offset_wparent(struct udoc *ud,
 
   for (;;) {
     if (part_tmp == to) break;
-    if (!ud_oht_getind(&ud->ud_parts, part_tmp->up_index_next, (void *) &part_tmp)) break;
+    if (!ud_oht_get_index(&ud->ud_parts, part_tmp->up_index_next, (void *) &part_tmp)) break;
     if (part_tmp->up_index_parent == from->up_index_parent) ++off;
   }
   return off;
@@ -594,14 +594,14 @@ ud_part_num_fmt(struct udoc *ud, const struct ud_part *part,
   for (;;) {
     if (!sstack_push(&ns, (void *) &part_cur->up_index_cur)) break;
     if (!part_cur->up_index_parent) break;
-    if (!ud_oht_getind(&ud->ud_parts, part_cur->up_index_parent, (void *) &part_cur)) break;
+    if (!ud_oht_get_index(&ud->ud_parts, part_cur->up_index_parent, (void *) &part_cur)) break;
   }
 
   /* repeatedly pop parents and calculate offsets for numbering */
   dstring_trunc(ds);
   for (;;) {
     if (!sstack_pop(&ns, (void *) &num)) break;
-    if (!ud_oht_getind(&ud->ud_parts, *num, (void *) &part_cur)) break;
+    if (!ud_oht_get_index(&ud->ud_parts, *num, (void *) &part_cur)) break;
 
     ud_part_getfirst_wparent(ud, part_cur, &part_first);
     off = ud_part_offset_wparent(ud, part_first, part_cur);

@@ -113,19 +113,19 @@ rn_tag_contents(struct udoc *ud, struct udr_ctx *rc)
   struct ud_part *part_first = 0; /* first part in current file */
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   unsigned long max;
-  unsigned long ind;
+  unsigned long index;
 
   ud_part_getfirst_wdepth_noskip(ud, part_cur, &part_first);
 
   max = ud_oht_size(&ud->ud_parts);
-  ind = part_cur->up_index_cur;
+  index = part_cur->up_index_cur;
 
   dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + 2);
   dfo_tran_disable(dfo, DFO_TRAN_RESPACE);
   dfo_wrap_mode(dfo, DFO_WRAP_NONE);
 
   for (;;) {
-    ud_assert(ud_oht_getind(&ud->ud_parts, ind, (void *) &part_cur));
+    ud_assert(ud_oht_get_index(&ud->ud_parts, index, (void *) &part_cur));
     if (part_cur->up_depth <= part_first->up_depth)
       if (part_cur != part_first) break;
 
@@ -136,7 +136,7 @@ rn_tag_contents(struct udoc *ud, struct udr_ctx *rc)
 
     if (part_cur->up_depth < part_first->up_depth) break;
     if (!part_cur->up_index_next) break;
-    ind = part_cur->up_index_next;
+    index = part_cur->up_index_next;
   }
 
   dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent - 2);
@@ -151,16 +151,16 @@ rn_tag_footnote(struct udoc *ud, struct udr_ctx *rc)
 {
   char cnum[FMT_ULONG];
   unsigned long max;
-  unsigned long ind;
+  unsigned long index;
   struct ud_ref *ref;
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
   const struct ud_node_list *list = rc->uc_tree_ctx->utc_state->utc_list;
 
   max = ud_oht_size(&ud->ud_footnotes);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &ref));
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_footnotes, index, (void *) &ref));
     if (list == ref->ur_list) {
-      cnum[fmt_ulong(cnum, ind)] = 0;
+      cnum[fmt_ulong(cnum, index)] = 0;
       dfo_puts3(dfo, "[", cnum, "]");
       break;
     }
@@ -169,14 +169,14 @@ rn_tag_footnote(struct udoc *ud, struct udr_ctx *rc)
 }
 
 static unsigned long
-rn_fmt_footnote(char *cnum, unsigned long ind)
+rn_fmt_footnote(char *cnum, unsigned long index)
 {
   unsigned long len = 0;
   unsigned long pos = 0;
   char *str = cnum;
 
   pos = fmt_str(str, "["); len += pos; str += pos;
-  pos = fmt_ulong(str, ind); len += pos; str += pos;
+  pos = fmt_ulong(str, index); len += pos; str += pos;
   pos = fmt_str(str, "] "); len += pos; str += pos;
   return len;
 }
@@ -186,7 +186,7 @@ rn_footnotes(struct udoc *ud, struct udr_ctx *rc)
 {
   char cnum[FMT_ULONG + sizeof("  [] ")];
   unsigned long max = ud_oht_size(&ud->ud_footnotes);
-  unsigned long ind = 0;
+  unsigned long index = 0;
   unsigned long len = 0;
   struct ud_ref *u;
   struct dfo_put *dfo = &rc->uc_out->uoc_dfo;
@@ -202,9 +202,9 @@ rn_footnotes(struct udoc *ud, struct udr_ctx *rc)
   dfo_break_line(dfo);
 
   dfo_constrain(dfo, PAGE_WIDTH, dfo->page_indent + 2);
-  for (ind = 0; ind < max; ++ind) {
-    ud_assert(ud_oht_getind(&ud->ud_footnotes, ind, (void *) &u));
-    len = rn_fmt_footnote(cnum, ind);
+  for (index = 0; index < max; ++index) {
+    ud_assert(ud_oht_get_index(&ud->ud_footnotes, index, (void *) &u));
+    len = rn_fmt_footnote(cnum, index);
     cnum[len] = 0;
     dfo_put(dfo, cnum, len);
     dfo_break(dfo);
@@ -529,10 +529,10 @@ static enum ud_tree_walk_stat
 dispatch(const struct dispatch *tab, unsigned int tab_size,
          struct udoc *ud, struct udr_ctx *ctx, enum ud_tag tag)
 {
-  unsigned int ind;
-  for (ind = 0; ind < tab_size; ++ind)
-    if (tag == tab[ind].tag)
-      return tab[ind].func(ud, ctx);
+  unsigned int index;
+  for (index = 0; index < tab_size; ++index)
+    if (tag == tab[index].tag)
+      return tab[index].func(ud, ctx);
   return UD_TREE_OK;
 }
 

@@ -85,16 +85,16 @@ static const struct {
 static void usage(void) { printf("%s: [help] ops ...\n", progname); }
 static void help(void)
 {
-  unsigned int ind;
+  unsigned int index;
   usage();
   printf("possible operators:\n");
-  for (ind = 0; ind < sizeof(flags) / sizeof(flags[0]); ++ind)
-    printf("%s - %s\n", flags[ind].flag, flags[ind].desc);
+  for (index = 0; index < sizeof(flags) / sizeof(flags[0]); ++index)
+    printf("%s - %s\n", flags[index].flag, flags[index].desc);
   exit(0);
 }
 static void parse_flags(int argc, char *argv[])
 {
-  int ind;
+  int index;
   unsigned int jnd;
 
   --argc;
@@ -103,9 +103,9 @@ static void parse_flags(int argc, char *argv[])
   if (!argc) { usage(); exit(111); }
 
   flag = 0;
-  for (ind = 0; ind < argc; ++ind) {
+  for (index = 0; index < argc; ++index) {
     for (jnd = 0; jnd < sizeof(flags) / sizeof(flags[0]); ++jnd) {
-      if (str_diff(argv[ind], flags[jnd].flag) == 0) {
+      if (str_diff(argv[index], flags[jnd].flag) == 0) {
         flag |= flags[jnd].val;
         break;
       }
@@ -114,11 +114,11 @@ static void parse_flags(int argc, char *argv[])
 }
 static void call_flags(void)
 {
-  unsigned int ind;
-  for (ind = 0; ind < sizeof(flags) / sizeof(flags[0]); ++ind) {
-    if (flag & flags[ind].val)
-      if (flags[ind].func)
-        flags[ind].func();
+  unsigned int index;
+  for (index = 0; index < sizeof(flags) / sizeof(flags[0]); ++index) {
+    if (flag & flags[index].val)
+      if (flags[index].func)
+        flags[index].func();
   }
 }
 static void flag_version(void) { printf("%s ", ctxt_version); }

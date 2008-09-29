@@ -8,14 +8,14 @@ dfo_init(struct dfo_put *dp, struct buffer *buf,
   const struct dfo_trans *tr, unsigned int nt)
 {
   struct dfo_buffer db;
-  unsigned int ind;
+  unsigned int index;
 
   bin_zero(dp, sizeof(*dp));
 
   if (!dstring_init(&dp->buf_tmp, DFO_BLOCK_SIZE)) goto FAIL;
   if (!dstring_init(&dp->buf_input, DFO_BLOCK_SIZE)) goto FAIL;
   if (!array_init(&dp->col_bufs, 8, sizeof(struct dfo_buffer))) goto FAIL;
-  for (ind = 0; ind < 8; ++ind) {
+  for (index = 0; index < 8; ++index) {
     bin_zero(&db, sizeof(db));
     if (!dstring_init(&db.buf, DFO_BLOCK_SIZE)) goto FAIL;
     if (!array_cat(&dp->col_bufs, &db)) goto FAIL;

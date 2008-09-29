@@ -14,7 +14,7 @@ files(struct ud_ordered_ht *oht)
   unsigned long nfiles = 0;
 
   for (ind = 0; ind < max; ++ind) {
-    ud_oht_getind(oht, ind, (void *) &p);
+    ud_oht_get_index(oht, ind, (void *) &p);
     if (p->up_flags & UD_PART_SPLIT) ++nfiles;
   }
   return nfiles;
@@ -29,7 +29,7 @@ dump(struct udoc *doc)
 
   max = ud_oht_size(&doc->ud_parts);
   for (ind = 0; ind < max; ++ind) {
-    ud_oht_getind(&doc->ud_parts, ind, (void *) &p);
+    ud_oht_get_index(&doc->ud_parts, ind, (void *) &p);
     printf("part:%lu ", ind);
     printf("file:%lu ", p->up_file);
     printf("depth:%lu ", p->up_depth);

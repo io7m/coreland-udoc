@@ -34,12 +34,12 @@ usage(void)
 void
 die(const char *func)
 {
-  unsigned long ind;
+  unsigned long index;
   unsigned long max;
   struct ud_err *ue;
 
   max = ud_error_size(&main_doc.ud_errors);
-  for (ind = 0; ind < max; ++ind) {
+  for (index = 0; index < max; ++index) {
     if (ud_error_pop(&main_doc.ud_errors, &ue))
       ud_error_display(&main_doc, ue);
   }

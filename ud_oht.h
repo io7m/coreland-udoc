@@ -14,7 +14,7 @@ struct ud_ordered_ht {
 int ud_oht_init(struct ud_ordered_ht *, unsigned int);
 int ud_oht_add(struct ud_ordered_ht *, const void *, unsigned long, const void *);
 int ud_oht_get(const struct ud_ordered_ht *, const void *, unsigned long, void **, unsigned long *);
-int ud_oht_getind(const struct ud_ordered_ht *, unsigned long, void **);
+int ud_oht_get_index(const struct ud_ordered_ht *, unsigned long, void **);
 unsigned long ud_oht_size(const struct ud_ordered_ht *);
 void ud_oht_free(struct ud_ordered_ht *);
 

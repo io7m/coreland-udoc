@@ -170,11 +170,11 @@ static const struct {
 int
 dfo_wrap(struct dfo_put *dp, struct dfo_buffer *db, struct dstring *ds)
 {
-  unsigned int ind;
+  unsigned int index;
 
-  for (ind = 0; ind < sizeof(wrap_funcs) / sizeof(wrap_funcs[0]); ++ind) {
-    if (wrap_funcs[ind].val == dp->wrap_mode) {
-      if (!wrap_funcs[ind].func(dp, db, ds)) return 0;
+  for (index = 0; index < sizeof(wrap_funcs) / sizeof(wrap_funcs[0]); ++index) {
+    if (wrap_funcs[index].val == dp->wrap_mode) {
+      if (!wrap_funcs[index].func(dp, db, ds)) return 0;
       break;
     }
   }
