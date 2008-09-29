@@ -401,20 +401,20 @@ ud_partition(struct udoc *ud)
  */
 
 int
-ud_part_getfromnode(struct udoc *ud, const struct ud_node *n,
+ud_part_getfromnode(const struct udoc *ud, const struct ud_node *n,
   struct ud_part **ch, unsigned long *index)
 {
   return ud_oht_get(&ud->ud_parts, (void *) &n, sizeof(&n), (void *) ch, index);
 }
 
 int
-ud_part_getroot(struct udoc *ud, struct ud_part **ch)
+ud_part_getroot(const struct udoc *ud, struct ud_part **ch)
 {
   return ud_oht_get_index(&ud->ud_parts, 0, (void *) ch);
 }
 
 int
-ud_part_getcur(struct udoc *ud, struct ud_part **rcur)
+ud_part_getcur(const struct udoc *ud, struct ud_part **rcur)
 {
   struct ud_part *cur;
   unsigned long max = ud_oht_size(&ud->ud_parts);
@@ -425,7 +425,7 @@ ud_part_getcur(struct udoc *ud, struct ud_part **rcur)
 }
 
 int
-ud_part_getprev(struct udoc *ud, const struct ud_part *cur,
+ud_part_getprev(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
 {
   struct ud_part *cprev;
@@ -447,7 +447,7 @@ ud_part_getprev(struct udoc *ud, const struct ud_part *cur,
  */
 
 void
-ud_part_getfirst_wparent(struct udoc *ud, const struct ud_part *cur,
+ud_part_getfirst_wparent(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
 {
   struct ud_part *part_tmp = (struct ud_part *) cur;
@@ -468,7 +468,7 @@ ud_part_getfirst_wparent(struct udoc *ud, const struct ud_part *cur,
  */
 
 void
-ud_part_getfirst_wdepth_noskip(struct udoc *ud, const struct ud_part *cur,
+ud_part_getfirst_wdepth_noskip(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
 {
   struct ud_part *part_tmp = (struct ud_part *) cur;
@@ -490,7 +490,7 @@ ud_part_getfirst_wdepth_noskip(struct udoc *ud, const struct ud_part *cur,
  */
 
 int
-ud_part_getprev_up(struct udoc *ud, const struct ud_part *cur,
+ud_part_getprev_up(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
 {
   struct ud_part *cprev;
@@ -518,7 +518,7 @@ ud_part_add(struct udoc *ud, const struct ud_part *ch)
  */
 
 int
-ud_part_getnext_file(struct udoc *ud, const struct ud_part *cur,
+ud_part_getnext_file(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **next)
 {
   struct ud_part *cnext;
@@ -541,7 +541,7 @@ ud_part_getnext_file(struct udoc *ud, const struct ud_part *cur,
  */
 
 int
-ud_part_getprev_file(struct udoc *ud, const struct ud_part *cur,
+ud_part_getprev_file(const struct udoc *ud, const struct ud_part *cur,
   struct ud_part **prev)
 {
   struct ud_part *cprev;
@@ -561,7 +561,7 @@ ud_part_getprev_file(struct udoc *ud, const struct ud_part *cur,
 }
 
 static unsigned long
-ud_part_offset_wparent(struct udoc *ud,
+ud_part_offset_wparent(const struct udoc *ud,
   const struct ud_part *from, const struct ud_part *to)
 {
   unsigned long off = 0;
@@ -576,7 +576,7 @@ ud_part_offset_wparent(struct udoc *ud,
 }
 
 int
-ud_part_num_fmt(struct udoc *ud, const struct ud_part *part,
+ud_part_num_fmt(const struct udoc *ud, const struct ud_part *part,
   struct dstring *ds)
 {
   char cnum[FMT_ULONG];

@@ -24,17 +24,18 @@ struct ud_part {
 };
 
 int ud_part_init(struct ud_part *);
-int ud_part_getfromnode(struct udoc *, const struct ud_node *, struct ud_part **, unsigned long *);
-int ud_part_getroot(struct udoc *, struct ud_part **);
-int ud_part_getcur(struct udoc *, struct ud_part **);
-int ud_part_getprev(struct udoc *, const struct ud_part *, struct ud_part **);
-void ud_part_getfirst_wdepth_noskip(struct udoc *, const struct ud_part *, struct ud_part **);
-void ud_part_getfirst_wparent(struct udoc *, const struct ud_part *, struct ud_part **);
-int ud_part_getprev_up(struct udoc *, const struct ud_part *, struct ud_part **);
-int ud_part_getnext_file(struct udoc *, const struct ud_part *, struct ud_part **);
-int ud_part_getprev_file(struct udoc *, const struct ud_part *, struct ud_part **);
+int ud_part_getfromnode(const struct udoc *, const struct ud_node *, struct ud_part **, unsigned long *);
+int ud_part_getroot(const struct udoc *, struct ud_part **);
+int ud_part_getcur(const struct udoc *, struct ud_part **);
+int ud_part_getprev(const struct udoc *, const struct ud_part *, struct ud_part **);
+void ud_part_getfirst_wdepth_noskip(const struct udoc *, const struct ud_part *, struct ud_part **);
+void ud_part_getfirst_wparent(const struct udoc *, const struct ud_part *, struct ud_part **);
+int ud_part_getprev_up(const struct udoc *, const struct ud_part *, struct ud_part **);
+int ud_part_getnext_file(const struct udoc *, const struct ud_part *, struct ud_part **);
+int ud_part_getprev_file(const struct udoc *, const struct ud_part *, struct ud_part **);
+int ud_part_num_fmt(const struct udoc *, const struct ud_part *, struct dstring *);
+
 int ud_part_add(struct udoc *, const struct ud_part *);
-int ud_part_num_fmt(struct udoc *, const struct ud_part *, struct dstring *);
 
 void ud_part_dump(struct ud_part *);
 void ud_parts_dump(struct udoc *);
