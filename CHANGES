@@ -22,3 +22,8 @@
 20080625 code: update error handling. line numbers are still incorrect in some
                cases.
 20080625 version: udoc 0.12
+20080930 code: simplified stack usage and apparently fixed long standing
+               stack/part related bug resulting in incorrect xhtml navbars.
+20080930 code: fixed null pointer crash, encountered when processing included
+               documents and an external error such as a nonexistent output
+               directory.
