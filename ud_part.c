@@ -181,13 +181,13 @@ check_link (void *ku, unsigned long klen, void *du, unsigned long dlen, void *ud
   struct ud_err ue;
 
   /* attempt to fetch ref from table */
-  if (!ud_oht_get (&ud->ud_ref_names, key, str_len (key), (void *) &ref, &dummy)) {
+  if (!ud_oht_get (&ud->ud_ref_names, key, klen, (void *) &ref, &dummy)) {
     line = tree->utc_state->utc_node->un_line_num;
     cnum[fmt_ulong (cnum, line)] = 0;
 
     dstring_trunc (buf);
     dstring_cats (buf, "link points to undefined reference \"");
-    dstring_cats (buf, key);
+    dstring_catb (buf, key, klen);
     dstring_cats (buf, "\"");
     dstring_0 (buf);
 
