@@ -72,8 +72,8 @@ debug: ud_walk: string: "hello"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 2
 debug: ud_walk: list: end
-debug: r_list_end: popped part
 debug: x_tag_end_section: section close
+debug: r_list_end: popped part
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0

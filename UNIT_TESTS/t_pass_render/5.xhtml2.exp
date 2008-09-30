@@ -65,7 +65,6 @@ debug: ud_walk: processing 5.t depth 1
 debug: ud_walk: symbol: section
 debug: r_symbol: starting part split
 notice: create 1.html
-debug: r_symbol: pushed part
 debug: ud_render_node: rendering
 debug: r_init: file init
 debug: ud_walk: processing 5.t depth 0
@@ -79,15 +78,14 @@ debug: ud_walk: string: "hello"
 debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
-debug: r_list_end: popped part
 debug: x_tag_end_section: section close
+debug: r_list_end: popped part
 debug: ud_walk: success depth 0
 debug: r_finish: file finish
 debug: ud_render_node: rendering done
 debug: r_symbol: finished part split
 debug: ud_walk: list: stop_list
 debug: ud_walk: list: end
-debug: r_list_end: popped part
 debug: r_list_end: section closed by previous render
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
