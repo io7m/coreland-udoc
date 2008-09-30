@@ -36,7 +36,6 @@ struct udoc {
   struct hashtable ud_documents;
   struct hashtable ud_loopchecks;
   struct dstack ud_errors;
-  struct dstack ud_doc_stack;
   struct udoc_opts ud_opts;
   int ud_dirfd_pwd;
   int ud_dirfd_src;

@@ -13,7 +13,6 @@ ud_free (struct udoc *ud)
   ud_oht_free (&ud->ud_footnotes);
   ud_oht_free (&ud->ud_styles);
   dstack_free (&ud->ud_errors);
-  dstack_free (&ud->ud_doc_stack);
   token_free (&ud->ud_tok);
   dealloc_null ((void *) &ud->ud_name);
   ht_free (&ud->ud_loopchecks);
