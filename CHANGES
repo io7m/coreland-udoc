@@ -27,3 +27,4 @@
 20080930 code: fixed null pointer crash, encountered when processing included
                documents and an external error such as a nonexistent output
                directory.
+20081001 code: updated sysdeps.

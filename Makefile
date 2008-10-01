@@ -216,11 +216,11 @@ cc-slib:\
 conf-systype
 
 conf-cctype:\
-conf-cc conf-cc mk-cctype
+conf-cc mk-cctype
 	./mk-cctype > conf-cctype.tmp && mv conf-cctype.tmp conf-cctype
 
 conf-ldtype:\
-conf-ld conf-ld mk-ldtype
+conf-ld mk-ldtype
 	./mk-ldtype > conf-ldtype.tmp && mv conf-ldtype.tmp conf-ldtype
 
 conf-sosuffix:\
@@ -501,7 +501,7 @@ cc-compile ud_data.c ud_tag.h ud_tree.h
 	./cc-compile ud_data.c
 
 ud_error.o:\
-cc-compile ud_error.c log.h udoc.h ud_error.h
+cc-compile ud_error.c log.h udoc.h ud_assert.h ud_error.h
 	./cc-compile ud_error.c
 
 ud_free.o:\
@@ -525,7 +525,7 @@ cc-compile ud_open.c ud_tag.h udoc.h
 	./cc-compile ud_open.c
 
 ud_parse.o:\
-cc-compile ud_parse.c multi.h log.h ud_tag.h udoc.h
+cc-compile ud_parse.c multi.h log.h ud_assert.h ud_tag.h udoc.h
 	./cc-compile ud_parse.c
 
 ud_part.h:\
