@@ -362,21 +362,22 @@ struct dispatch {
 };
 
 static const struct dispatch tag_starts[] = {
-  { UDOC_TAG_PARA,          rp_tag_para },
-  { UDOC_TAG_PARA_VERBATIM, rp_tag_para_verbatim },
-  { UDOC_TAG_SECTION,       rp_tag_section },
-  { UDOC_TAG_SUBSECTION,    rp_tag_section },
-  { UDOC_TAG_REF,           rp_tag_ref },
-  { UDOC_TAG_LINK,          rp_tag_link },
-  { UDOC_TAG_LINK_EXT,      rp_tag_link_ext },
-  { UDOC_TAG_TABLE,         rp_tag_table },
-  { UDOC_TAG_CONTENTS,      rp_tag_contents },
-  { UDOC_TAG_FOOTNOTE,      rp_tag_footnote },
-  { UDOC_TAG_DATE,          rp_tag_date },
-  { UDOC_TAG_RENDER,        rp_tag_render },
-  { UDOC_TAG_TABLE,         rp_tag_table },
-  { UDOC_TAG_TABLE_ROW,     rp_tag_table_row },
-  { UDOC_TAG_LIST,          rp_tag_list },
+  { UDOC_TAG_PARA,            rp_tag_para },
+  { UDOC_TAG_PARA_VERBATIM,   rp_tag_para_verbatim },
+  { UDOC_TAG_SECTION,         rp_tag_section },
+  { UDOC_TAG_SUBSECTION,      rp_tag_section },
+  { UDOC_TAG_REF,             rp_tag_ref },
+  { UDOC_TAG_LINK,            rp_tag_link },
+  { UDOC_TAG_LINK_EXT,        rp_tag_link_ext },
+  { UDOC_TAG_TABLE,           rp_tag_table },
+  { UDOC_TAG_CONTENTS,        rp_tag_contents },
+  { UDOC_TAG_FOOTNOTE,        rp_tag_footnote },
+  { UDOC_TAG_DATE,            rp_tag_date },
+  { UDOC_TAG_RENDER,          rp_tag_render },
+  { UDOC_TAG_RENDER_NOESCAPE, rp_tag_render },
+  { UDOC_TAG_TABLE,           rp_tag_table },
+  { UDOC_TAG_TABLE_ROW,       rp_tag_table_row },
+  { UDOC_TAG_LIST,            rp_tag_list },
 };
 static const unsigned int tag_starts_size = sizeof (tag_starts)
                                           / sizeof (tag_starts[0]);
