@@ -11,7 +11,7 @@
 #include "multi.h"
 #include "udoc.h"
 
-const char *usage_s = "[-hnV] [-L lev] [-s threshold] [-r renderer] file";
+const char *usage_s = "[-hV] [-L lev] [-s threshold] [-r renderer] file";
 const char *help_s =
 "   -s: split threshold (default: 0 - no splitting)\n"
 "   -r: select output renderer (default: udoc, ? to list available backends)\n"
