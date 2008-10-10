@@ -24,6 +24,11 @@ renderer).
 
 ------------------------------------------------------------------------
 
+Plain text tables are broken (try one with five columns to see what
+two character wide columns look like).
+
+------------------------------------------------------------------------
+
 udoc-mkdep - list file dependencies for given document.
 
 ------------------------------------------------------------------------
