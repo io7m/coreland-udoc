@@ -2,9 +2,9 @@ UNIT_TESTS
 
 Strange spacing before URLs in plain output:
 
-  udoc is a package to process abstract documents written as  s-expressions 
-  (http://people.csail.mit.edu/rivest/Sexp.txt) and produce output in various 
-  formats. It is similar to  DocBook (http://www.docbook.org/) but only defines 
+  udoc is a package to process abstract documents written as  s-expressions
+  (http://people.csail.mit.edu/rivest/Sexp.txt) and produce output in various
+  formats. It is similar to  DocBook (http://www.docbook.org/) but only defines
   structural, not semantic, elements.
 
 Lack of spacing in ConTeXt output:
@@ -12,10 +12,6 @@ Lack of spacing in ConTeXt output:
   udoc is a package to process abstract documents written as s-expressionsand produce
   output in various formats. It is similar to DocBookbut only defines structural, not
   semantic, elements.
-
-------------------------------------------------------------------------
-
-Put anchor in headers above the title.
 
 ------------------------------------------------------------------------
 

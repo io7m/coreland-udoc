@@ -40,3 +40,17 @@ ud_ref_add_byname (struct ud_ordered_ht *tab, const char *key,
     default: return 1;
   }
 }
+
+/*
+ * Do not add if key already exists, but do not signal failure.
+ */
+
+int
+ud_ref_add_conditional (struct ud_ordered_ht *tab, const struct ud_ref *ref)
+{
+  switch (ud_oht_add (tab, &ref->ur_node, sizeof (&ref->ur_node), ref)) {
+    case -1:
+      log_1sysf (LOG_ERROR, "ud_oht_add"); return 0;
+    default: return 1;
+  }
+}

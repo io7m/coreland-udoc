@@ -284,7 +284,10 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *ctx)
       break;
     case UDOC_TAG_FOOTNOTE: tab = &ud->ud_footnotes; break;
     case UDOC_TAG_STYLE: tab = &ud->ud_styles; break;
-    case UDOC_TAG_LINK_EXT: tab = &ud->ud_link_exts; break;
+    case UDOC_TAG_LINK_EXT:
+      ud_try_sys (ud, ud_ref_add_conditional (&ud->ud_link_exts, &ref),
+        UD_TREE_FAIL, "ud_ref_add_conditional");
+      break;
     case UDOC_TAG_RENDER_HEADER:
       if (ud->ud_render_header) {
         ln[fmt_ulong (ln, ctx->utc_state->utc_node->un_line_num)] = 0;

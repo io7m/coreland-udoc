@@ -189,8 +189,8 @@ x_tag_section (struct udoc *ud, struct udr_ctx *r)
   ret = x_tag_generic (ud, r, "div", "ud_section", TAG_NEWLINE);
   if (ret == UD_TREE_OK)
     if (ud_part_getfromnode (ud, r->uc_tree_ctx->utc_state->utc_node, &part, &index)) {
-      buffer_puts5 (out, "<h3>", part->up_num_string, " ", part->up_title, "</h3>\n");
       buffer_puts3 (out, "<a name=\"sect_", part->up_num_string, "\"></a>\n");
+      buffer_puts5 (out, "<h3>", part->up_num_string, " ", part->up_title, "</h3>\n");
     }
 
   return ret;
