@@ -21,7 +21,7 @@ const char *help_s =
 
 struct udoc main_doc;
 struct udoc_opts main_opts;
-struct udr_opts r_opts;
+struct udr_opts r_opts = UDR_OPTS_INIT;
 
 static const struct ud_renderer *renderers[] = {
   &ud_render_xhtml,

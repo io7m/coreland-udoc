@@ -10,10 +10,13 @@
 #include "multi.h"
 #include "udoc.h"
 
-const char *usage_s = "[-hnV] [-L lev] [-s threshold] [-r renderer] file outdir";
+const char *progname = "udoc-render";
+const char *optstring = "hnL:Vr:s:w:";
+const char *usage_s = "[-hnV] [-L lev] [-s threshold] [-r renderer] [-w width] file outdir";
 const char *help_s =
 "   -s: split threshold (default: 0 - no splitting)\n"
 "   -r: select output renderer (default: udoc, ? to list available backends)\n"
+"   -w: page width in characters (default: 80)\n"
 "   -L: log level (max 6, min 0, default 5)\n"
 "   -n: no output (do not render document)\n"
 "   -V: version\n"
@@ -21,7 +24,7 @@ const char *help_s =
 
 struct udoc main_doc;
 struct udoc_opts main_opts;
-struct udr_opts r_opts;
+struct udr_opts r_opts = UDR_OPTS_INIT;
 
 static const struct ud_renderer *renderers[] = {
   &ud_render_xhtml,
@@ -65,8 +68,8 @@ int main (int argc, char *argv[])
   int ch;
   int no_render = 0;
 
-  log_progname ("udoc-render");
-  while ((ch = get_opt (argc, argv, "hnL:Vr:s:")) != opteof)
+  log_progname (progname);
+  while ((ch = get_opt (argc, argv, (char *) optstring)) != opteof)
     switch (ch) {
       case 's':
         if (!scan_ulong (optarg, &main_opts.ud_split_thresh))
@@ -97,6 +100,12 @@ int main (int argc, char *argv[])
           }
         }
         if (!r) log_die1x (LOG_FATAL, 111, "unknown renderer");
+        break;
+      case 'w':
+        if (!scan_ulong (optarg, &r_opts.uo_page_width))
+          log_die1x (LOG_FATAL, 111, "page width must be numeric");
+        if (!r_opts.uo_page_width)
+          log_die1x (LOG_FATAL, 112, "page width must be nonzero");
         break;
       case 'V':
         buffer_puts2 (buffer1, ctxt_version, "\n");

@@ -78,7 +78,7 @@ void dfo_wrap_mode (struct dfo_put *, unsigned int);
 void dfo_tran_enable (struct dfo_put *, unsigned int);
 void dfo_tran_disable (struct dfo_put *, unsigned int);
 
-int dfo_columns (struct dfo_put *, unsigned int, unsigned int);
+int dfo_columns_setup (struct dfo_put *, unsigned int, unsigned int);
 int dfo_columns_start (struct dfo_put *);
 int dfo_columns_end (struct dfo_put *);
 

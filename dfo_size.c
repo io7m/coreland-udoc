@@ -3,7 +3,7 @@
 
 unsigned int
 dfo_size_linemax_check (unsigned int page_max, unsigned int page_ind,
-                       unsigned int col_max, unsigned int col_space)
+  unsigned int col_max, unsigned int col_space)
 {
   unsigned int col_sp = (col_max > 1) ? (col_max * col_space) : 0;
   unsigned int col_avg = page_max / col_max;
@@ -32,7 +32,7 @@ unsigned int
 dfo_size_linemax (const struct dfo_put *dp)
 {
   return dfo_size_linemax_check (dp->page_max, dp->page_indent,
-                                dp->col_max, dp->col_space);
+    dp->col_max, dp->col_space);
 }
 
 unsigned int

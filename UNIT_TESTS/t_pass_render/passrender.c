@@ -15,7 +15,7 @@ static const struct ud_renderer *renderers[] = {
 
 struct udoc doc;
 struct udoc_opts main_opts;
-struct udr_opts r_opts;
+struct udr_opts r_opts = UDR_OPTS_INIT;
 
 int
 main(int argc, char *argv[])

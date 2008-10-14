@@ -23,10 +23,15 @@ struct udr_funcs {
   enum ud_tree_walk_stat (*urf_finish_once)(struct udoc *, struct udr_ctx *);
   void (*error)(struct udoc *, struct udr_ctx *);
 };
+
 struct udr_opts {
   unsigned long uo_split_hint;  /* original partition threshold, used as a hint to renderers */
-  unsigned int uo_page_width;   /* only relevant for character-based renderers */
+  unsigned long uo_page_width;  /* only relevant for character-based renderers */
 };
+
+/* default values for structure */
+#define UDR_OPTS_INIT {(0), (80)}
+
 struct udr_output_ctx {
   char uoc_cbuf[BUFFER_OUTSIZE];
   char uoc_fbuf[256];
@@ -34,6 +39,7 @@ struct udr_output_ctx {
   struct sstring uoc_file;
   struct dfo_put uoc_dfo;
 };
+
 struct udr_ctx {
   const struct ud_tree_ctx *uc_tree_ctx;
   const struct ud_renderer *uc_render;
@@ -47,6 +53,7 @@ struct udr_ctx {
   unsigned int uc_flag_split;
   unsigned int uc_finish_once_refcount;
 };
+
 struct ud_renderer {
   const struct udr_funcs ur_funcs;
   struct {

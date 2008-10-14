@@ -2,7 +2,7 @@
 #include "dfo.h"
 
 int
-dfo_columns (struct dfo_put *dp, unsigned int n, unsigned int col_space)
+dfo_columns_setup (struct dfo_put *dp, unsigned int n, unsigned int col_space)
 {
   struct dfo_buffer db;
   unsigned int num;

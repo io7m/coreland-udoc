@@ -15,17 +15,23 @@ Lack of spacing in ConTeXt output:
 
 ------------------------------------------------------------------------
 
+Plain text tables are broken (try one with five columns to see what
+two character wide columns look like).
+
+Problem is that most tables really can't fit in 80 characters.
+Measure space usage of table pre-rendering and pick optimal width
+ignoring maximum page width.
+
+Add configurable maximum table width option to force smaller tables.
+
+------------------------------------------------------------------------
+
 Headerless XHTML mode for website inclusion.
 
 ------------------------------------------------------------------------
 
 Proof of concept XML renderer (should be simple, based on XHTML
 renderer).
-
-------------------------------------------------------------------------
-
-Plain text tables are broken (try one with five columns to see what
-two character wide columns look like).
 
 ------------------------------------------------------------------------
 
