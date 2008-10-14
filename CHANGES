@@ -31,3 +31,4 @@
 20081014 code: put anchors above titles in section headers.
 20081014 code: fixed duplicate link-ext reference bug.
 20081014 code: removed static PAGE_WIDTH and added -w option to udoc-render.
+20081014 code: check for (and forbid) zero length strings.

@@ -52,6 +52,16 @@ symbol_check (struct udoc *ud, const char *s)
   return 1;
 }
 
+static int
+string_check (struct udoc *ud, const char *s)
+{
+  if (!str_len (s)) {
+    syntax (ud, "zero length string not permitted");
+    return 0;
+  }
+  return 1;
+}
+
 static void 
 ud_tree_reduce (struct udoc *ud, struct ud_node_list *list)
 {
@@ -75,6 +85,9 @@ ud_tree_include (struct udoc *ud, char *file, struct ud_node_list *list)
   struct ud_node cur = {0, {0}, 0, 0};
 
   bin_zero (&ud_new, sizeof (ud_new));
+
+  if (!string_check (ud, file)) goto FAIL;
+
   if (list->unl_size) {
     syntax (ud, "the include symbol can only appear at the start of a list");
     goto FAIL;
@@ -157,6 +170,8 @@ ud_tree_string (struct udoc *ud, const char *str, struct ud_node_list *list)
 {
   struct ud_node cur = {0, {0}, 0, 0};
 
+  if (!string_check (ud, str)) goto FAIL;
+
   if (!list->unl_size) {
     log_1xf (LOG_DEBUG, "inserting implicit para");
     cur.un_type = UDOC_TYPE_SYMBOL;
@@ -167,6 +182,7 @@ ud_tree_string (struct udoc *ud, const char *str, struct ud_node_list *list)
   }
   cur.un_type = UDOC_TYPE_STRING;
   cur.un_line_num = ud->ud_tok.line;
+
   ud_try_sys_jump (ud, str_dup (str, &cur.un_data.un_str), FAIL, "str_dup");
   ud_try_sys_jump (ud, ud_list_cat (list, &cur), FAIL, "ud_list_cat");
   ++ud->ud_nodes;

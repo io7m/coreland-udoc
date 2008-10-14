@@ -1,0 +1,13 @@
+[0] pass: main: 26: argc == 2
+[1] pass: main: 27: ud_init(&doc) == 1
+[2] pass: main: 28: ud_open(&doc, argv[1]) == 1
+debug: ud_tree_build: processing null_include1.t depth 0
+debug: ud_tree_build: paren open
+debug: ud_tree_build: processing null_include1.t depth 1
+debug: ud_tree_build: symbol: include
+debug: ud_tree_build: fail depth 1: parse error
+debug: ud_tree_build: fail depth 0: parse error
+[3] pass: main: 29: ud_parse(&doc) == 0
+error: null_include1.t: ud_tree_symbol: ud_tree_include failed
+error: null_include1.t: syntax: 0: zero length string not permitted
+[4] pass: main: 33: ud_free(&doc) == 1
