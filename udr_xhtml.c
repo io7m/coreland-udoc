@@ -588,6 +588,8 @@ x_footnotes (struct udoc *ud, struct udr_ctx *render_ctx)
     buffer_puts (out, "<table class=\"ud_footnote_tab\">\n");
     for (index = 0; index < max; ++index) {
       ud_assert (ud_oht_get_index (&ud->ud_footnotes, index, (void *) &note));
+
+      /* render if footnote belongs to this file */
       if (note->ur_part->up_file == render_ctx->uc_part->up_file) {
         buffer_puts (out, "<tr>\n");
         cnum[fmt_ulong (cnum, index)] = 0;
@@ -595,10 +597,13 @@ x_footnotes (struct udoc *ud, struct udr_ctx *render_ctx)
         buffer_puts7 (out, "[<a name=\"fn_", cnum, "\" href=\"#fnr_", cnum, "\">", cnum, "</a>]");
         buffer_puts (out, "</td>\n");
         buffer_puts (out, "<td>\n");
+
+        /* render footnote content */
         rtmp.uc_tree_ctx = 0;
         rtmp.uc_flag_finish_file = 0;
         if (!ud_render_node (ud, &rtmp,
           &note->ur_list->unl_head->un_next->un_data.un_list)) return 0;
+
         buffer_puts (out, "</td>\n");
         buffer_puts (out, "</tr>\n");
       }
