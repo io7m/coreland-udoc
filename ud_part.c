@@ -18,14 +18,25 @@
 #include "ud_ref.h"
 #include "udoc.h"
 
-struct part_ctx {
+struct part_context {
   struct dstring dstr;
   struct ud_part_index_stack index_stack; /* stack of integer indices to ud_parts */
-  struct hashtable links; /* table of links for reference checking */
+  struct hashtable links;                 /* table of links for reference checking */
 };
 
+struct part_userdata {
+  struct part_context part_context;
+  unsigned long flags;
+};
+
+static int
+want_link_check (const struct part_userdata *pd)
+{
+  return !(pd->flags & UDOC_PART_NO_LINK_CHECK);
+}
+
 static void
-part_ctx_free (struct udoc *ud, struct part_ctx *p)
+part_context_free (struct udoc *ud, struct part_context *p)
 {
   dstring_free (&p->dstr);
   ud_part_index_stack_free (&p->index_stack);
@@ -33,7 +44,7 @@ part_ctx_free (struct udoc *ud, struct part_ctx *p)
 }
 
 static int
-part_ctx_init (struct udoc *ud, struct part_ctx *p)
+part_context_init (struct udoc *ud, struct part_context *p)
 {
   bin_zero (p, sizeof (*p));
   ud_try_sys_jump (ud, dstring_init (&p->dstr, 256), FAIL, "dstring_init"); 
@@ -42,12 +53,12 @@ part_ctx_init (struct udoc *ud, struct part_ctx *p)
   return 1;
 
   FAIL:
-  part_ctx_free (ud, p);
+  part_context_free (ud, p);
   return 0;
 }
 
 static int
-part_add (struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
+part_add (struct udoc *ud, struct part_context *pctx, unsigned long flags,
   const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
@@ -84,7 +95,8 @@ part_add (struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
 
   /* work out string for use in table of contents, etc */
   ud_try_sys_jump (ud, ud_part_num_fmt (ud, pp_new, &pctx->dstr), FAIL, "num_fmt");
-  ud_try_sys_jump (ud, str_dup (pctx->dstr.s, (char **) &pp_new->up_num_string), FAIL, "str_dup");
+  ud_try_sys_jump (ud, str_dup (pctx->dstr.s, (char **) &pp_new->up_num_string),
+    FAIL, "str_dup");
   flag_strdup = 1;
  
   /* push part onto stack */
@@ -107,7 +119,7 @@ part_add (struct udoc *ud, struct part_ctx *pctx, unsigned long flags,
 }
 
 static int
-part_section (struct udoc *ud, struct part_ctx *pctx,
+part_section (struct udoc *ud, struct part_context *pctx,
   const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
@@ -127,7 +139,7 @@ part_section (struct udoc *ud, struct part_ctx *pctx,
 }
 
 static int
-part_subsection (struct udoc *ud, struct part_ctx *pctx,
+part_subsection (struct udoc *ud, struct part_context *pctx,
   const struct ud_node_list *list, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
@@ -141,7 +153,7 @@ part_subsection (struct udoc *ud, struct part_ctx *pctx,
 }
 
 static int
-part_title (struct udoc *ud, struct part_ctx *pctx,
+part_title (struct udoc *ud, struct part_context *pctx,
   struct ud_part *part, const struct ud_node *node)
 {
   char cnum[FMT_ULONG];
@@ -162,12 +174,13 @@ part_title (struct udoc *ud, struct part_ctx *pctx,
 struct link_ctx {
   struct udoc *udoc;
   const struct ud_tree_ctx *tree_ctx;
-  struct part_ctx *part_ctx;
+  struct part_context *part_context;
   int ok;
 };
 
 static int
-check_link (void *ku, unsigned long klen, void *du, unsigned long dlen, void *udata)
+check_link (void *ku, unsigned long klen, void *du,
+  unsigned long dlen, void *udata)
 {
   char cnum[FMT_ULONG];
   const char *key = ku;
@@ -175,7 +188,7 @@ check_link (void *ku, unsigned long klen, void *du, unsigned long dlen, void *ud
   struct udoc *ud = link_ctx->udoc;
   const struct ud_tree_ctx *tree = link_ctx->tree_ctx;
   struct ud_ref *ref;
-  struct dstring *buf = &link_ctx->part_ctx->dstr;
+  struct dstring *buf = &link_ctx->part_context->dstr;
   unsigned long dummy;
   unsigned long line;
   struct ud_err ue;
@@ -199,10 +212,10 @@ check_link (void *ku, unsigned long klen, void *du, unsigned long dlen, void *ud
 }
 
 static int
-check_links (struct udoc *ud, const struct ud_tree_ctx *ctx,
-  struct part_ctx *pctx)
+check_links (struct udoc *ud, const struct ud_tree_ctx *tree_ctx,
+  struct part_context *pctx)
 {
-  struct link_ctx chk = { ud, ctx, pctx, 1 };
+  struct link_ctx chk = { ud, tree_ctx, pctx, 1 };
   ht_iter (&pctx->links, check_link, &chk);
   return chk.ok;
 }
@@ -212,12 +225,14 @@ check_links (struct udoc *ud, const struct ud_tree_ctx *ctx,
  */
 
 static enum ud_tree_walk_stat
-cb_part_init (struct udoc *ud, struct ud_tree_ctx *ctx)
+cb_part_init (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
+  struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
+  struct part_context *pctx = &pdata->part_context;
 
   log_1xf (LOG_DEBUG, "adding root part");
-  ud_try_jump (ud, part_ctx_init (ud, pctx), FAIL, "part_context_init");
+  ud_try_jump (ud, part_context_init (ud, pctx),
+    FAIL, "part_context_init");
 
   /* add root part - note that the root part is always 'split' */
   ud_try_jump (ud, part_add (ud, pctx, UD_PART_SPLIT, &ud->ud_tree.ut_root,
@@ -229,24 +244,28 @@ cb_part_init (struct udoc *ud, struct ud_tree_ctx *ctx)
 }
 
 static enum ud_tree_walk_stat
-cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *ctx)
+cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   char ln[FMT_ULONG];
-  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
+  struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
+  struct part_context *pctx = &pdata->part_context;
   struct ud_part *part = 0;
   struct ud_ordered_ht *tab = 0;
   unsigned long *index;
   enum ud_tag tag;
   struct ud_ref ref;
 
-  if (ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
-  if (!ud_tag_by_name (ctx->utc_state->utc_node->un_data.un_sym, &tag)) return UD_TREE_OK;
+  if (tree_ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
+  if (!ud_tag_by_name (tree_ctx->utc_state->utc_node->un_data.un_sym, &tag))
+    return UD_TREE_OK;
   
   switch (tag) {
     case UDOC_TAG_SUBSECTION:
-      return part_subsection (ud, pctx, ctx->utc_state->utc_list, ctx->utc_state->utc_node);
+      return part_subsection (ud, pctx, tree_ctx->utc_state->utc_list,
+        tree_ctx->utc_state->utc_node);
     case UDOC_TAG_SECTION:
-      return part_section (ud, pctx, ctx->utc_state->utc_list, ctx->utc_state->utc_node);
+      return part_section (ud, pctx, tree_ctx->utc_state->utc_list,
+        tree_ctx->utc_state->utc_node);
     case UDOC_TAG_TITLE:
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
@@ -257,10 +276,15 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *ctx)
     case UDOC_TAG_LINK:
       {
         /* add link target to table for integrity checking */
-        const char *link_target = ctx->utc_state->utc_node->un_next->un_data.un_str;
+        const char *link_target = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
         const unsigned long len = str_len (link_target);
         const unsigned long dummy = 1;
-        if (!ht_checks (&pctx->links, link_target))
+        int check_ok = 1;
+
+        if (want_link_check (pdata))
+          check_ok = !ht_checks (&pctx->links, link_target);
+
+        if (check_ok) 
           ud_try_sys (ud,
             ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy) == 1),
               UD_TREE_FAIL, "link_table_add");
@@ -270,12 +294,13 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *ctx)
       break;
   }
 
-  ref.ur_list = ctx->utc_state->utc_list;
-  ref.ur_node = ctx->utc_state->utc_node;
+  ref.ur_list = tree_ctx->utc_state->utc_list;
+  ref.ur_node = tree_ctx->utc_state->utc_node;
   ref.ur_part = part;
  
   switch (tag) {
-    case UDOC_TAG_TITLE: return part_title (ud, pctx, part, ctx->utc_state->utc_node);
+    case UDOC_TAG_TITLE:
+      return part_title (ud, pctx, part, tree_ctx->utc_state->utc_node);
     case UDOC_TAG_REF:
       ud_tryS (ud, ud_ref_add_byname (&ud->ud_ref_names,
               ref.ur_node->un_next->un_data.un_str, &ref), UD_TREE_FAIL,
@@ -290,39 +315,41 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *ctx)
       break;
     case UDOC_TAG_RENDER_HEADER:
       if (ud->ud_render_header) {
-        ln[fmt_ulong (ln, ctx->utc_state->utc_node->un_line_num)] = 0;
+        ln[fmt_ulong (ln, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
         log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
           ": render-header overrides previous tag");
       }
-      ud->ud_render_header = ctx->utc_state->utc_node->un_next->un_data.un_str;
+      ud->ud_render_header = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
       if (ud->ud_render_footer) {
-        ln[fmt_ulong (ln, ctx->utc_state->utc_node->un_line_num)] = 0;
+        ln[fmt_ulong (ln, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
         log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
           ": render-footer overrides previous tag");
       }
-      ud->ud_render_footer = ctx->utc_state->utc_node->un_next->un_data.un_str;
+      ud->ud_render_footer = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     default: break;
   }
 
   if (tab)
-    ud_tryS (ud, ud_ref_add (tab, &ref), UD_TREE_FAIL, "ud_ref_add", "could not add reference");
+    ud_tryS (ud, ud_ref_add (tab, &ref), UD_TREE_FAIL, "ud_ref_add",
+      "could not add reference");
 
   return UD_TREE_OK;
 }
 
 static enum ud_tree_walk_stat
-cb_part_list_end (struct udoc *ud, struct ud_tree_ctx *ctx)
+cb_part_list_end (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   char cnum[FMT_ULONG];
-  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
+  struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
+  struct part_context *pctx = &pdata->part_context;
   struct ud_node *first_sym;
   enum ud_tag tag;
   unsigned long *index;
 
-  first_sym = ctx->utc_state->utc_list->unl_head;
+  first_sym = tree_ctx->utc_state->utc_list->unl_head;
   if (!ud_tag_by_name (first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
   switch (tag) {
     case UDOC_TAG_SUBSECTION:
@@ -337,19 +364,21 @@ cb_part_list_end (struct udoc *ud, struct ud_tree_ctx *ctx)
 }
 
 static enum ud_tree_walk_stat
-cb_part_finish (struct udoc *ud, struct ud_tree_ctx *ctx)
+cb_part_finish (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   char cnum1[FMT_ULONG];
   char cnum2[FMT_ULONG];
+  const unsigned long max = ud_oht_size (&ud->ud_parts);
   unsigned long index;
-  unsigned long max = ud_oht_size (&ud->ud_parts);
   unsigned long files = 0;
   struct ud_part *part;
-  struct part_ctx *pctx = ctx->utc_state->utc_user_data;
+  struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
+  struct part_context *pctx = &pdata->part_context;
   enum ud_tree_walk_stat ret = UD_TREE_FAIL;
 
   /* check link integrity */
-  if (!check_links (ud, ctx, pctx)) goto END;
+  if (want_link_check (pdata))
+    if (!check_links (ud, tree_ctx, pctx)) goto END;
 
   /* count files */
   for (index = 0; index < max; ++index)
@@ -363,7 +392,7 @@ cb_part_finish (struct udoc *ud, struct ud_tree_ctx *ctx)
   ret = UD_TREE_OK;
   END:
   ud_assert (ud_part_index_stack_size (&pctx->index_stack) == 1);
-  part_ctx_free (ud, pctx);
+  part_context_free (ud, pctx);
   return ret;
 }
 
@@ -375,22 +404,24 @@ static const struct ud_tree_ctx_funcs part_funcs = {
 };
 
 int
-ud_partition (struct udoc *ud)
+ud_partition (struct udoc *ud, unsigned long flags)
 {
-  struct ud_tree_ctx ctx;
+  struct ud_tree_ctx tree_ctx;
   struct ud_tree_ctx_state state;
-  struct part_ctx pctx;
+  struct part_userdata pdata;
 
-  bin_zero (&ctx, sizeof (ctx));
+  bin_zero (&tree_ctx, sizeof (tree_ctx));
   bin_zero (&state, sizeof (state));
 
+  pdata.flags = flags;
+
   state.utc_list = &ud->ud_tree.ut_root;
-  state.utc_user_data = &pctx;
+  state.utc_user_data = &pdata;
 
-  ctx.utc_funcs = &part_funcs;
-  ctx.utc_state = &state;
+  tree_ctx.utc_funcs = &part_funcs;
+  tree_ctx.utc_state = &state;
 
-  switch (ud_tree_walk (ud, &ctx)) {
+  switch (ud_tree_walk (ud, &tree_ctx)) {
     case UD_TREE_STOP:
     case UD_TREE_OK:
       return 1;

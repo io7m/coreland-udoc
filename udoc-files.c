@@ -148,7 +148,7 @@ int main (int argc, char *argv[])
   log_1xf (LOG_DEBUG, "validating");
   if (!ud_validate (&main_doc)) die ("validation");
   log_1xf (LOG_DEBUG, "partitioning");
-  if (!ud_partition (&main_doc)) die ("partitioning");
+  if (!ud_partition (&main_doc, 0)) die ("partitioning");
 
   files (&main_doc, r);
 

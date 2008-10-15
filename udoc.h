@@ -43,12 +43,17 @@ struct udoc {
   struct taia ud_time_start;
 };
 
+enum {
+  UDOC_PART_NONE          = 0x00000000,
+  UDOC_PART_NO_LINK_CHECK = 0x00000001,
+};
+
 int ud_new (struct udoc **);
 int ud_init (struct udoc *);
 int ud_open (struct udoc *, const char *);
 int ud_parse (struct udoc *);
 int ud_validate (struct udoc *);
-int ud_partition (struct udoc *);
+int ud_partition (struct udoc *, unsigned long flags);
 int ud_get (const struct udoc *, const char *, struct udoc **);
 int ud_close (struct udoc *);
 int ud_free (struct udoc *);

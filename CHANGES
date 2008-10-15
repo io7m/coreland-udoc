@@ -32,3 +32,4 @@
 20081014 code: fixed duplicate link-ext reference bug.
 20081014 code: removed static PAGE_WIDTH and added -w option to udoc-render.
 20081014 code: check for (and forbid) zero length strings.
+20081015 code: add -l flag for suppressing link checking to udoc-valid.

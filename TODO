@@ -15,6 +15,15 @@ Lack of spacing in ConTeXt output:
 
 ------------------------------------------------------------------------
 
+Latest updates to udoc-doc have apparently triggered a NEW BUG.
+
+Footnotes for e-footnote.ud are being rendered on the very first
+page of the output text.
+
+Who knows why?
+
+------------------------------------------------------------------------
+
 Plain text tables are broken (try one with five columns to see what
 two character wide columns look like).
 

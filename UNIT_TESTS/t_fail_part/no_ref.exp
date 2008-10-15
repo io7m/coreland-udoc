@@ -1,6 +1,6 @@
-[0] pass: main: 26: argc == 2
-[1] pass: main: 27: ud_init(&doc) == 1
-[2] pass: main: 28: ud_open(&doc, argv[1]) == 1
+[0] pass: main: 24: argc == 2
+[1] pass: main: 25: ud_init (&doc) == 1
+[2] pass: main: 26: ud_open (&doc, argv[1]) == 1
 debug: ud_tree_build: processing no_ref.t depth 0
 debug: ud_tree_build: paren open
 debug: ud_tree_build: processing no_ref.t depth 1
@@ -10,7 +10,7 @@ debug: ud_tree_build: paren close
 debug: ud_tree_build: success depth 1
 debug: ud_tree_build: eof
 debug: ud_tree_build: success depth 0
-[3] pass: main: 29: ud_parse(&doc) == 1
+[3] pass: main: 27: ud_parse (&doc) == 1
 debug: ud_walk: processing no_ref.t depth 0
 debug: ud_walk: list
 debug: ud_walk: processing no_ref.t depth 1
@@ -20,7 +20,7 @@ debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0
-[4] pass: main: 30: ud_validate(&doc) == 1
+[4] pass: main: 28: ud_validate (&doc) == 1
 debug: cb_part_init: adding root part
 debug: part_add: part 0
 debug: part_add: part split 0
@@ -33,6 +33,6 @@ debug: ud_walk: list: end
 debug: ud_walk: success depth 1
 debug: ud_walk: list: end
 debug: ud_walk: success depth 0
-[5] pass: main: 31: ud_partition(&doc) == 0
+[5] pass: main: 29: ud_partition (&doc, 0) == 0
 error: no_ref.t: link: 0: link points to undefined reference "doesnotexist"
-[6] pass: main: 35: ud_free(&doc) == 1
+[6] pass: main: 33: ud_free (&doc) == 1
