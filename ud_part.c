@@ -279,15 +279,13 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
         const char *link_target = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
         const unsigned long len = str_len (link_target);
         const unsigned long dummy = 1;
-        int check_ok = 1;
 
-        if (want_link_check (pdata))
-          check_ok = !ht_checks (&pctx->links, link_target);
-
-        if (check_ok) 
-          ud_try_sys (ud,
-            ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy) == 1),
-              UD_TREE_FAIL, "link_table_add");
+        if (want_link_check (pdata)) {
+          if (ht_checks (&pctx->links, link_target) == 0)
+            ud_try_sys (ud,
+              ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy) == 1),
+                UD_TREE_FAIL, "link_table_add");
+        }
       }
       break;
     default:
