@@ -48,12 +48,14 @@ rp_tag_contents (struct udoc *ud, struct udr_ctx *render_ctx)
     if (part_cur->up_depth <= part_first->up_depth)
       if (part_cur != part_first) break;
 
+    /* increase indent */
     dfo_constrain (dfo, page_width,
       dfo->page_indent + ((part_cur->up_depth - part_first->up_depth) * 2));
 
     dfo_puts3 (dfo, part_cur->up_num_string, " ", part_cur->up_title);
     dfo_break_line (dfo);
 
+    /* decrease indent */
     dfo_constrain (dfo, page_width,
       dfo->page_indent - ((part_cur->up_depth - part_first->up_depth) * 2));
 
