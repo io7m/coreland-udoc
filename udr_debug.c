@@ -116,6 +116,8 @@ rd_init_once (struct udoc *ud, struct udr_ctx *render_ctx)
   rd_init_done = 1;
 
   log_1xf (LOG_DEBUG, 0);
+
+  rd_dump_footnotes (ud, &render_ctx->uc_out->uoc_buffer);
   return UD_TREE_OK;
 }
 
