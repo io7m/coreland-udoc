@@ -3,6 +3,8 @@
 
 #define UDOC_IMPLEMENTATION
 #include "ud_assert.h"
+#include "ud_oht.h"
+#include "ud_ref.h"
 #include "udoc.h"
 
 #include "log.h"
@@ -12,6 +14,32 @@
 
 static int rd_init_done;
 static int rd_fini_done;
+
+static void
+rd_dump_footnotes (const struct udoc *doc, struct buffer *out)
+{
+  char cnum[FMT_ULONG];
+  const unsigned long max = ud_oht_size (&doc->ud_footnotes);
+  const struct ud_ref *ref;
+  unsigned long index;
+
+  buffer_puts (out, "-- footnotes\n");
+  for (index = 0; index < max; ++index) {
+    ud_oht_get_index (&doc->ud_footnotes, index, (void *) &ref);
+
+    buffer_put (out, cnum, fmt_ulong (cnum, index));
+    buffer_puts (out, " ");
+
+    buffer_puts (out, "file:");
+    buffer_put (out, cnum, fmt_ulong (cnum, ref->ur_part->up_file));
+    buffer_puts (out, " ");
+
+    buffer_puts (out, "title:\"");
+    buffer_puts (out, (ref->ur_part->up_title) ? ref->ur_part->up_title : "(null)");
+    buffer_puts (out, "\"\n");
+  }
+  buffer_flush (out);
+}
 
 static void
 rd_dump_part (struct buffer *out, const struct ud_part *part)
@@ -155,6 +183,7 @@ rd_file_finish (struct udoc *ud, struct udr_ctx *render_ctx)
 
   buffer_puts (out, "-- file_finish\n");
   rd_debug (ud, render_ctx);
+  rd_dump_footnotes (ud, out);
 
   buffer_puts (out, "-- eof\n");
   return UD_TREE_OK;

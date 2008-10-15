@@ -30,7 +30,7 @@ struct part_userdata {
 };
 
 static int
-want_link_check (const struct part_userdata *pd)
+part_want_link_check (const struct part_userdata *pd)
 {
   return !(pd->flags & UDOC_PART_NO_LINK_CHECK);
 }
@@ -179,7 +179,7 @@ struct link_ctx {
 };
 
 static int
-check_link (void *ku, unsigned long klen, void *du,
+part_check_link (void *ku, unsigned long klen, void *du,
   unsigned long dlen, void *udata)
 {
   char cnum[FMT_ULONG];
@@ -212,12 +212,44 @@ check_link (void *ku, unsigned long klen, void *du,
 }
 
 static int
-check_links (struct udoc *ud, const struct ud_tree_ctx *tree_ctx,
+part_check_links (struct udoc *ud, const struct ud_tree_ctx *tree_ctx,
   struct part_context *pctx)
 {
   struct link_ctx chk = { ud, tree_ctx, pctx, 1 };
-  ht_iter (&pctx->links, check_link, &chk);
+  ht_iter (&pctx->links, part_check_link, &chk);
   return chk.ok;
+}
+
+/*
+ * reference adding
+ */
+
+static int
+part_ref_add_footnote (struct udoc *ud, const struct ud_ref *ref)
+{
+  return (ud_ref_add (&ud->ud_footnotes, ref) == 1);
+}
+
+static int
+part_ref_add_style (struct udoc *ud, const struct ud_ref *ref)
+{
+  return (ud_ref_add (&ud->ud_styles, ref) == 1);
+}
+
+static int
+part_ref_add_link_ext (struct udoc *ud, const struct ud_ref *ref)
+{
+  return (ud_ref_add_conditional (&ud->ud_link_exts, ref) == 1);
+}
+
+static int
+part_ref_add_ref (struct udoc *ud, const struct ud_ref *ref)
+{
+  const char *ref_name = ref->ur_node->un_next->un_data.un_str;
+
+  ud_tryS (ud, ud_ref_add_byname (&ud->ud_ref_names, ref_name, ref), 0,
+    "ud_ref_add_byname", "could not add reference");
+  return (ud_ref_add (&ud->ud_refs, ref) == 1);
 }
 
 /*
@@ -246,11 +278,10 @@ cb_part_init (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 static enum ud_tree_walk_stat
 cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
-  char ln[FMT_ULONG];
+  char line_num[FMT_ULONG];
   struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
   struct part_context *pctx = &pdata->part_context;
   struct ud_part *part = 0;
-  struct ud_ordered_ht *tab = 0;
   unsigned long *index;
   enum ud_tag tag;
   struct ud_ref ref;
@@ -280,7 +311,7 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
         const unsigned long len = str_len (link_target);
         const unsigned long dummy = 1;
 
-        if (want_link_check (pdata)) {
+        if (part_want_link_check (pdata)) {
           if (ht_checks (&pctx->links, link_target) == 0)
             ud_try_sys (ud,
               ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy) == 1),
@@ -296,44 +327,44 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   ref.ur_node = tree_ctx->utc_state->utc_node;
   ref.ur_part = part;
  
+  /* add references */
   switch (tag) {
     case UDOC_TAG_TITLE:
       return part_title (ud, pctx, part, tree_ctx->utc_state->utc_node);
     case UDOC_TAG_REF:
-      ud_tryS (ud, ud_ref_add_byname (&ud->ud_ref_names,
-              ref.ur_node->un_next->un_data.un_str, &ref), UD_TREE_FAIL,
-              "ud_ref_add_byname", "could not add reference");
-      tab = &ud->ud_refs;
+      ud_try_sys (ud, part_ref_add_ref (ud, &ref),
+        UD_TREE_FAIL, "part_ref_add_ref");
       break;
-    case UDOC_TAG_FOOTNOTE: tab = &ud->ud_footnotes; break;
-    case UDOC_TAG_STYLE: tab = &ud->ud_styles; break;
+    case UDOC_TAG_FOOTNOTE:
+      ud_try_sys (ud, part_ref_add_footnote (ud, &ref),
+        UD_TREE_FAIL, "part_ref_add_footnote");
+      break;
+    case UDOC_TAG_STYLE:
+      ud_try_sys (ud, part_ref_add_style (ud, &ref),
+        UD_TREE_FAIL, "part_ref_add_style");
+      break;
     case UDOC_TAG_LINK_EXT:
-      ud_try_sys (ud, ud_ref_add_conditional (&ud->ud_link_exts, &ref),
-        UD_TREE_FAIL, "ud_ref_add_conditional");
+      ud_try_sys (ud, part_ref_add_link_ext (ud, &ref),
+        UD_TREE_FAIL, "part_ref_add_link_ext");
       break;
     case UDOC_TAG_RENDER_HEADER:
       if (ud->ud_render_header) {
-        ln[fmt_ulong (ln, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
-        log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
+        line_num[fmt_ulong (line_num, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
+        log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", line_num,
           ": render-header overrides previous tag");
       }
       ud->ud_render_header = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
       if (ud->ud_render_footer) {
-        ln[fmt_ulong (ln, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
-        log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", ln,
+        line_num[fmt_ulong (line_num, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
+        log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", line_num,
           ": render-footer overrides previous tag");
       }
       ud->ud_render_footer = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
       break;
     default: break;
   }
-
-  if (tab)
-    ud_tryS (ud, ud_ref_add (tab, &ref), UD_TREE_FAIL, "ud_ref_add",
-      "could not add reference");
-
   return UD_TREE_OK;
 }
 
@@ -375,8 +406,8 @@ cb_part_finish (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   enum ud_tree_walk_stat ret = UD_TREE_FAIL;
 
   /* check link integrity */
-  if (want_link_check (pdata))
-    if (!check_links (ud, tree_ctx, pctx)) goto END;
+  if (part_want_link_check (pdata))
+    if (!part_check_links (ud, tree_ctx, pctx)) goto END;
 
   /* count files */
   for (index = 0; index < max; ++index)

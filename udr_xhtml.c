@@ -569,22 +569,21 @@ static int
 x_footnotes (struct udoc *ud, struct udr_ctx *render_ctx)
 {
   char cnum[FMT_ULONG];
+  const unsigned long max = ud_oht_size (&ud->ud_footnotes);
   unsigned long index;
-  unsigned long max;
-  unsigned long nfp = 0;
+  unsigned long num_notes = 0;
   struct ud_ref *note;
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
   struct udr_ctx rtmp = *render_ctx;
 
   /* count footnotes for this file */
-  max = ud_oht_size (&ud->ud_footnotes);
   for (index = 0; index < max; ++index) {
     ud_assert (ud_oht_get_index (&ud->ud_footnotes, index, (void *) &note));
-    if (note->ur_part->up_file == render_ctx->uc_part->up_file) ++nfp;
+    if (note->ur_part->up_file == render_ctx->uc_part->up_file) ++num_notes;
   }
 
   /* print footnotes, if any */
-  if (nfp) {
+  if (num_notes) {
     buffer_puts (out, "\n<div class=\"ud_footnotes\">\n");
     buffer_puts (out, "<table class=\"ud_footnote_tab\">\n");
     for (index = 0; index < max; ++index) {
