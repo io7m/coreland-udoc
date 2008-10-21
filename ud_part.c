@@ -281,22 +281,21 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   char line_num[FMT_ULONG];
   struct part_userdata *pdata = tree_ctx->utc_state->utc_user_data;
   struct part_context *pctx = &pdata->part_context;
+  const struct ud_node *cur_node = tree_ctx->utc_state->utc_node;
+  const struct ud_node_list *cur_list = tree_ctx->utc_state->utc_list;
   struct ud_part *part = 0;
   unsigned long *index;
   enum ud_tag tag;
   struct ud_ref ref;
 
   if (tree_ctx->utc_state->utc_list_pos != 0) return UD_TREE_OK;
-  if (!ud_tag_by_name (tree_ctx->utc_state->utc_node->un_data.un_sym, &tag))
-    return UD_TREE_OK;
+  if (!ud_tag_by_name (cur_node->un_data.un_sym, &tag)) return UD_TREE_OK;
   
   switch (tag) {
     case UDOC_TAG_SUBSECTION:
-      return part_subsection (ud, pctx, tree_ctx->utc_state->utc_list,
-        tree_ctx->utc_state->utc_node);
+      return part_subsection (ud, pctx, cur_list, cur_node);
     case UDOC_TAG_SECTION:
-      return part_section (ud, pctx, tree_ctx->utc_state->utc_list,
-        tree_ctx->utc_state->utc_node);
+      return part_section (ud, pctx, cur_list, cur_node);
     case UDOC_TAG_TITLE:
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
@@ -307,14 +306,13 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
     case UDOC_TAG_LINK:
       {
         /* add link target to table for integrity checking */
-        const char *link_target = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
+        const char *link_target = cur_node->un_next->un_data.un_str;
         const unsigned long len = str_len (link_target);
         const unsigned long dummy = 1;
 
         if (part_want_link_check (pdata)) {
           if (ht_checks (&pctx->links, link_target) == 0)
-            ud_try_sys (ud,
-              ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy) == 1),
+            ud_try_sys (ud, ht_addb (&pctx->links, link_target, len, &dummy, sizeof (dummy)) == 1,
                 UD_TREE_FAIL, "link_table_add");
         }
       }
@@ -323,14 +321,17 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       break;
   }
 
-  ref.ur_list = tree_ctx->utc_state->utc_list;
-  ref.ur_node = tree_ctx->utc_state->utc_node;
+  ud_assert_s (cur_list, "current list is null");
+  ud_assert_s (cur_node, "current node is null");
+
+  ref.ur_list = cur_list;
+  ref.ur_node = cur_node;
   ref.ur_part = part;
  
   /* add references */
   switch (tag) {
     case UDOC_TAG_TITLE:
-      return part_title (ud, pctx, part, tree_ctx->utc_state->utc_node);
+      return part_title (ud, pctx, part, cur_node);
     case UDOC_TAG_REF:
       ud_try_sys (ud, part_ref_add_ref (ud, &ref),
         UD_TREE_FAIL, "part_ref_add_ref");
@@ -349,19 +350,19 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       break;
     case UDOC_TAG_RENDER_HEADER:
       if (ud->ud_render_header) {
-        line_num[fmt_ulong (line_num, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
+        line_num[fmt_ulong (line_num, cur_node->un_line_num)] = 0;
         log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", line_num,
           ": render-header overrides previous tag");
       }
-      ud->ud_render_header = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
+      ud->ud_render_header = cur_node->un_next->un_data.un_str;
       break;
     case UDOC_TAG_RENDER_FOOTER:
       if (ud->ud_render_footer) {
-        line_num[fmt_ulong (line_num, tree_ctx->utc_state->utc_node->un_line_num)] = 0;
+        line_num[fmt_ulong (line_num, cur_node->un_line_num)] = 0;
         log_4x (LOG_WARN, ud->ud_cur_doc->ud_name, ": ", line_num,
           ": render-footer overrides previous tag");
       }
-      ud->ud_render_footer = tree_ctx->utc_state->utc_node->un_next->un_data.un_str;
+      ud->ud_render_footer = cur_node->un_next->un_data.un_str;
       break;
     default: break;
   }
