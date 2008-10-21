@@ -220,15 +220,17 @@ x_tag_link (struct udoc *ud, struct udr_ctx *render_ctx)
   char cnum[FMT_ULONG];
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
   const struct ud_node *n = render_ctx->uc_tree_ctx->utc_state->utc_node;
-  const char *refl;
-  const char *text;
+  const char *ref_link;
+  const char *ref_text;
   unsigned long dummy;
   struct ud_ref *ref;
 
-  refl = n->un_next->un_data.un_str;
-  text = (n->un_next->un_next) ? n->un_next->un_next->un_data.un_str : refl;
+  ref_link = n->un_next->un_data.un_str;
+  ref_text = (n->un_next->un_next) ?
+    n->un_next->un_next->un_data.un_str : ref_link;
 
-  ud_oht_get (&ud->ud_ref_names, refl, str_len (refl), (void *) &ref, &dummy);
+  ud_oht_get (&ud->ud_ref_names, ref_link,
+    str_len (ref_link), (void *) &ref, &dummy);
 
   /* only link to file if splitting */
   buffer_puts (out, "<a href=\"");
@@ -237,7 +239,7 @@ x_tag_link (struct udoc *ud, struct udr_ctx *render_ctx)
     buffer_puts3 (out, cnum, ".", render_ctx->uc_render->ur_data.ur_suffix);
   }
 
-  buffer_puts5 (out, "#r_", refl, "\">", text, "</a>");
+  buffer_puts5 (out, "#r_", ref_link, "\">", ref_text, "</a>");
   return UD_TREE_OK;
 }
 
