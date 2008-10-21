@@ -15,6 +15,16 @@ Lack of spacing in ConTeXt output:
 
 ------------------------------------------------------------------------
 
+ud_part stores pointers to parts in ud_ref structures. Due to the fact
+that partitioning is taking place, these pointers may suddenly find
+themselves pointing to freed memory after a part is added to the parts
+array. This probably responsible for a few bugs below.
+
+Either use integer references in ud_ref structures or do all reference/
+footnote/meta handling in another pass after partitioning.
+
+------------------------------------------------------------------------
+
 Latest updates to udoc-doc have apparently triggered a NEW BUG.
 
 Footnotes for e-footnote.ud are being rendered on the very first
