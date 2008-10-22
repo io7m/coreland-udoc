@@ -219,23 +219,26 @@ x_tag_link (struct udoc *ud, struct udr_ctx *render_ctx)
 {
   char cnum[FMT_ULONG];
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
-  const struct ud_node *n = render_ctx->uc_tree_ctx->utc_state->utc_node;
+  const struct ud_node *cur_node = render_ctx->uc_tree_ctx->utc_state->utc_node;
   const char *ref_link;
   const char *ref_text;
   unsigned long dummy;
-  struct ud_ref *ref;
+  unsigned long ref_len;
+  const struct ud_ref *ref;
+  const struct ud_part *part;
 
-  ref_link = n->un_next->un_data.un_str;
-  ref_text = (n->un_next->un_next) ?
-    n->un_next->un_next->un_data.un_str : ref_link;
+  ref_link = cur_node->un_next->un_data.un_str;
+  ref_text = (cur_node->un_next->un_next) ?
+    cur_node->un_next->un_next->un_data.un_str : ref_link;
+  ref_len = str_len (ref_link);
 
-  ud_oht_get (&ud->ud_ref_names, ref_link,
-    str_len (ref_link), (void *) &ref, &dummy);
+  ud_assert (ud_oht_get (&ud->ud_ref_names, ref_link, ref_len, (void *) &ref, &dummy));
+  ud_assert (part = ud_part_get (ud, ref->ur_part_index));
 
   /* only link to file if splitting */
   buffer_puts (out, "<a href=\"");
   if (ud->ud_opts.ud_split_thresh) {
-    cnum[fmt_ulong (cnum, ref->ur_part->up_file)] = 0;
+    cnum[fmt_ulong (cnum, part->up_file)] = 0;
     buffer_puts3 (out, cnum, ".", render_ctx->uc_render->ur_data.ur_suffix);
   }
 
@@ -574,14 +577,16 @@ x_footnotes (struct udoc *ud, struct udr_ctx *render_ctx)
   const unsigned long max = ud_oht_size (&ud->ud_footnotes);
   unsigned long index;
   unsigned long num_notes = 0;
-  struct ud_ref *note;
+  const struct ud_ref *note;
+  const struct ud_part *part;
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
   struct udr_ctx rtmp = *render_ctx;
 
   /* count footnotes for this file */
   for (index = 0; index < max; ++index) {
     ud_assert (ud_oht_get_index (&ud->ud_footnotes, index, (void *) &note));
-    if (note->ur_part->up_file == render_ctx->uc_part->up_file) ++num_notes;
+    ud_assert (part = ud_part_get (ud, note->ur_part_index));
+    if (part->up_file == render_ctx->uc_part->up_file) ++num_notes;
   }
 
   /* print footnotes, if any */
@@ -590,9 +595,10 @@ x_footnotes (struct udoc *ud, struct udr_ctx *render_ctx)
     buffer_puts (out, "<table class=\"ud_footnote_tab\">\n");
     for (index = 0; index < max; ++index) {
       ud_assert (ud_oht_get_index (&ud->ud_footnotes, index, (void *) &note));
+      ud_assert (part = ud_part_get (ud, note->ur_part_index));
 
       /* render if footnote belongs to this file */
-      if (note->ur_part->up_file == render_ctx->uc_part->up_file) {
+      if (part->up_file == render_ctx->uc_part->up_file) {
         buffer_puts (out, "<tr>\n");
         cnum[fmt_ulong (cnum, index)] = 0;
         buffer_puts (out, "<td>");

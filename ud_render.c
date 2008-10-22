@@ -168,7 +168,7 @@ static enum ud_tree_walk_stat
 r_list_end (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
 {
   struct udr_ctx *render_ctx = tree_ctx->utc_state->utc_user_data;
-  unsigned long *index_ptr;
+  long *index_ptr;
   enum ud_tree_walk_stat retcode;
   enum ud_tag tag;
   int section = 0;

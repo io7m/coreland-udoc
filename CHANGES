@@ -33,3 +33,6 @@
 20081014 code: removed static PAGE_WIDTH and added -w option to udoc-render.
 20081014 code: check for (and forbid) zero length strings.
 20081015 code: add -l flag for suppressing link checking to udoc-valid.
+20081022 code: fixed pointer-to-freed-storage bug due to ud_ref structures
+               holding pointers to the array of parts that could be reallocated
+               at any time, in ud_part.c.

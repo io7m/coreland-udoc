@@ -284,7 +284,7 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   const struct ud_node *cur_node = tree_ctx->utc_state->utc_node;
   const struct ud_node_list *cur_list = tree_ctx->utc_state->utc_list;
   struct ud_part *part = 0;
-  unsigned long *index;
+  long *part_index = 0;
   enum ud_tag tag;
   struct ud_ref ref;
 
@@ -300,8 +300,7 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
     case UDOC_TAG_REF:
     case UDOC_TAG_FOOTNOTE:
     case UDOC_TAG_STYLE:
-      ud_assert (ud_part_index_stack_peek (&pctx->index_stack, &index));
-      ud_assert (ud_oht_get_index (&ud->ud_parts, *index, (void *) &part));
+      ud_assert (ud_part_index_stack_peek (&pctx->index_stack, &part_index));
       break;
     case UDOC_TAG_LINK:
       {
@@ -321,16 +320,22 @@ cb_part_symbol (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
       break;
   }
 
+  /* fill in part reference */
   ud_assert_s (cur_list, "current list is null");
   ud_assert_s (cur_node, "current node is null");
 
   ref.ur_list = cur_list;
   ref.ur_node = cur_node;
-  ref.ur_part = part;
+  ref.ur_part_index = (part_index) ? *part_index : UD_REF_PART_UNDEFINED;
  
+  /* fetch part, if defined */
+  if (ref.ur_part_index != UD_REF_PART_UNDEFINED)
+    ud_assert (part = (struct ud_part *) ud_part_get (ud, ref.ur_part_index));
+
   /* add references */
   switch (tag) {
     case UDOC_TAG_TITLE:
+      ud_assert_s (part, "part is null");
       return part_title (ud, pctx, part, cur_node);
     case UDOC_TAG_REF:
       ud_try_sys (ud, part_ref_add_ref (ud, &ref),
@@ -377,7 +382,7 @@ cb_part_list_end (struct udoc *ud, struct ud_tree_ctx *tree_ctx)
   struct part_context *pctx = &pdata->part_context;
   struct ud_node *first_sym;
   enum ud_tag tag;
-  unsigned long *index;
+  long *index;
 
   first_sym = tree_ctx->utc_state->utc_list->unl_head;
   if (!ud_tag_by_name (first_sym->un_data.un_sym, &tag)) return UD_TREE_OK;
@@ -463,6 +468,14 @@ ud_partition (struct udoc *ud, unsigned long flags)
 /*
  * part API
  */
+
+const struct ud_part *
+ud_part_get (const struct udoc *ud, unsigned long index)
+{
+  void *ret = 0;
+  ud_oht_get_index (&ud->ud_parts, index, (void *) &ret);
+  return ret;
+}
 
 int
 ud_part_getfromnode (const struct udoc *ud, const struct ud_node *n,

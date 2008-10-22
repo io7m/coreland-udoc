@@ -14,10 +14,10 @@ struct ud_part {
   const struct ud_node *up_node;
   unsigned long up_file;
   unsigned long up_depth;
-  unsigned long up_index_prev;
-  unsigned long up_index_cur;
-  unsigned long up_index_next;
-  unsigned long up_index_parent;
+  long up_index_prev;
+  long up_index_cur;
+  long up_index_next;
+  long up_index_parent;
   unsigned int up_flags;
   const char *up_title;
   const char *up_num_string;
@@ -35,6 +35,7 @@ int ud_part_getnext_file (const struct udoc *, const struct ud_part *, struct ud
 int ud_part_getprev_file (const struct udoc *, const struct ud_part *, struct ud_part **);
 int ud_part_num_fmt (const struct udoc *, const struct ud_part *, struct dstring *);
 
+const struct ud_part *ud_part_get (const struct udoc *, unsigned long);
 int ud_part_add (struct udoc *, const struct ud_part *);
 
 void ud_part_dump (struct ud_part *);
@@ -43,7 +44,7 @@ void ud_parts_dump (struct udoc *);
 #include "gen_stack.h"
 
 /* ud_part index stack */
-typedef unsigned long ud_part_index;
+typedef long ud_part_index;
 
 GEN_stack_declare(ud_part_index);
 

@@ -21,21 +21,24 @@ rd_dump_footnotes (const struct udoc *doc, struct buffer *out)
   char cnum[FMT_ULONG];
   const unsigned long max = ud_oht_size (&doc->ud_footnotes);
   const struct ud_ref *ref;
+  const struct ud_part *part;
   unsigned long index;
 
   buffer_puts (out, "-- footnotes\n");
   for (index = 0; index < max; ++index) {
-    ud_oht_get_index (&doc->ud_footnotes, index, (void *) &ref);
+    ud_assert (ud_oht_get_index (&doc->ud_footnotes, index, (void *) &ref));
+    ud_assert (ref->ur_part_index != UD_REF_PART_UNDEFINED);
+    ud_assert (part = ud_part_get (doc, ref->ur_part_index));
 
     buffer_put (out, cnum, fmt_ulong (cnum, index));
     buffer_puts (out, " ");
 
     buffer_puts (out, "file:");
-    buffer_put (out, cnum, fmt_ulong (cnum, ref->ur_part->up_file));
+    buffer_put (out, cnum, fmt_ulong (cnum, part->up_file));
     buffer_puts (out, " ");
 
     buffer_puts (out, "title:\"");
-    buffer_puts (out, (ref->ur_part->up_title) ? ref->ur_part->up_title : "(null)");
+    buffer_puts (out, (part->up_title) ? part->up_title : "(null)");
     buffer_puts (out, "\"\n");
   }
   buffer_flush (out);
