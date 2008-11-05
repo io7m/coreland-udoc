@@ -356,7 +356,7 @@ rn_tag_date (struct udoc *ud, struct udr_ctx *render_ctx)
 static enum ud_tree_walk_stat
 rn_tag_table (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  struct ud_table tab = {0,0};
+  struct ud_table tab;
   struct dfo_put *dfo = &render_ctx->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *render_ctx;
   const struct ud_node *n = render_ctx->uc_tree_ctx->utc_state->utc_node;
@@ -366,8 +366,8 @@ rn_tag_table (struct udoc *ud, struct udr_ctx *render_ctx)
   dfo_break_line (dfo);
 
   ud_tryS (ud, dfo_flush (dfo) != -1, UD_TREE_FAIL, "dfo_flush",
-              dfo_errorstr (dfo->error));
-  ud_table_measure (render_ctx->uc_tree_ctx->utc_state->utc_list, &tab);
+    dfo_errorstr (dfo->error));
+  ud_table_measure (ud, render_ctx->uc_tree_ctx->utc_state->utc_list, &tab);
 
   dfo_constrain (dfo, page_width, 2);
 

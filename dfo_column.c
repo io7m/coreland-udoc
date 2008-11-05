@@ -2,15 +2,15 @@
 #include "dfo.h"
 
 int
-dfo_columns_setup (struct dfo_put *dp, unsigned int n, unsigned int col_space)
+dfo_columns_setup (struct dfo_put *dp, unsigned int num_columns, unsigned int col_padding)
 {
   struct dfo_buffer db;
-  unsigned int num;
+  unsigned int extra;
 
-  if (!dfo_size_check (dp, dp->page_max, dp->page_indent, n, col_space)) return 0;
-  if (array_SIZE (&dp->col_bufs) < n) {
-    num = n - array_SIZE (&dp->col_bufs);
-    while (num--) {
+  if (!dfo_size_check (dp, dp->page_max, dp->page_indent, num_columns, col_padding)) return 0;
+  if (array_SIZE (&dp->col_bufs) < num_columns) {
+    extra = num_columns - array_SIZE (&dp->col_bufs);
+    while (extra--) {
       db.write_pos = 0;
       db.line_pos = 0;
       if (!dstring_init (&db.buf, DFO_BLOCK_SIZE)) return 0;
@@ -18,8 +18,8 @@ dfo_columns_setup (struct dfo_put *dp, unsigned int n, unsigned int col_space)
     }
   }
 
-  dp->col_space = col_space;
-  dp->col_max = n;
+  dp->col_padding = col_padding;
+  dp->col_max = num_columns;
   dp->col_cur = -1; /* next call to columns_start () makes this 0 */
   return 1;
 }

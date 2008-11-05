@@ -25,7 +25,7 @@ dfo_init (struct dfo_put *dp, struct buffer *buf,
   dp->ch_prev = 0;
   dp->col_cur = 0;
   dp->col_max = 1;
-  dp->col_space = 0;
+  dp->col_padding = 0;
   dp->line_start = 1;
   dp->page_indent = 0;
   dp->page_max = 80;

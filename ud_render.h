@@ -25,12 +25,13 @@ struct udr_funcs {
 };
 
 struct udr_opts {
-  unsigned long uo_split_hint;  /* original partition threshold, used as a hint to renderers */
-  unsigned long uo_page_width;  /* only relevant for character-based renderers */
+  unsigned long uo_split_hint;      /* original partition threshold, used as a hint to renderers */
+  unsigned long uo_page_width;      /* only relevant for character-based renderers */
+  unsigned long uo_max_table_width; /* only relevant for character-based renderers */
 };
 
 /* default values for structure */
-#define UDR_OPTS_INIT {(0), (80)}
+#define UDR_OPTS_INIT {(0), (80), (120)}
 
 struct udr_output_ctx {
   char uoc_cbuf[BUFFER_OUTSIZE];

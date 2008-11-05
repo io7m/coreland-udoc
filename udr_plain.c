@@ -177,19 +177,16 @@ rp_tag_link_ext (struct udoc *ud, struct udr_ctx *render_ctx)
   const struct ud_node *node = render_ctx->uc_tree_ctx->utc_state->utc_node;
   const char *link;
   const char *text = 0;
-  const char *space;
   struct dfo_put *dfo = &render_ctx->uc_out->uoc_dfo;
-  const struct dfo_buffer *buf = dfo_current_buf (dfo);
 
   link = node->un_next->un_data.un_str;
   if (node->un_next)
     text = (node->un_next->un_next) ? node->un_next->un_next->un_data.un_str : 0;
 
-  space = (buf->line_pos) ? " " : 0;
   if (text)
-    dfo_puts5 (dfo, space, text, " (", link, ")");
+    dfo_puts4 (dfo, text, " (", link, ")");
   else
-    dfo_puts2 (dfo, space, link);
+    dfo_puts (dfo, link);
 
   return UD_TREE_OK;
 }
@@ -253,7 +250,7 @@ rp_tag_date (struct udoc *ud, struct udr_ctx *render_ctx)
 static enum ud_tree_walk_stat
 rp_tag_table (struct udoc *ud, struct udr_ctx *render_ctx)
 {
-  struct ud_table tab = {0,0};
+  struct ud_table tab;
   struct dfo_put *dfo = &render_ctx->uc_out->uoc_dfo;
   struct udr_ctx rtmp = *render_ctx;
   const struct ud_node *n = render_ctx->uc_tree_ctx->utc_state->utc_node;
@@ -265,8 +262,8 @@ rp_tag_table (struct udoc *ud, struct udr_ctx *render_ctx)
   ud_tryS (ud, dfo_flush (dfo) != -1, UD_TREE_FAIL, "dfo_flush",
     dfo_errorstr (dfo->error));
 
-  ud_table_measure (render_ctx->uc_tree_ctx->utc_state->utc_list, &tab);
-  dfo_constrain (dfo, page_width, 2);
+  ud_table_measure (ud, render_ctx->uc_tree_ctx->utc_state->utc_list, &tab);
+  dfo_constrain (dfo, ud_table_advise_width (ud, &tab), 2);
 
   /* for each item in list, render list (row) */
   for (;;) {

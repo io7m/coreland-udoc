@@ -19,14 +19,14 @@ enum {
 };
 
 enum {
-  DFO_TRAN_NONE =    0x0000, /* no character transforms */
+  DFO_TRAN_NONE    = 0x0000, /* no character transforms */
   DFO_TRAN_RESPACE = 0x0001, /* convert all whitespace to single space */
   DFO_TRAN_CONVERT = 0x0002  /* do character transforms */
 };
 
 enum dfo_error {
-  DFO_PAGE_TOO_SMALL = -1,
-  DFO_NO_COLUMNS = -2,
+  DFO_PAGE_TOO_SMALL     = -1,
+  DFO_NO_COLUMNS         = -2,
   DFO_TOO_SMALL_FOR_HYPH = -3
 };
 
@@ -55,7 +55,7 @@ struct dfo_put {
   enum dfo_error error;
   void *user_data;
   struct array col_bufs;
-  unsigned int col_space;
+  unsigned int col_padding;
   int col_max;
   int col_cur;
   char ch_prev;
@@ -85,7 +85,6 @@ int dfo_columns_end (struct dfo_put *);
 const char *dfo_errorstr (enum dfo_error);
 
 const struct dfo_buffer *dfo_current_buf (const struct dfo_put *);
-
 
 #if defined (DFO_IMPLEMENTATION)
 int dfo_size_check (struct dfo_put *, unsigned int, unsigned int, unsigned int, unsigned int);

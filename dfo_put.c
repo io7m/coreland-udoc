@@ -175,7 +175,7 @@ dfo_flush_multicol (struct dfo_put *dp)
       len = db_out->len - db->write_pos;
 
       /* insert spacing/indent */
-      if (!dfo_catspace (line_buf, (!col) ? dp->page_indent : dp->col_space))
+      if (!dfo_catspace (line_buf, (!col) ? dp->page_indent : dp->col_padding))
         return -1;
 
       /* print at most col_maxw chars */

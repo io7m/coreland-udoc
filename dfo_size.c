@@ -2,26 +2,30 @@
 #include "dfo.h"
 
 unsigned int
-dfo_size_linemax_check (unsigned int page_max, unsigned int page_ind,
-  unsigned int col_max, unsigned int col_space)
+dfo_size_linemax_check (unsigned int page_max, unsigned int page_indent,
+  unsigned int num_columns, unsigned int col_padding)
 {
-  unsigned int col_sp = (col_max > 1) ? (col_max * col_space) : 0;
-  unsigned int col_avg = page_max / col_max;
-  unsigned int col_ind = page_ind;
+  const unsigned int page_space = page_max - page_indent;
 
-  if (!col_avg) return 0;
-  if (col_sp > col_avg) return 0;
-  if (col_ind > col_avg) return 0;
-  if (col_sp + col_ind > col_avg) return 0;
-  return col_avg - col_sp - col_ind;
+  if (!num_columns) return 0;
+  if (num_columns > 1) {
+    const unsigned int total_padding = col_padding * num_columns;
+    const unsigned int column_average = page_max / num_columns;
+    if (total_padding > page_space) return 0;
+    if (!column_average) return 0;
+    return column_average - col_padding;
+  } else {
+    if (page_indent > page_max) return 0;
+    return page_space;
+  }
 }
 
 int
-dfo_size_check (struct dfo_put *dp, unsigned int page_max, unsigned int page_ind,
-  unsigned int col_max, unsigned int col_space)
+dfo_size_check (struct dfo_put *dp, unsigned int page_max, unsigned int page_indent,
+  unsigned int num_columns, unsigned int col_padding)
 {
-  if (!col_max) { dp->error = DFO_NO_COLUMNS; return 0; }
-  if (!dfo_size_linemax_check (page_max, page_ind, col_max, col_space)) {
+  if (!num_columns) { dp->error = DFO_NO_COLUMNS; return 0; }
+  if (!dfo_size_linemax_check (page_max, page_indent, num_columns, col_padding)) {
     dp->error = DFO_PAGE_TOO_SMALL;
     return 0;
   }
@@ -32,7 +36,7 @@ unsigned int
 dfo_size_linemax (const struct dfo_put *dp)
 {
   return dfo_size_linemax_check (dp->page_max, dp->page_indent,
-    dp->col_max, dp->col_space);
+    dp->col_max, dp->col_padding);
 }
 
 unsigned int
