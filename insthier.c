@@ -95,12 +95,12 @@ struct install_item insthier[] = {
   {INST_COPY, "ud.sld", 0, ctxt_repos, 0, 0, 0644},
   {INST_COPY, "ud.a", "libud.a", ctxt_slibdir, 0, 0, 0644},
   {INST_COPY, "udoc-conf.ld", 0, ctxt_repos, 0, 0, 0644},
-  {INST_COPY, "udoc-conf", 0, ctxt_bindir, 0, 0, 0755},
+  {INST_COPY_EXEC, "udoc-conf", 0, ctxt_bindir, 0, 0, 0755},
   {INST_COPY, "udoc-files.ld", 0, ctxt_repos, 0, 0, 0644},
-  {INST_COPY, "udoc-files", 0, ctxt_bindir, 0, 0, 0755},
+  {INST_COPY_EXEC, "udoc-files", 0, ctxt_bindir, 0, 0, 0755},
   {INST_COPY, "udoc-render.ld", 0, ctxt_repos, 0, 0, 0644},
-  {INST_COPY, "udoc-render", 0, ctxt_bindir, 0, 0, 0755},
+  {INST_COPY_EXEC, "udoc-render", 0, ctxt_bindir, 0, 0, 0755},
   {INST_COPY, "udoc-valid.ld", 0, ctxt_repos, 0, 0, 0644},
-  {INST_COPY, "udoc-valid", 0, ctxt_bindir, 0, 0, 0755},
+  {INST_COPY_EXEC, "udoc-valid", 0, ctxt_bindir, 0, 0, 0755},
 };
-unsigned long insthier_len = sizeof (insthier) / sizeof (struct install_item);
+unsigned long insthier_len = sizeof(insthier) / sizeof(struct install_item);

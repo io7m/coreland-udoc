@@ -36,3 +36,4 @@
 20081022 code: fixed pointer-to-freed-storage bug due to ud_ref structures
                holding pointers to the array of parts that could be reallocated
                at any time, in ud_part.c.
+20081204 code: updated installer.

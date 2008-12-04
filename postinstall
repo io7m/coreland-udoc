@@ -1,5 +1,5 @@
 #!/bin/sh 
-# $Id: postinstall 2930 2007-12-20 20:18:26Z m0 $
+# $Id$
 
 SYS_TYPE=`head -n 1 conf-systype`
 if [ $? -ne 0 ]
