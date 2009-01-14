@@ -16,6 +16,14 @@ static int rd_init_done;
 static int rd_fini_done;
 
 static void
+rd_indent (struct buffer *out, unsigned long depth)
+{
+  unsigned long index;
+  for (index = 0; index < depth * 2; ++index)
+    buffer_put (out, " ", 1);
+}
+
+static void
 rd_dump_footnotes (const struct udoc *doc, struct buffer *out)
 {
   char cnum[FMT_ULONG];
@@ -84,6 +92,22 @@ rd_dump_part (struct buffer *out, const struct ud_part *part)
 }
 
 static void
+rd_dump_part_tree (struct buffer *out, const struct ud_ordered_ht *parts)
+{
+  const unsigned long size = ud_oht_size (parts);
+  unsigned long index;
+  const struct ud_part *part;
+
+  buffer_puts (out, "-- part tree\n");
+  for (index = 0; index < size; ++index) {
+    ud_oht_get_index (parts, index, (void *) &part);
+    rd_indent (out, part->up_depth);
+    rd_dump_part (out, part);
+  }
+  buffer_puts (out, "\n");
+}
+
+static void
 rd_dump_stack (struct buffer *out, const struct ud_part_index_stack *stack)
 {
   char cnum[FMT_ULONG];
@@ -120,6 +144,7 @@ rd_init_once (struct udoc *ud, struct udr_ctx *render_ctx)
 
   log_1xf (LOG_DEBUG, 0);
 
+  rd_dump_part_tree (&render_ctx->uc_out->uoc_buffer, &ud->ud_parts);
   rd_dump_footnotes (ud, &render_ctx->uc_out->uoc_buffer);
   return UD_TREE_OK;
 }

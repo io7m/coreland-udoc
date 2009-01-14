@@ -346,13 +346,9 @@ x_tag_contents (struct udoc *ud, struct udr_ctx *render_ctx)
   char cnum[FMT_ULONG];
   struct buffer *out = &render_ctx->uc_out->uoc_buffer;
   struct ud_part *part_cur = (struct ud_part *) render_ctx->uc_part;
-  struct ud_part *part_first = 0; /* first part in current file */
-  unsigned long max;
+  struct ud_part *part_first = part_cur;
   unsigned long index;
   unsigned long n;
-
-  ud_part_getfirst_wdepth_noskip (ud, part_cur, &part_first);
-  max = ud_oht_size (&ud->ud_parts);
 
   buffer_puts (out, "\n<div class=\"ud_toc\">\n");
 

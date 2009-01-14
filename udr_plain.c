@@ -31,13 +31,10 @@ static enum ud_tree_walk_stat
 rp_tag_contents (struct udoc *ud, struct udr_ctx *render_ctx)
 {
   struct ud_part *part_cur = (struct ud_part *) render_ctx->uc_part;
-  struct ud_part *part_first = 0; /* first part in current file */
+  struct ud_part *part_first = part_cur;
   struct dfo_put *dfo = &render_ctx->uc_out->uoc_dfo;
   const unsigned long page_width = render_ctx->uc_opts->uo_page_width;
-  unsigned long index;
-
-  ud_part_getfirst_wdepth_noskip (ud, part_cur, &part_first);
-  index = part_cur->up_index_cur;
+  unsigned long index = part_cur->up_index_cur;
 
   dfo_constrain (dfo, page_width, dfo->page_indent + 2);
   dfo_tran_disable (dfo, DFO_TRAN_RESPACE);
