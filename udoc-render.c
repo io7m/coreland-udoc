@@ -11,9 +11,10 @@
 #include "udoc.h"
 
 const char *progname = "udoc-render";
-const char *optstring = "hnL:Vr:s:w:";
-const char *usage_s = "[-hnV] [-L lev] [-s threshold] [-r renderer] [-w width] file outdir";
+const char *optstring = "hnL:Vr:s:w:c:";
+const char *usage_s = "[-hnV] [-L lev] [-c threshold] [-s threshold] [-r renderer] [-w width] file outdir";
 const char *help_s =
+"   -c: contents threshold (default: 0 - all sections)\n"
 "   -s: split threshold (default: 0 - no splitting)\n"
 "   -r: select output renderer (default: udoc, ? to list available backends)\n"
 "   -w: page width in characters (default: 80)\n"
@@ -71,6 +72,10 @@ int main (int argc, char *argv[])
   log_progname (progname);
   while ((ch = get_opt (argc, argv, (char *) optstring)) != opteof)
     switch (ch) {
+      case 'c':
+        if (!scan_ulong (optarg, &r_opts.uo_toc_threshold))
+          log_die1x (LOG_FATAL, 111, "contents threshold must be numeric");
+        break;
       case 's':
         if (!scan_ulong (optarg, &main_opts.ud_split_thresh))
           log_die1x (LOG_FATAL, 111, "split threshold must be numeric");

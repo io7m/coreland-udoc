@@ -28,10 +28,11 @@ struct udr_opts {
   unsigned long uo_split_hint;      /* original partition threshold, used as a hint to renderers */
   unsigned long uo_page_width;      /* only relevant for character-based renderers */
   unsigned long uo_max_table_width; /* only relevant for character-based renderers */
+  unsigned long uo_toc_threshold;   /* only parts of a depth less than this appear in contents */
 };
 
 /* default values for structure */
-#define UDR_OPTS_INIT {(0), (80), (120)}
+#define UDR_OPTS_INIT {(0), (80), (120), (0)}
 
 struct udr_output_ctx {
   char uoc_cbuf[BUFFER_OUTSIZE];

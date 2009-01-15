@@ -340,6 +340,20 @@ x_tag_list (struct udoc *ud, struct udr_ctx *render_ctx)
   return UD_TREE_STOP_LIST;
 }
 
+static int
+x_appears_in_contents (struct udoc *ud,
+  const struct udr_ctx *render_ctx, unsigned long depth_first,
+  unsigned long depth_cur)
+{
+  const unsigned long threshold = render_ctx->uc_opts->uo_toc_threshold;
+  const unsigned long diff = depth_cur - depth_first;
+
+  if (threshold)
+    return (diff < threshold);
+  else
+    return 1;
+}
+
 static enum ud_tree_walk_stat
 x_tag_contents (struct udoc *ud, struct udr_ctx *render_ctx)
 {
@@ -357,18 +371,25 @@ x_tag_contents (struct udoc *ud, struct udr_ctx *render_ctx)
     ud_assert (ud_oht_get_index (&ud->ud_parts, index, (void *) &part_cur));
     if (part_cur->up_depth <= part_first->up_depth)
       if (part_cur != part_first) break;
-    for (n = 0; n < part_cur->up_depth - part_first->up_depth; ++n)
-      buffer_puts (out, "&nbsp; &nbsp; ");
 
-    /* only link to file if splitting */
-    buffer_puts (out, "<a href=\"");
-    if (ud->ud_opts.ud_split_thresh) {
-      buffer_put (out, cnum, fmt_ulong (cnum, part_cur->up_file));
-      buffer_puts2 (out, ".", render_ctx->uc_render->ur_data.ur_suffix);
+    /* only place entry in toc if below threshold */
+    if (x_appears_in_contents (ud, render_ctx,
+      part_first->up_depth, part_cur->up_depth)) {
+
+      /* indent */
+      for (n = 0; n < part_cur->up_depth - part_first->up_depth; ++n)
+        buffer_puts (out, "&nbsp; &nbsp; ");
+
+      /* only link to file if splitting */
+      buffer_puts (out, "<a href=\"");
+      if (ud->ud_opts.ud_split_thresh) {
+        buffer_put (out, cnum, fmt_ulong (cnum, part_cur->up_file));
+        buffer_puts2 (out, ".", render_ctx->uc_render->ur_data.ur_suffix);
+      }
+      buffer_puts2 (out, "#sect_", part_cur->up_num_string);
+      buffer_puts5 (out, "\">", part_cur->up_num_string, ". ",
+        part_cur->up_title, "</a><br/>\n");
     }
-    buffer_puts2 (out, "#sect_", part_cur->up_num_string);
-    buffer_puts5 (out, "\">", part_cur->up_num_string, ". ",
-      part_cur->up_title, "</a><br/>\n");
 
     if (!part_cur->up_index_next) break;
     index = part_cur->up_index_next;
