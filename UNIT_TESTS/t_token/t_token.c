@@ -42,7 +42,6 @@ main(int argc, char *argv[])
       case TOKEN_TYPE_EOF:
         printf("EOF\n");
         goto GOT_EOF;
-        break;
       default:
         test_assert(!"token_next returned unknown token type");
         break;

@@ -577,7 +577,6 @@ ud_part_getprev_up (const struct udoc *ud, const struct ud_part *cur,
     if (cprev->up_depth < cur->up_depth) { *prev = cprev; return 1; }
     cur_walk = cprev;
   }
-  return 1;
 }
 
 int
