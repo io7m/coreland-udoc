@@ -65,8 +65,18 @@ dfo_inbuf_copyout (struct dfo_put *dp, struct dfo_buffer *db, struct dstring *in
 static int
 dfo_inbuf_proc (struct dfo_put *dp)
 {
-  struct dfo_buffer *db = array_index (&dp->col_bufs, dp->col_cur);
-  struct dstring *in = &dp->buf_input;
+  struct dfo_buffer *db;
+  struct dstring *in;
+
+  assert (dp);
+  assert (dp->col_cur >= 0);
+  assert (dp->col_cur < (int) array_size (&dp->col_bufs));
+
+  db = array_index (&dp->col_bufs, dp->col_cur);
+  in = &dp->buf_input;
+
+  assert (db);
+  assert (in);
 
   if (!in->len) return 1;
 

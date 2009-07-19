@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #define DFO_IMPLEMENTATION
 #include "dfo.h"
 

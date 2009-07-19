@@ -8,6 +8,18 @@ Lack of spacing in ConTeXt output:
 
 ------------------------------------------------------------------------
 
+Crashing malformed tables:
+
+(table
+  (t-row (item "t1")  (item "t2"))
+  (t-row (item "t3")) (item "x"))
+
+$ udoc-render -r plain x.ud .
+Assertion failed: (dp->col_cur >= 0), function dfo_inbuf_proc, file dfo_put.c, line 72.
+Abort trap (core dumped) 
+
+------------------------------------------------------------------------
+
 Plain text tables are broken (try one with five columns to see what
 two character wide columns look like).
 
@@ -16,6 +28,26 @@ Measure space usage of table pre-rendering and pick optimal width
 ignoring maximum page width.
 
 Add configurable maximum table width option to force smaller tables.
+
+------------------------------------------------------------------------
+
+Bug in contents link generation:
+
+(section
+  (title "Responses")
+  (contents)
+
+  (include "d-arch-message-responses-join.ud")
+  (include "d-arch-message-responses-leave.ud")
+  (include "d-arch-message-responses-channel_message.ud")
+  (include "d-arch-message-responses-private_message.ud")
+
+  (subsection
+    (title "Complete specification")
+    (para-verbatim asn1 (render "d-arch-response.asn1"))))
+
+If the 'include' tags start new pages, the link in contents to
+the last subsection tag will be incorrect.
 
 ------------------------------------------------------------------------
 
