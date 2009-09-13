@@ -4,8 +4,8 @@
 [3] pass: main: 28: token_next(&t, &tok, &type) == 1
 [4] pass: main: 28: token_next(&t, &tok, &type) == 1
 [5] pass: main: 28: token_next(&t, &tok, &type) == 1
-[6] pass: main: 53: t.line == lines
-[7] pass: main: 54: t.chr == chars
+[6] pass: main: 52: t.line == lines
+[7] pass: main: 53: t.chr == chars
 STRING	"test""
 STRING	"" escaped"
 EOF

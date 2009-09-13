@@ -103,8 +103,8 @@
 [102] pass: main: 28: token_next(&t, &tok, &type) == 1
 [103] pass: main: 28: token_next(&t, &tok, &type) == 1
 [104] pass: main: 28: token_next(&t, &tok, &type) == 1
-[105] pass: main: 53: t.line == lines
-[106] pass: main: 54: t.chr == chars
+[105] pass: main: 52: t.line == lines
+[106] pass: main: 53: t.chr == chars
 PAREN_OPEN	"("
 SYMBOL	"sym"
 PAREN_CLOSE	")"
