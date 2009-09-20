@@ -1,5 +1,13 @@
 UNIT_TESTS
 
+Rewrite this pile in Ada.
+
+------------------------------------------------------------------------
+
+Plain-text lists are hilariously broken.
+
+------------------------------------------------------------------------
+
 Lack of spacing in ConTeXt output:
 
   udoc is a package to process abstract documents written as s-expressionsand produce
